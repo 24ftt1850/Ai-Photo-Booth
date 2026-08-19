@@ -178,7 +178,7 @@ Do not add extra people.
         $payload = [
 
             'model' =>
-                'gemini-3.1-flash-image',
+                'gemini-3.1-flash-lite-image',
 
             'input' => [
 
