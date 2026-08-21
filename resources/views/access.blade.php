@@ -212,9 +212,8 @@
         <!-- ADMIN -->
 
         <a
-            href="#"
+            href="{{ route('admin.login') }}"
             class="option admin"
-            onclick="alert('Admin login will be available soon.'); return false;"
         >
 
             <div class="option-icon">

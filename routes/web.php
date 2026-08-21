@@ -2,27 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GeminiController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\AdminController;
 
 
 /*
 |--------------------------------------------------------------------------
-| Welcome Page
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
-
-Route::get('/access', function () {
-    return view('access');
-})->name('access');
-
-
-/*
-|--------------------------------------------------------------------------
-| Photobooth Pages
+| Public / Guest Photobooth
 |--------------------------------------------------------------------------
 */
 
@@ -45,59 +30,121 @@ Route::get('/photobooth/result', function () {
     return view('photobooth.result');
 })->name('photobooth.result');
 
-Route::get('/photobooth/feedback', function () {
-    return view('photobooth.feedback');
-})->name('photobooth.feedback');
-
-
-Route::post('/photobooth/feedback', function (Request $request) {
-
-    $request->validate([
-        'rating' => [
-            'required',
-            'integer',
-            'min:1',
-            'max:5',
-        ],
-
-        'comment' => [
-            'nullable',
-            'string',
-            'max:1000',
-        ],
-
-        'theme' => [
-            'nullable',
-            'string',
-        ],
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | For now, just confirm feedback was received.
-    |--------------------------------------------------------------------------
-    |
-    | We are NOT saving it to the database yet.
-    | We'll do that when we build the admin dashboard.
-    |
-    */
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Feedback received.',
-    ]);
-
-})->name('photobooth.feedback.store');
-
-
-/*
-|--------------------------------------------------------------------------
-| Gemini AI Generation
-|--------------------------------------------------------------------------
-*/
 
 Route::post(
     '/gemini-generate',
     [GeminiController::class, 'generateImage']
 )->name('gemini.generate');
+
+
+/*
+|--------------------------------------------------------------------------
+| Welcome Page
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Authentication
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/login',
+    [AdminController::class, 'showLogin']
+)->name('admin.login');
+
+
+Route::post(
+    '/admin/login',
+    [AdminController::class, 'login']
+)->name('admin.login.submit');
+
+
+Route::post(
+    '/admin/logout',
+    [AdminController::class, 'logout']
+)->name('admin.logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Dashboard
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/dashboard',
+    [AdminController::class, 'dashboard']
+)
+    ->middleware('admin')
+    ->name('admin.dashboard');
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Events
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/events',
+    function () {
+        return view('admin.events.index');
+    }
+)
+    ->middleware('admin')
+    ->name('admin.events.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Themes
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/themes',
+    function () {
+        return view('admin.themes.index');
+    }
+)
+    ->middleware('admin')
+    ->name('admin.themes.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Analytics
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/analytics',
+    function () {
+        return view('admin.analytics.index');
+    }
+)
+    ->middleware('admin')
+    ->name('admin.analytics.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| Admin Feedback
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/feedback',
+    function () {
+        return view('admin.feedback.index');
+    }
+)
+    ->middleware('admin')
+    ->name('admin.feedback.index');
