@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::get('/access', function () {
     return view('access');

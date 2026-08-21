@@ -156,6 +156,46 @@
             margin-top: 15px;
             color: #94a3b8;
         }
+
+        .back-home-button {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 10px;
+
+            padding: 12px 18px;
+
+            border: 1px solid #334155;
+
+            border-radius: 12px;
+
+            color: #94a3b8;
+
+            background: transparent;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            transition: 0.2s ease;
+        }
+
+        .back-home-button:hover {
+            color: white;
+
+            border-color: #64748b;
+
+            background: #1e293b;
+        }
+
+        .back-home-arrow {
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -259,6 +299,14 @@
             >
                 Continue →
             </button>
+
+            <a
+                href="{{ route('welcome') }}"
+                class="back-home-button"
+            >
+                <span class="back-home-arrow">←</span>
+                <span>BACK TO HOME</span>
+            </a>
 
         </div>
 
