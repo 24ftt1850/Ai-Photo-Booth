@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\PhotoboothFeedbackController;
+use App\Models\Theme;
 
 
 /*
@@ -17,7 +18,9 @@ Route::get('/photobooth', function () {
 
 
 Route::get('/photobooth/scene', function () {
-    return view('photobooth.scene');
+    $themes = Theme::where('is_enabled', true)->orderBy('name')->get();
+
+    return view('photobooth.scene', compact('themes'));
 })->name('photobooth.scene');
 
 

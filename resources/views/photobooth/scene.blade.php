@@ -101,31 +101,25 @@
             font-size: 90px;
         }
 
-        .graduation {
+        .theme-default {
             background:
                 linear-gradient(
                     135deg,
                     #172554,
-                    #2563eb
+                    #7c3aed
                 );
         }
 
-        .spiderman {
-            background:
-                linear-gradient(
-                    135deg,
-                    #450a0a,
-                    #dc2626
-                );
+        .theme-image {
+            background-size: cover;
+            background-position: center;
         }
 
-        .mafia {
-            background:
-                linear-gradient(
-                    135deg,
-                    #111827,
-                    #374151
-                );
+        .empty-themes {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px 20px;
         }
 
         .theme-info {
@@ -265,92 +259,50 @@
 
         <div class="themes">
 
+            @forelse ($themes as $theme)
 
-            <!-- Graduation -->
+                <div
+                    class="theme"
+                    data-scene="{{ $theme->slug }}"
+                    data-name="{{ $theme->name }}"
+                    data-description="{{ $theme->description }}"
+                    data-prompt="{{ $theme->prompt }}"
+                >
 
-            <div
-                class="theme"
-                data-scene="graduation"
-                data-prompt="Transform the person's photo into a professional graduation portrait. Preserve the person's facial identity, facial features, hairstyle, body proportions and overall appearance. Place the person in an elegant university graduation environment, wearing appropriate graduation attire, with professional photography and cinematic lighting."
-            >
+                    <div
+                        class="theme-image {{ $theme->thumbnail ? '' : 'theme-default' }}"
+                        @if ($theme->thumbnail)
+                            style="background-image: url('{{ $theme->thumbnail }}');"
+                        @endif
+                    >
+                        @unless ($theme->thumbnail)
+                            ✦
+                        @endunless
+                    </div>
 
-                <div class="theme-image graduation">
-                    🎓
-                </div>
+                    <div class="theme-info">
 
-                <div class="theme-info">
+                        <h3>{{ $theme->name }}</h3>
 
-                    <h3>Graduation</h3>
+                        <p>
+                            {{ $theme->description }}
+                        </p>
 
-                    <p>
-                        Professional graduation portrait
-                    </p>
+                    </div>
 
-                </div>
-
-                <div class="check">
-                    ✓
-                </div>
-
-            </div>
-
-
-            <!-- Spider-Man -->
-
-            <div
-                class="theme"
-                data-scene="spiderman"
-                data-prompt="Transform the person's photo into a cinematic superhero scene inspired by Spider-Man. Preserve the person's facial identity, facial features, hairstyle, body proportions and overall appearance. Place the person in a dramatic modern city environment with red and blue superhero-inspired aesthetics, dynamic cinematic lighting and professional movie-poster photography."
-            >
-
-                <div class="theme-image spiderman">
-                    🕷️
-                </div>
-
-                <div class="theme-info">
-
-                    <h3>Spider-Man</h3>
-
-                    <p>
-                        Cinematic superhero experience
-                    </p>
+                    <div class="check">
+                        ✓
+                    </div>
 
                 </div>
 
-                <div class="check">
-                    ✓
+            @empty
+
+                <div class="empty-themes">
+                    No themes are available right now. Please check back later.
                 </div>
 
-            </div>
-
-
-            <!-- Mafia -->
-
-            <div
-                class="theme"
-                data-scene="mafia"
-                data-prompt="Transform the person's photo into a cinematic classic mafia-inspired portrait. Preserve the person's facial identity, facial features, hairstyle, body proportions and overall appearance. Place the person in an elegant dark suit inside a luxurious vintage environment with dramatic shadows, warm cinematic lighting and sophisticated professional photography."
-            >
-
-                <div class="theme-image mafia">
-                    🕴️
-                </div>
-
-                <div class="theme-info">
-
-                    <h3>Mafia</h3>
-
-                    <p>
-                        Classic luxury crime-film aesthetic
-                    </p>
-
-                </div>
-
-                <div class="check">
-                    ✓
-                </div>
-
-            </div>
+            @endforelse
 
         </div>
 
@@ -438,7 +390,11 @@ themes.forEach(theme => {
 
         selectedTheme = {
 
-            name: theme.dataset.scene,
+            slug: theme.dataset.scene,
+
+            name: theme.dataset.name,
+
+            description: theme.dataset.description,
 
             prompt: theme.dataset.prompt
 

@@ -547,88 +547,43 @@ try {
 
 /*
 |--------------------------------------------------------------------------
-| Theme prompts
+| Theme identifiers
 |--------------------------------------------------------------------------
-*/
-
-const themePrompts = {
-
-    graduation: `
-        Transform the person in the provided photo
-        into a professional graduation portrait.
-
-        The person should be wearing an elegant
-        graduation cap and gown.
-
-        Create a beautiful university graduation
-        environment with professional studio
-        photography.
-
-        Use realistic lighting, natural skin,
-        detailed facial features and a
-        photorealistic appearance.
-
-        Preserve the person's identity.
-        Preserve the person's facial features.
-    `,
-
-
-    spiderman: `
-        Transform the person in the provided photo
-        into a cinematic Spider-Man inspired
-        superhero environment.
-
-        Keep the person's face recognizable
-        and preserve their identity.
-
-        Create a dramatic futuristic city
-        environment with tall buildings,
-        dramatic lighting and atmospheric effects.
-
-        Make the image cinematic, realistic
-        and highly detailed.
-
-        Do not replace the person's face.
-        Do not add extra people.
-    `,
-
-
-    mafia: `
-        Transform the person in the provided photo
-        into a cinematic classic mafia portrait.
-
-        Place the person in an elegant dark
-        crime-drama environment.
-
-        Use a sophisticated black suit,
-        dramatic cinematic lighting,
-        dark luxury surroundings and
-        professional photography.
-
-        Keep the person's face recognizable
-        and preserve their identity.
-
-        Make the result photorealistic,
-        cinematic and highly detailed.
-
-        Do not add extra people.
-    `
-
-};
-
-
-/*
-|--------------------------------------------------------------------------
-| Theme name
-|--------------------------------------------------------------------------
+|
+| Themes are managed in the admin panel, so the prompt guests generate
+| with is whatever the admin configured for the selected theme.
+|
 */
 
 const themeName =
     String(
-        theme.name || ''
+        theme.slug || ''
     )
     .toLowerCase()
     .trim();
+
+
+const themeDisplayName =
+    String(
+        theme.name || themeName
+    )
+    .trim();
+
+
+if (!themeName) {
+
+    statusElement.textContent =
+        'No theme was selected.';
+
+    alert(
+        'No theme was selected.'
+    );
+
+    throw new Error(
+        'No theme was selected.'
+    );
+
+}
 
 
 /*
@@ -637,27 +592,17 @@ const themeName =
 |--------------------------------------------------------------------------
 */
 
+const themePrompt =
+    String(
+        theme.prompt || ''
+    )
+    .trim();
+
+
 const selectedPrompt =
-    themePrompts[
-        themeName
-    ];
-
-
-if (!selectedPrompt) {
-
-    statusElement.textContent =
-        'Unsupported theme.';
-
-    alert(
-        'Unsupported theme: '
-        + themeName
-    );
-
-    throw new Error(
-        'Unsupported theme.'
-    );
-
-}
+    themePrompt
+        ? themePrompt
+        : `Transform the person in the provided photo into a creative professional portrait themed as "${themeDisplayName}". ${String(theme.description || '').trim()}`.trim();
 
 
 /*
@@ -667,14 +612,7 @@ if (!selectedPrompt) {
 */
 
 themeElement.textContent =
-
-    themeName
-        .charAt(0)
-        .toUpperCase()
-
-    +
-
-    themeName.slice(1);
+    themeDisplayName;
 
 
 /*
