@@ -769,10 +769,29 @@ submitButton.addEventListener(
         |--------------------------------------------------------------------------
         */
 
-        const theme =
+        const generatedImageId =
             sessionStorage.getItem(
-                'generated_theme'
+                'generated_image_id'
             );
+
+
+        if (!generatedImageId) {
+
+            alert(
+                'We could not find your generated portrait. Please generate a portrait first.'
+            );
+
+            submitButton.disabled =
+                false;
+
+            submitButton.querySelector(
+                'span:first-child'
+            ).textContent =
+                'SUBMIT';
+
+            return;
+
+        }
 
 
         /*
@@ -809,14 +828,14 @@ submitButton.addEventListener(
                         body:
                             JSON.stringify({
 
+                                generated_image_id:
+                                    generatedImageId,
+
                                 rating:
                                     selectedRating,
 
                                 comment:
-                                    comment.value.trim(),
-
-                                theme:
-                                    theme
+                                    comment.value.trim()
 
                             })
 
@@ -869,6 +888,11 @@ submitButton.addEventListener(
 
             sessionStorage.removeItem(
                 'generated_theme'
+            );
+
+
+            sessionStorage.removeItem(
+                'generated_image_id'
             );
 
 

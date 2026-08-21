@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
+use App\Models\GeneratedImage;
+use App\Models\PhotoSession;
+use App\Models\Theme;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GeminiController extends Controller
 {
@@ -147,6 +152,40 @@ class GeminiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Record the session before calling Gemini
+        |--------------------------------------------------------------------------
+        |
+        | The guest flow has no event-selection step yet, so walk-in
+        | generations are grouped under a single default event.
+        |
+        */
+
+        $themeRecord = Theme::firstOrCreate(
+            ['slug' => Str::slug($theme ?: 'unknown')],
+            ['name' => ucfirst($theme ?: 'Unknown'), 'prompt' => $prompt, 'is_enabled' => true],
+        );
+
+        $event = Event::firstOrCreate(
+            ['slug' => 'walk-in-sessions'],
+            ['name' => 'Walk-in Sessions', 'start_date' => now(), 'status' => 'active'],
+        );
+
+        $photoSession = PhotoSession::create([
+            'event_id' => $event->id,
+            'status' => 'active',
+            'started_at' => now(),
+        ]);
+
+        $generatedImage = GeneratedImage::create([
+            'photo_session_id' => $photoSession->id,
+            'event_id' => $event->id,
+            'theme_id' => $themeRecord->id,
+            'status' => 'pending',
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
         | Build AI prompt
         |--------------------------------------------------------------------------
         */
@@ -241,7 +280,9 @@ Do not add extra people.
             function () use (
                 $apiKey,
                 $payload,
-                $theme
+                $theme,
+                $photoSession,
+                $generatedImage
             ) {
 
                 /*
@@ -289,6 +330,31 @@ Do not add extra people.
                         }
 
                         flush();
+
+                    };
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Mark the recorded session/image as failed
+                |--------------------------------------------------------------------------
+                */
+
+                $markFailed =
+                    function (string $message) use (
+                        $photoSession,
+                        $generatedImage
+                    ) {
+
+                        $generatedImage->update([
+                            'status' => 'failed',
+                            'error_message' => $message,
+                        ]);
+
+                        $photoSession->update([
+                            'status' => 'failed',
+                            'ended_at' => now(),
+                        ]);
 
                     };
 
@@ -367,6 +433,8 @@ Do not add extra people.
 
                 } catch (\Throwable $e) {
 
+                    $markFailed($e->getMessage());
+
                     $sendEvent(
                         'error',
                         [
@@ -391,6 +459,8 @@ Do not add extra people.
                 if ($response->failed()) {
 
                     $errorBody = $response->body();
+
+                    $markFailed('Gemini API returned an error.');
 
                     $sendEvent(
                         'error',
@@ -788,6 +858,8 @@ Do not add extra people.
 
                 if (!$imageData) {
 
+                    $markFailed('Gemini completed the request but no image was received.');
+
                     $sendEvent(
                         'error',
                         [
@@ -819,6 +891,8 @@ Do not add extra people.
                 if (
                     $image === false
                 ) {
+
+                    $markFailed('Unable to decode the generated image.');
 
                     $sendEvent(
                         'error',
@@ -899,6 +973,8 @@ Do not add extra people.
                     \Throwable $e
                 ) {
 
+                    $markFailed('Unable to save generated image: '.$e->getMessage());
+
                     $sendEvent(
                         'error',
                         [
@@ -915,6 +991,23 @@ Do not add extra people.
                     return;
 
                 }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Record success
+                |--------------------------------------------------------------------------
+                */
+
+                $generatedImage->update([
+                    'generated_image_path' => $filename,
+                    'status' => 'completed',
+                ]);
+
+                $photoSession->update([
+                    'status' => 'completed',
+                    'ended_at' => now(),
+                ]);
 
 
                 /*
@@ -937,6 +1030,9 @@ Do not add extra people.
                             Storage::url(
                                 $filename
                             ),
+
+                        'generated_image_id' =>
+                            $generatedImage->id,
 
                     ]
                 );

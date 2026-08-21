@@ -1174,6 +1174,12 @@ async function generatePortrait() {
                     );
 
 
+                    sessionStorage.setItem(
+                        'generated_image_id',
+                        data.generated_image_id
+                    );
+
+
                     /*
                     |--------------------------------------------------------------------------
                     | Move to result

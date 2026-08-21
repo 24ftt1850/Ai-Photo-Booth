@@ -212,7 +212,7 @@
         <!-- ADMIN -->
 
         <a
-            href="{{ route('admin.login') }}"
+            href="{{ route('admin.dashboard') }}"
             class="option admin"
         >
 

@@ -301,7 +301,7 @@
             </button>
 
             <a
-                href="{{ route('welcome') }}"
+                href="{{ route('home') }}"
                 class="back-home-button"
             >
                 <span class="back-home-arrow">←</span>

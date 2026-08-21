@@ -91,15 +91,9 @@
                     ],
 
                     [
-                        'route' => 'admin.analytics.index',
+                        'route' => 'admin.analytics',
                         'label' => 'Analytics',
                         'icon' => '◎',
-                    ],
-
-                    [
-                        'route' => 'admin.feedback.index',
-                        'label' => 'Feedback',
-                        'icon' => '♡',
                     ],
 
                 ];
@@ -174,18 +168,18 @@
                            rounded-full border border-white/10
                            bg-white/5 text-sm font-bold"
                 >
-                    A
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
 
 
                 <div class="min-w-0 flex-1">
 
                     <p class="truncate text-sm font-medium">
-                        Administrator
+                        {{ auth()->user()->name }}
                     </p>
 
                     <p class="truncate text-xs text-gray-500">
-                        {{ session('admin_email') }}
+                        {{ auth()->user()->email }}
                     </p>
 
                 </div>
@@ -195,7 +189,7 @@
 
                 <form
                     method="POST"
-                    action="{{ route('admin.logout') }}"
+                    action="{{ route('logout') }}"
                 >
 
                     @csrf
