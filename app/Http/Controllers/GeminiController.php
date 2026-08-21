@@ -186,30 +186,6 @@ class GeminiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Build AI prompt
-        |--------------------------------------------------------------------------
-        */
-
-        $fullPrompt = $prompt . '
-
-IMPORTANT:
-Preserve the persons identity and facial features from the provided photo.
-Keep the face recognizable and natural.
-Preserve the persons general appearance and proportions.
-
-Create a high-quality professional AI portrait.
-Make the result photorealistic.
-Use cinematic professional lighting.
-Make the environment match the selected theme.
-
-Do not change the persons identity.
-Do not distort the face.
-Do not add extra people.
-';
-
-
-        /*
-        |--------------------------------------------------------------------------
         | Gemini payload
         |--------------------------------------------------------------------------
         */
@@ -237,7 +213,7 @@ Do not add extra people.
                         'text',
 
                     'text' =>
-                        $fullPrompt,
+                        $prompt,
                 ],
 
             ],
