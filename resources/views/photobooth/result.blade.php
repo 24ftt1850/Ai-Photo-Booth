@@ -120,6 +120,43 @@
         }
 
 
+        .back-link {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding:
+                6px 13px;
+
+            border-radius: 30px;
+
+            background:
+                rgba(0, 63, 66, 0.08);
+
+            color: #003f42;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            text-decoration: none;
+
+            transition: 0.2s ease;
+
+        }
+
+
+        .back-link:hover {
+
+            background:
+                rgba(0, 63, 66, 0.16);
+
+        }
+
+
         .ready {
 
             padding:
@@ -794,11 +831,19 @@
 
     <header class="header">
 
-        <div class="logo">
+        <div style="display: flex; align-items: center; gap: 14px;">
 
-            <span class="logo-dot"></span>
+            <a href="{{ route('home') }}" class="back-link">
+                ← Back
+            </a>
 
-            RupaVue
+            <div class="logo">
+
+                <span class="logo-dot"></span>
+
+                RupaVue
+
+            </div>
 
         </div>
 

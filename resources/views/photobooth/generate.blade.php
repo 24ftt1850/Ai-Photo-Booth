@@ -51,6 +51,30 @@
         }
 
         /* =========================
+           TOP NAV / BACK
+        ========================= */
+
+        .top-nav {
+            margin-bottom: 18px;
+        }
+
+        .back-link {
+            color: rgba(255, 255, 255, 0.55);
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            letter-spacing: 1px;
+
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        /* =========================
            HEADER
         ========================= */
 
@@ -392,6 +416,22 @@
 <body>
 
 <div class="generate-page">
+
+    <!-- =========================
+         BACK
+    ========================== -->
+
+    <div class="top-nav">
+
+        <a
+            href="{{ route('photobooth.create') }}?theme_id={{ $theme->id ?? '' }}"
+            class="back-link"
+        >
+            ← Back
+        </a>
+
+    </div>
+
 
     <!-- =========================
          HEADER
