@@ -4,430 +4,763 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Choose Theme - AI Photo Booth</title>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>Choose Theme - RupaVue</title>
 
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0f172a;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #111;
             color: white;
         }
 
-        .page {
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
+
+        .theme-page {
             min-height: 100vh;
-            padding: 50px 20px;
+            width: 100%;
+
+            background:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.55),
+                    rgba(0, 0, 0, 0.75)
+                ),
+                url('/images/demo-background.jpg');
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            padding: 35px 5% 45px;
+
+            display: flex;
+            flex-direction: column;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: auto;
-        }
+        /* =========================
+           HEADER
+        ========================= */
 
         .header {
-            text-align: center;
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
             margin-bottom: 40px;
         }
 
-        .header h1 {
-            font-size: 38px;
-            margin: 0 0 12px;
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+
+            letter-spacing: 4px;
         }
 
-        .header p {
-            color: #94a3b8;
-            font-size: 16px;
+        .step {
+            font-size: 13px;
+            font-weight: 600;
+
+            letter-spacing: 2px;
+
+            color: rgba(255, 255, 255, 0.7);
         }
 
-        /* Photo */
+        /* =========================
+           TITLE
+        ========================= */
 
-        .photo-preview {
-            width: 260px;
-            height: 260px;
-            margin: 0 auto 45px;
-            border-radius: 20px;
-            overflow: hidden;
-            background: #020617;
-            border: 1px solid #334155;
-        }
-
-        .photo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Theme section */
-
-        .section-title {
+        .title-section {
             text-align: center;
-            font-size: 22px;
-            margin-bottom: 25px;
+
+            margin-bottom: 45px;
         }
 
-        .themes {
+        .title-section h1 {
+            font-size: clamp(30px, 4vw, 52px);
+
+            font-weight: 700;
+
+            letter-spacing: 1px;
+
+            margin-bottom: 12px;
+        }
+
+        .title-section p {
+            font-size: 16px;
+
+            color: rgba(255, 255, 255, 0.72);
+
+            line-height: 1.5;
+        }
+
+        /* =========================
+           THEME GRID
+        ========================= */
+
+        .theme-container {
+            width: 100%;
+            max-width: 1200px;
+
+            margin: 0 auto;
+
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
             gap: 25px;
         }
 
-        .theme {
+        /* =========================
+           THEME CARD
+        ========================= */
+
+        .theme-card {
             position: relative;
-            background: #1e293b;
-            border: 2px solid transparent;
-            border-radius: 20px;
+
+            height: 390px;
+
+            border-radius: 22px;
+
             overflow: hidden;
+
             cursor: pointer;
-            transition: 0.25s;
+
+            border: 2px solid rgba(255, 255, 255, 0.2);
+
+            background: rgba(255, 255, 255, 0.08);
+
+            backdrop-filter: blur(5px);
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
         }
 
-        .theme:hover {
-            transform: translateY(-6px);
-            border-color: #64748b;
+        .theme-card:hover {
+            transform: translateY(-8px);
+
+            border-color: rgba(255, 255, 255, 0.7);
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.4);
         }
 
-        .theme.selected {
-            border-color: #8b5cf6;
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.35);
+        /*
+         * Selected card
+         */
+
+        .theme-card.selected {
+            border-color: white;
+
+            box-shadow:
+                0 0 0 3px rgba(255, 255, 255, 0.25),
+                0 15px 40px rgba(0, 0, 0, 0.45);
+
+            transform: translateY(-8px);
         }
+
+        /* =========================
+           PLACEHOLDER IMAGE
+        ========================= */
 
         .theme-image {
-            height: 260px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 90px;
+            position: absolute;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            z-index: 0;
         }
 
-        .theme-default {
+        /*
+         * Temporary theme backgrounds
+         */
+
+        .graduation-background {
             background:
                 linear-gradient(
                     135deg,
                     #172554,
-                    #7c3aed
+                    #1e3a8a
                 );
         }
 
-        .theme-image {
-            background-size: cover;
-            background-position: center;
+        .mafia-background {
+            background:
+                linear-gradient(
+                    135deg,
+                    #090909,
+                    #252525
+                );
         }
 
-        .empty-themes {
-            grid-column: 1 / -1;
-            text-align: center;
-            color: #94a3b8;
-            padding: 40px 20px;
+        .kdrama-background {
+            background:
+                linear-gradient(
+                    135deg,
+                    #4c1d95,
+                    #be185d
+                );
         }
 
-        .theme-info {
-            padding: 20px;
-            text-align: center;
+        /* =========================
+           CARD OVERLAY
+        ========================= */
+
+        .theme-overlay {
+            position: absolute;
+
+            inset: 0;
+
+            z-index: 1;
+
+            background:
+                linear-gradient(
+                    transparent 25%,
+                    rgba(0, 0, 0, 0.9) 100%
+                );
         }
 
-        .theme-info h3 {
-            margin: 0 0 8px;
-            font-size: 21px;
+        /* =========================
+           THEME CONTENT
+        ========================= */
+
+        .theme-content {
+            position: absolute;
+
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            z-index: 2;
+
+            padding: 30px;
         }
 
-        .theme-info p {
-            margin: 0;
-            color: #94a3b8;
+        .theme-icon {
+            font-size: 42px;
+
+            margin-bottom: 15px;
+        }
+
+        .theme-name {
+            font-size: 26px;
+
+            font-weight: 700;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 8px;
+        }
+
+        .theme-description {
             font-size: 14px;
+
+            line-height: 1.5;
+
+            color: rgba(255, 255, 255, 0.72);
         }
 
-        /* Check */
+        /* =========================
+           SELECTED CHECK
+        ========================= */
 
         .check {
             position: absolute;
-            top: 15px;
-            right: 15px;
 
-            width: 35px;
-            height: 35px;
+            top: 20px;
+            right: 20px;
+
+            width: 42px;
+            height: 42px;
 
             border-radius: 50%;
 
-            background: #8b5cf6;
+            background: white;
 
-            display: none;
+            color: #111;
+
+            display: flex;
+
             align-items: center;
             justify-content: center;
 
+            font-size: 20px;
             font-weight: bold;
+
+            opacity: 0;
+
+            transform: scale(0.6);
+
+            transition:
+                opacity 0.2s ease,
+                transform 0.2s ease;
+
+            z-index: 3;
         }
 
-        .theme.selected .check {
+        .theme-card.selected .check {
+            opacity: 1;
+
+            transform: scale(1);
+        }
+
+        /* =========================
+           BOTTOM
+        ========================= */
+
+        .bottom-section {
+            width: 100%;
+
+            max-width: 1200px;
+
+            margin: 45px auto 0;
+
             display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
         }
 
-        /* Buttons */
+        .selected-theme {
+            font-size: 14px;
 
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 45px;
+            color: rgba(255, 255, 255, 0.65);
         }
 
-        button {
-            border: none;
-            border-radius: 12px;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: bold;
+        .selected-theme strong {
+            color: white;
+        }
+
+        .next-button {
+            min-width: 210px;
+
+            padding: 16px 28px;
+
+            border: 2px solid rgba(255, 255, 255, 0.25);
+
+            border-radius: 50px;
+
+            background: rgba(255, 255, 255, 0.1);
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+
             cursor: pointer;
+
+            transition:
+                background 0.25s ease,
+                color 0.25s ease,
+                transform 0.25s ease;
         }
 
-        .back {
-            background: #334155;
-            color: white;
+        .next-button:hover:not(:disabled) {
+            background: white;
+
+            color: #111;
+
+            transform: translateY(-2px);
         }
 
-        .generate {
-            background: #8b5cf6;
-            color: white;
-        }
+        .next-button:disabled {
+            opacity: 0.35;
 
-        .generate:hover {
-            background: #7c3aed;
-        }
-
-        .generate:disabled {
-            opacity: 0.5;
             cursor: not-allowed;
         }
 
-        /* Mobile */
+        /* =========================
+           RESPONSIVE
+        ========================= */
 
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
 
-            .themes {
+            .theme-container {
                 grid-template-columns: 1fr;
-                max-width: 450px;
-                margin: auto;
+                max-width: 500px;
             }
 
-            .theme-image {
-                height: 220px;
+            .theme-card {
+                height: 300px;
             }
 
+            .bottom-section {
+                flex-direction: column;
+
+                gap: 20px;
+            }
+
+            .next-button {
+                width: 100%;
+            }
         }
 
+        @media (max-width: 500px) {
+
+            .theme-page {
+                padding: 25px 20px 35px;
+            }
+
+            .header {
+                margin-bottom: 30px;
+            }
+
+            .logo {
+                font-size: 19px;
+            }
+
+            .step {
+                font-size: 10px;
+            }
+
+            .title-section {
+                margin-bottom: 30px;
+            }
+
+            .title-section h1 {
+                font-size: 30px;
+            }
+
+            .title-section p {
+                font-size: 14px;
+            }
+
+            .theme-card {
+                height: 280px;
+
+                border-radius: 18px;
+            }
+
+            .theme-content {
+                padding: 22px;
+            }
+
+            .theme-name {
+                font-size: 22px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-<div class="page">
+<div class="theme-page">
 
-    <div class="container">
+    <!-- =========================
+         HEADER
+    ========================== -->
 
-        <!-- Header -->
+    <header class="header">
 
-        <div class="header">
-
-            <h1>Choose Your Theme</h1>
-
-            <p>
-                Select a theme for your AI-generated portrait.
-            </p>
-
+        <div class="logo">
+            RUPAVUE
         </div>
 
+        <div class="step">
+            STEP 1 OF 3
+        </div>
 
-        <!-- Selected Photo -->
+    </header>
 
-        <div class="photo-preview">
 
-            <img
-                id="selectedPhoto"
-                alt="Your selected photo"
+    <!-- =========================
+         TITLE
+    ========================== -->
+
+    <section class="title-section">
+
+        <h1>
+            Choose Your Theme
+        </h1>
+
+        <p>
+            Select a theme for your AI photo transformation.
+        </p>
+
+    </section>
+
+
+    <!-- =========================
+         THEME CARDS
+    ========================== -->
+
+    <form
+        id="themeForm"
+        method="GET"
+        action="{{ route('photobooth.create') }}"
+    >
+
+        <div class="theme-container">
+
+            <!-- =====================
+                 GRADUATION
+            ====================== -->
+
+            <div
+                class="theme-card"
+                data-theme="Graduation"
+                data-theme-id="{{ $themes->firstWhere('name', 'Graduation')->id ?? '' }}"
             >
 
-        </div>
+                <div class="theme-image graduation-background"></div>
 
+                <div class="theme-overlay"></div>
 
-        <!-- Theme -->
+                <div class="check">
+                    ✓
+                </div>
 
-        <h2 class="section-title">
-            Select a Theme
-        </h2>
+                <div class="theme-content">
 
-
-        <div class="themes">
-
-            @forelse ($themes as $theme)
-
-                <div
-                    class="theme"
-                    data-scene="{{ $theme->slug }}"
-                    data-name="{{ $theme->name }}"
-                    data-description="{{ $theme->description }}"
-                    data-prompt="{{ $theme->prompt }}"
-                >
-
-                    <div
-                        class="theme-image {{ $theme->thumbnail ? '' : 'theme-default' }}"
-                        @if ($theme->thumbnail)
-                            style="background-image: url('{{ $theme->thumbnail }}');"
-                        @endif
-                    >
-                        @unless ($theme->thumbnail)
-                            ✦
-                        @endunless
+                    <div class="theme-icon">
+                        🎓
                     </div>
 
-                    <div class="theme-info">
-
-                        <h3>{{ $theme->name }}</h3>
-
-                        <p>
-                            {{ $theme->description }}
-                        </p>
-
+                    <div class="theme-name">
+                        Graduation
                     </div>
 
-                    <div class="check">
-                        ✓
+                    <div class="theme-description">
+                        Celebrate your special achievement with
+                        a memorable graduation photo.
                     </div>
 
                 </div>
 
-            @empty
+            </div>
 
-                <div class="empty-themes">
-                    No themes are available right now. Please check back later.
+
+            <!-- =====================
+                 MAFIA
+            ====================== -->
+
+            <div
+                class="theme-card"
+                data-theme="Mafia"
+                data-theme-id="{{ $themes->firstWhere('name', 'Mafia')->id ?? '' }}"
+            >
+
+                <div class="theme-image mafia-background"></div>
+
+                <div class="theme-overlay"></div>
+
+                <div class="check">
+                    ✓
                 </div>
 
-            @endforelse
+                <div class="theme-content">
+
+                    <div class="theme-icon">
+                        🕴️
+                    </div>
+
+                    <div class="theme-name">
+                        Mafia
+                    </div>
+
+                    <div class="theme-description">
+                        Step into a powerful cinematic
+                        underworld-inspired atmosphere.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================
+                 K-DRAMA
+            ====================== -->
+
+            <div
+                class="theme-card"
+                data-theme="K-Drama"
+                data-theme-id="{{ $themes->firstWhere('name', 'K-Drama')->id ?? '' }}"
+            >
+
+                <div class="theme-image kdrama-background"></div>
+
+                <div class="theme-overlay"></div>
+
+                <div class="check">
+                    ✓
+                </div>
+
+                <div class="theme-content">
+
+                    <div class="theme-icon">
+                        🎬
+                    </div>
+
+                    <div class="theme-name">
+                        K-Drama
+                    </div>
+
+                    <div class="theme-description">
+                        Create a dramatic and stylish
+                        K-Drama-inspired portrait.
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
 
-        <!-- Buttons -->
+        <!-- Hidden theme input -->
 
-        <div class="buttons">
+        <input
+            type="hidden"
+            name="theme"
+            id="selectedTheme"
+            value=""
+        >
+
+        <input
+            type="hidden"
+            name="theme_id"
+            id="selectedThemeId"
+            value=""
+        >
+
+
+        <!-- =========================
+             BOTTOM
+        ========================== -->
+
+        <div class="bottom-section">
+
+            <div class="selected-theme">
+                Selected:
+                <strong id="selectedThemeText">
+                    None
+                </strong>
+            </div>
 
             <button
-                class="back"
-                type="button"
-                onclick="history.back()"
-            >
-                ← Back
-            </button>
-
-            <button
-                id="generateButton"
-                class="generate"
-                type="button"
+                type="submit"
+                class="next-button"
+                id="nextButton"
                 disabled
             >
-                ✨ Generate AI Portrait
+                Next: Capture Photo →
             </button>
 
         </div>
 
-    </div>
+    </form>
 
 </div>
 
 
 <script>
 
-const photo =
-    sessionStorage.getItem('photobooth_photo');
+    const themeCards =
+        document.querySelectorAll('.theme-card');
 
-const selectedPhoto =
-    document.getElementById('selectedPhoto');
+    const selectedTheme =
+        document.getElementById('selectedTheme');
 
-const themes =
-    document.querySelectorAll('.theme');
+    const selectedThemeId =
+        document.getElementById('selectedThemeId');
 
-const generateButton =
-    document.getElementById('generateButton');
+    const selectedThemeText =
+        document.getElementById('selectedThemeText');
 
-let selectedTheme = null;
-
-
-/*
-|--------------------------------------------------------------------------
-| Display photo
-|--------------------------------------------------------------------------
-*/
-
-if (photo) {
-
-    selectedPhoto.src = photo;
-
-} else {
-
-    selectedPhoto.alt =
-        'No photo selected';
-
-}
+    const nextButton =
+        document.getElementById('nextButton');
 
 
-/*
-|--------------------------------------------------------------------------
-| Select theme
-|--------------------------------------------------------------------------
-*/
+    themeCards.forEach(card => {
 
-themes.forEach(theme => {
+        card.addEventListener('click', function () {
 
-    theme.addEventListener('click', () => {
+            /*
+             * Remove previous selection
+             */
 
-        themes.forEach(item => {
+            themeCards.forEach(item => {
+                item.classList.remove('selected');
+            });
 
-            item.classList.remove('selected');
+
+            /*
+             * Select current card
+             */
+
+            this.classList.add('selected');
+
+
+            /*
+             * Get theme information
+             */
+
+            const themeName =
+                this.dataset.theme;
+
+            const themeId =
+                this.dataset.themeId;
+
+
+            /*
+             * Store selected theme
+             */
+
+            selectedTheme.value =
+                themeName;
+
+            selectedThemeId.value =
+                themeId;
+
+
+            /*
+             * Update text
+             */
+
+            selectedThemeText.textContent =
+                themeName;
+
+
+            /*
+             * Enable button
+             */
+
+            nextButton.disabled = false;
 
         });
 
-        theme.classList.add('selected');
-
-        selectedTheme = {
-
-            slug: theme.dataset.scene,
-
-            name: theme.dataset.name,
-
-            description: theme.dataset.description,
-
-            prompt: theme.dataset.prompt
-
-        };
-
-        generateButton.disabled = false;
-
     });
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Generate button
-|--------------------------------------------------------------------------
-*/
-
-generateButton.addEventListener('click', () => {
-
-    if (!selectedTheme) {
-        return;
-    }
-
-    sessionStorage.setItem(
-        'selected_scene',
-        JSON.stringify(selectedTheme)
-    );
-
-    window.location.href =
-        "{{ route('photobooth.generate') }}";
-
-});
 
 </script>
 

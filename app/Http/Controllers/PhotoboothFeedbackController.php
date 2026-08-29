@@ -12,14 +12,19 @@ class PhotoboothFeedbackController extends Controller
         $data = $request->validate([
             'generated_image_id' => ['required', 'integer', 'exists:generated_images,id'],
             'rating' => ['required', 'integer', 'between:1,5'],
+            'feedback' => ['nullable', 'string', 'max:255'],
             'comment' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $generatedImage = GeneratedImage::findOrFail($data['generated_image_id']);
 
+        $feedbackComment = collect([$data['feedback'] ?? null, $data['comment'] ?? null])
+            ->filter()
+            ->implode(' — ');
+
         $generatedImage->update([
             'rating' => $data['rating'],
-            'feedback_comment' => $data['comment'] ?? null,
+            'feedback_comment' => $feedbackComment !== '' ? $feedbackComment : null,
         ]);
 
         return response()->json(['success' => true]);

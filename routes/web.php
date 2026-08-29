@@ -13,7 +13,17 @@ use App\Models\Theme;
 */
 
 Route::get('/photobooth', function () {
-    return view('photobooth.create');
+
+    $themeId = request('theme_id');
+
+    $theme = null;
+
+    if ($themeId) {
+        $theme = Theme::find($themeId);
+    }
+
+    return view('photobooth.create', compact('theme'));
+
 })->name('photobooth.create');
 
 
@@ -25,7 +35,15 @@ Route::get('/photobooth/scene', function () {
 
 
 Route::get('/photobooth/generate', function () {
-    return view('photobooth.generate');
+    $themeId = request('theme_id');
+
+    $theme = null;
+
+    if ($themeId) {
+        $theme = Theme::find($themeId);
+    }
+
+    return view('photobooth.generate', compact('theme'));
 })->name('photobooth.generate');
 
 

@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "mcp__mcp-registry__search_mcp_registry"
+      "mcp__mcp-registry__search_mcp_registry",
+      "Bash(cd *)",
+      "Bash(curl *)"
     ]
   }
 }

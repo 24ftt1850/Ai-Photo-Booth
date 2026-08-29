@@ -10,241 +10,769 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Your AI Portrait — RUPAVUE</title>
+    <title>RupaVue - Result</title>
 
-    @vite([
-        'resources/css/app.css',
-        'resources/js/app.js'
-    ])
+
+    <!-- =====================================================
+         QR CODE LIBRARY
+    ====================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
 
     <style>
 
+        /* =====================================================
+           RESET
+        ====================================================== */
+
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
+
+        html,
         body {
-            margin: 0;
+            width: 100%;
+            min-height: 100%;
+        }
 
-            background: #050505;
 
-            color: white;
-
+        body {
             font-family:
                 Arial,
                 Helvetica,
                 sans-serif;
+
+            background: #f7e9df;
+
+            color: #003f42;
         }
 
-        .page {
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .result-page {
+
             min-height: 100vh;
 
-            display: flex;
+            padding:
+                20px 2% 25px;
 
-            align-items: center;
+            background:
+                url('/images/demo-background.jpg');
 
-            justify-content: center;
+            background-size: cover;
 
-            padding: 40px 20px;
+            background-position: center;
+
+            background-repeat: no-repeat;
+
         }
 
-        .container {
-            width: 100%;
-
-            max-width: 760px;
-
-            text-align: center;
-        }
 
         /* =====================================================
            HEADER
         ====================================================== */
 
+        .header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+
+        }
+
+
         .logo {
-            margin-bottom: 45px;
 
-            font-size: 14px;
+            display: flex;
 
-            letter-spacing: 0.18em;
+            align-items: center;
+
+            gap: 7px;
+
+            font-size: 24px;
+
+            font-weight: 800;
+
         }
 
-        .label {
-            margin-bottom: 12px;
 
-            color: #666;
+        .logo-dot {
 
-            font-size: 9px;
+            width: 10px;
 
-            letter-spacing: 0.15em;
+            height: 10px;
+
+            border-radius: 50%;
+
+            background: #ff929b;
+
         }
 
-        h1 {
-            margin: 0;
 
-            font-size:
-                clamp(32px, 6vw, 52px);
+        .ready {
 
-            font-weight: 300;
-        }
+            padding:
+                6px 13px;
 
-        .subtitle {
-            margin:
-                15px 0 35px;
+            border-radius: 30px;
 
-            color: #777;
+            background:
+                rgba(0, 63, 66, 0.08);
 
             font-size: 10px;
 
-            line-height: 1.7;
+            font-weight: 700;
+
         }
+
 
         /* =====================================================
-           IMAGE
+           PHOTO + QR SECTION
         ====================================================== */
 
-        .image-container {
-            position: relative;
+        .photo-qr-section {
 
-            padding: 8px;
-
-            background: #101010;
-
-            border:
-                1px solid #202020;
-
-            border-radius: 4px;
-        }
-
-        .image-container img {
             width: 100%;
 
-            display: block;
+            max-width: 1000px;
 
-            border-radius: 2px;
+            margin: 0 auto 16px;
 
-            background: #111;
-        }
-
-        /* =====================================================
-           BUTTONS
-        ====================================================== */
-
-        .buttons {
             display: flex;
 
             justify-content: center;
 
             align-items: center;
 
-            gap: 14px;
+            gap: 25px;
 
-            margin-top: 30px;
-
-            flex-wrap: wrap;
         }
 
-        .button {
-            display: inline-flex;
+
+        /* =====================================================
+           GENERATED PHOTO
+
+           IMPORTANT:
+           PHOTO REMAINS 2 : 3
+        ====================================================== */
+
+        .result-frame {
+
+            width: 310px;
+
+            aspect-ratio: 2 / 3;
+
+            flex-shrink: 0;
+
+            overflow: hidden;
+
+            border:
+                2px solid #003f42;
+
+            border-radius: 18px;
+
+            background: white;
+
+            box-shadow:
+                0 8px 20px
+                rgba(0, 0, 0, 0.12);
+
+        }
+
+
+        .result-frame img {
+
+            width: 100%;
+
+            height: 100%;
+
+            display: block;
+
+            object-fit: cover;
+
+        }
+
+
+        .placeholder {
+
+            width: 100%;
+
+            height: 100%;
+
+            display: flex;
+
+            flex-direction: column;
 
             align-items: center;
 
             justify-content: center;
 
-            min-height: 44px;
+            text-align: center;
 
-            padding:
-                0 20px;
+            color: #899596;
 
-            border-radius: 3px;
+            font-size: 13px;
+
+        }
+
+
+        .placeholder-icon {
+
+            font-size: 45px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        /* =====================================================
+           QR CARD
+        ====================================================== */
+
+        .qr-card {
+
+            width: 330px;
+
+            min-height: 430px;
+
+            padding: 25px;
+
+            background: white;
+
+            border-radius: 18px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            box-shadow:
+                0 8px 20px
+                rgba(0, 0, 0, 0.07);
+
+        }
+
+
+        .qr-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .qr-description {
+
+            max-width: 250px;
+
+            text-align: center;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+            color: #7c8889;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        /* =====================================================
+           QR CODE
+        ====================================================== */
+
+        .qr-container {
+
+            width: 210px;
+
+            height: 210px;
+
+            padding: 8px;
+
+            background: white;
 
             border:
-                1px solid #292929;
+                1px solid #dce2e2;
 
-            background: #111;
+            border-radius: 10px;
 
-            color: #aaa;
+            display: flex;
 
-            text-decoration: none;
+            align-items: center;
+
+            justify-content: center;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        #qrCode {
+
+            width: 190px;
+
+            height: 190px;
+
+        }
+
+
+        #qrCode img {
+
+            width: 190px;
+
+            height: 190px;
+
+        }
+
+
+        .qr-status {
+
+            font-size: 10px;
+
+            color: #8b9697;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        /* =====================================================
+           PRINT BUTTON
+        ====================================================== */
+
+        .print-button {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border:
+                2px solid #003f42;
+
+            border-radius: 30px;
+
+            background: white;
+
+            color: #003f42;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.2s ease;
+
+        }
+
+
+        .print-button:hover {
+
+            background: #003f42;
+
+            color: white;
+
+        }
+
+
+        /* =====================================================
+           FEEDBACK
+        ====================================================== */
+
+        .feedback-card {
+
+            width: 100%;
+
+            max-width: 1000px;
+
+            margin: 0 auto;
+
+            padding:
+                18px 22px;
+
+            background: white;
+
+            border-radius: 18px;
+
+            text-align: center;
+
+            box-shadow:
+                0 8px 20px
+                rgba(0, 0, 0, 0.05);
+
+        }
+
+
+        .feedback-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 4px;
+
+        }
+
+
+        .feedback-subtitle {
+
+            font-size: 11px;
+
+            color: #8a9495;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        /* =====================================================
+           STARS
+        ====================================================== */
+
+        .stars {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 7px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .star {
+
+            border: none;
+
+            background: transparent;
+
+            color: #ff8e98;
+
+            font-size: 27px;
+
+            cursor: pointer;
+
+            padding: 0;
+
+            transition: 0.15s ease;
+
+        }
+
+
+        .star:hover {
+
+            transform: scale(1.15);
+
+        }
+
+
+        .star.selected {
+
+            color: #ff7b87;
+
+        }
+
+
+        /* =====================================================
+           QUICK FEEDBACK
+        ====================================================== */
+
+        .quick-feedback {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            flex-wrap: wrap;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .feedback-option {
+
+            border:
+                1px solid #d7dddd;
+
+            background: white;
+
+            color: #003f42;
+
+            border-radius: 30px;
+
+            padding:
+                8px 15px;
+
+            font-size: 11px;
+
+            cursor: pointer;
+
+            transition: 0.15s ease;
+
+        }
+
+
+        .feedback-option:hover {
+
+            border-color: #003f42;
+
+        }
+
+
+        .feedback-option.selected {
+
+            background: #003f42;
+
+            color: white;
+
+            border-color: #003f42;
+
+        }
+
+
+        /* =====================================================
+           COMMENT
+        ====================================================== */
+
+        .comment {
+
+            width: 100%;
+
+            height: 65px;
+
+            padding: 10px;
+
+            resize: none;
+
+            border:
+                1px solid #d6dddd;
+
+            border-radius: 10px;
+
+            outline: none;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            font-size: 12px;
+
+            color: #003f42;
+
+        }
+
+
+        .comment:focus {
+
+            border-color: #003f42;
+
+        }
+
+
+        .comment::placeholder {
+
+            color: #9ba4a5;
+
+        }
+
+
+        .comment-count {
+
+            text-align: right;
 
             font-size: 9px;
 
-            letter-spacing: 0.08em;
+            color: #929c9d;
 
-            transition:
-                0.25s ease;
+            margin-top: 3px;
+
         }
 
-        .button:hover {
-            color: white;
-
-            border-color: #555;
-
-            transform:
-                translateY(-2px);
-        }
-
-        .download {
-            background: #693cff;
-
-            border-color: #693cff;
-
-            color: white;
-        }
-
-        .download:hover {
-            background: #7c55ff;
-
-            border-color: #7c55ff;
-        }
-
-        .feedback {
-            background: transparent;
-
-            color: #aaa;
-        }
-
-        .again {
-            background: #111;
-        }
 
         /* =====================================================
-           FOOTER
+           SUBMIT
         ====================================================== */
 
-        .footer-text {
-            margin-top: 35px;
+        .submit-feedback {
 
-            color: #444;
+            margin-top: 8px;
 
-            font-size: 8px;
+            padding:
+                9px 22px;
 
-            letter-spacing: 0.08em;
+            border: none;
+
+            border-radius: 30px;
+
+            background: #003f42;
+
+            color: white;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
         }
 
+
+        .submit-feedback:hover {
+
+            opacity: 0.9;
+
+        }
+
+
+        .success-message {
+
+            display: none;
+
+            margin-top: 8px;
+
+            font-size: 11px;
+
+            color: #4e7778;
+
+        }
+
+
         /* =====================================================
-           MOBILE
+           NEW SESSION
         ====================================================== */
 
-        @media (max-width: 600px) {
+        .new-session {
 
-            .page {
-                padding:
-                    30px 16px;
+            width: 100%;
+
+            max-width: 1000px;
+
+            margin: 12px auto 0;
+
+        }
+
+
+        .new-session-button {
+
+            width: 100%;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 30px;
+
+            background: #003f42;
+
+            color: white;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+        }
+
+
+        .new-session-button:hover {
+
+            opacity: 0.92;
+
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (max-width: 800px) {
+
+            .photo-qr-section {
+
+                flex-direction: column;
+
             }
+
+
+            .result-frame {
+
+                width: 280px;
+
+            }
+
+
+            .qr-card {
+
+                width: 100%;
+
+                max-width: 350px;
+
+                min-height: auto;
+
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .result-page {
+
+                padding:
+                    15px 12px 20px;
+
+            }
+
 
             .logo {
-                margin-bottom:
-                    35px;
+
+                font-size: 20px;
+
             }
 
-            .buttons {
-                flex-direction:
-                    column;
+
+            .result-frame {
+
+                width: 240px;
+
             }
 
-            .button {
-                width:
-                    100%;
+
+            .quick-feedback {
+
+                flex-direction: column;
+
+                align-items: center;
+
+            }
+
+
+            .feedback-option {
+
+                width: 200px;
+
             }
 
         }
@@ -256,161 +784,949 @@
 
 <body>
 
-<div class="page">
 
-    <div class="container">
+<div class="result-page">
 
 
-        <!-- =================================================
-             HEADER
-        ================================================== -->
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="header">
 
         <div class="logo">
-            RUPAVUE
+
+            <span class="logo-dot"></span>
+
+            RupaVue
+
         </div>
 
 
-        <div class="label">
-            AI PORTRAIT
+        <div class="ready">
+
+            READY!
+
         </div>
 
-
-        <h1>
-            YOUR PORTRAIT
-        </h1>
+    </header>
 
 
-        <p class="subtitle">
-            Your AI-generated portrait is ready.
-        </p>
+
+    <!-- =====================================================
+         PHOTO + QR
+    ====================================================== -->
+
+    <section class="photo-qr-section">
 
 
-        <!-- =================================================
-             RESULT IMAGE
-        ================================================== -->
+        <!-- GENERATED PHOTO -->
 
-        <div class="image-container">
+        <div class="result-frame">
 
             <img
                 id="resultImage"
-                alt="AI Generated Portrait"
+                src=""
+                alt="RupaVue AI generated photo"
+                style="display: none;"
             >
+
+
+            <div
+                class="placeholder"
+                id="placeholder"
+            >
+
+                <div class="placeholder-icon">
+                    ✨
+                </div>
+
+                <p>
+                    Generated photo
+                </p>
+
+            </div>
 
         </div>
 
 
-        <!-- =================================================
-             BUTTONS
-        ================================================== -->
 
-        <div class="buttons">
+        <!-- QR CODE -->
+
+        <div class="qr-card">
+
+            <h2 class="qr-title">
+
+                Scan to Download
+
+            </h2>
 
 
-            <!-- DOWNLOAD -->
+            <p class="qr-description">
 
-            <a
-                id="downloadButton"
-                class="button download"
-                download="rupavue-ai-portrait.jpg"
+                Point your phone camera at
+                the QR code to save your
+                high-resolution photo.
+
+            </p>
+
+
+            <div class="qr-container">
+
+                <div id="qrCode"></div>
+
+            </div>
+
+
+            <div
+                class="qr-status"
+                id="qrStatus"
             >
-                ↓ &nbsp; DOWNLOAD
-            </a>
+
+                Preparing QR code...
+
+            </div>
 
 
-            <!-- FEEDBACK -->
+            <!-- PRINT ONLY -->
 
-            <a
-                href="{{ route('photobooth.feedback') }}"
-                class="button feedback"
+            <button
+                type="button"
+                class="print-button"
+                id="printButton"
             >
-                FINISH &nbsp; →
-            </a>
+
+                🖨️ Print Photo
+
+            </button>
+
+        </div>
+
+    </section>
 
 
-            <!-- GENERATE AGAIN -->
 
-            <a
-                href="{{ route('photobooth.scene') }}"
-                class="button again"
+    <!-- =====================================================
+         FEEDBACK
+    ====================================================== -->
+
+    <section class="feedback-card">
+
+
+        <h2 class="feedback-title">
+
+            Share your thoughts
+
+        </h2>
+
+
+        <p class="feedback-subtitle">
+
+            We'd love to hear what you think!
+
+        </p>
+
+
+
+        <!-- STAR RATING -->
+
+        <div
+            class="stars"
+            id="stars"
+        >
+
+            <button
+                type="button"
+                class="star"
+                data-rating="1"
             >
-                ↻ &nbsp; GENERATE AGAIN
-            </a>
+                ☆
+            </button>
 
+
+            <button
+                type="button"
+                class="star"
+                data-rating="2"
+            >
+                ☆
+            </button>
+
+
+            <button
+                type="button"
+                class="star"
+                data-rating="3"
+            >
+                ☆
+            </button>
+
+
+            <button
+                type="button"
+                class="star"
+                data-rating="4"
+            >
+                ☆
+            </button>
+
+
+            <button
+                type="button"
+                class="star"
+                data-rating="5"
+            >
+                ☆
+            </button>
 
         </div>
 
 
-        <div class="footer-text">
-            THANK YOU FOR USING RUPAVUE
+
+        <!-- QUICK FEEDBACK -->
+
+        <div
+            class="quick-feedback"
+            id="quickFeedback"
+        >
+
+            <button
+                type="button"
+                class="feedback-option"
+                data-feedback="Amazing!"
+            >
+                😍 Amazing!
+            </button>
+
+
+            <button
+                type="button"
+                class="feedback-option"
+                data-feedback="Love it!"
+            >
+                ❤️ Love it!
+            </button>
+
+
+            <button
+                type="button"
+                class="feedback-option"
+                data-feedback="So cool!"
+            >
+                😎 So cool!
+            </button>
+
+
+            <button
+                type="button"
+                class="feedback-option"
+                data-feedback="Good"
+            >
+                👍 Good
+            </button>
+
+
+            <button
+                type="button"
+                class="feedback-option"
+                data-feedback="Not bad"
+            >
+                😐 Not bad
+            </button>
+
         </div>
+
+
+
+        <!-- COMMENT -->
+
+        <textarea
+            class="comment"
+            id="comment"
+            maxlength="200"
+            placeholder="Write a comment (optional)..."
+        ></textarea>
+
+
+        <div
+            class="comment-count"
+            id="commentCount"
+        >
+            0/200
+        </div>
+
+
+
+        <!-- SUBMIT -->
+
+        <button
+            type="button"
+            class="submit-feedback"
+            id="submitFeedback"
+        >
+
+            Submit Feedback
+
+        </button>
+
+
+        <div
+            class="success-message"
+            id="successMessage"
+        >
+
+            Thank you for your feedback! ❤️
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         NEW SESSION
+    ====================================================== -->
+
+    <div class="new-session">
+
+        <button
+            type="button"
+            class="new-session-button"
+            id="newSessionButton"
+        >
+
+            ↻ Start New Session
+
+        </button>
 
     </div>
+
 
 </div>
 
 
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
 <script>
 
-/*
-|--------------------------------------------------------------------------
-| Get generated image
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | GET STORED PHOTO
+    |--------------------------------------------------------------------------
+    */
 
-const imageUrl =
-    sessionStorage.getItem(
-        'generated_image'
+    const generatedPhoto =
+        sessionStorage.getItem(
+            'rupavueGeneratedPhoto'
+        );
+
+
+    const selectedTheme =
+        sessionStorage.getItem(
+            'rupavueThemeName'
+        );
+
+
+    const generatedImageId =
+        sessionStorage.getItem(
+            'rupavueGeneratedImageId'
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ELEMENTS
+    |--------------------------------------------------------------------------
+    */
+
+    const resultImage =
+        document.getElementById(
+            'resultImage'
+        );
+
+
+    const placeholder =
+        document.getElementById(
+            'placeholder'
+        );
+
+
+    const qrCode =
+        document.getElementById(
+            'qrCode'
+        );
+
+
+    const qrStatus =
+        document.getElementById(
+            'qrStatus'
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DISPLAY GENERATED PHOTO
+    |--------------------------------------------------------------------------
+    */
+
+    if (generatedPhoto) {
+
+        resultImage.src =
+            generatedPhoto;
+
+
+        resultImage.style.display =
+            'block';
+
+
+        placeholder.style.display =
+            'none';
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GENERATE QR CODE
+    |--------------------------------------------------------------------------
+    */
+
+    function generateQRCode() {
+
+        if (!generatedPhoto) {
+
+            qrStatus.textContent =
+                'No generated photo found.';
+
+            return;
+
+        }
+
+
+        try {
+
+            qrCode.innerHTML = '';
+
+
+            /*
+             * Convert relative image URL
+             * into a complete URL.
+             */
+
+            const imageUrl =
+                new URL(
+                    generatedPhoto,
+                    window.location.origin
+                ).href;
+
+
+            new QRCode(
+                qrCode,
+                {
+
+                    text: imageUrl,
+
+                    width: 190,
+
+                    height: 190,
+
+                    colorDark: '#003f42',
+
+                    colorLight: '#ffffff',
+
+                    correctLevel:
+                        QRCode.CorrectLevel.H
+
+                }
+            );
+
+
+            qrStatus.textContent =
+                'Scan with your phone to save your photo.';
+
+
+        } catch (error) {
+
+            console.error(
+                'QR Code Error:',
+                error
+            );
+
+
+            qrStatus.textContent =
+                'Unable to create QR code.';
+
+        }
+
+    }
+
+
+    generateQRCode();
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRINT PHOTO
+    |--------------------------------------------------------------------------
+    */
+
+    const printButton =
+        document.getElementById(
+            'printButton'
+        );
+
+
+    printButton.addEventListener(
+        'click',
+        function () {
+
+            if (!generatedPhoto) {
+
+                alert(
+                    'No generated photo is available.'
+                );
+
+                return;
+
+            }
+
+
+            const printWindow =
+                window.open(
+                    '',
+                    '_blank'
+                );
+
+
+            if (!printWindow) {
+
+                alert(
+                    'Please allow pop-ups to print the photo.'
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Build the print document with DOM APIs
+             * rather than a literal HTML string, so the
+             * page's own source never contains text that
+             * looks like head/body/html tags.
+             */
+
+            const printDoc =
+                printWindow.document;
+
+            printDoc.title =
+                'RupaVue Photo';
+
+
+            const printStyle =
+                printDoc.createElement('style');
+
+            printStyle.textContent =
+                '@page { size: auto; margin: 0; }' +
+                'html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; display: flex; justify-content: center; align-items: center; }' +
+                'img { width: 2in; height: 3in; object-fit: cover; display: block; }';
+
+            printDoc.head.appendChild(
+                printStyle
+            );
+
+
+            const printImage =
+                printDoc.createElement('img');
+
+            printImage.alt =
+                'RupaVue Photo';
+
+            printImage.onload =
+                function () {
+
+                    printWindow.focus();
+
+                    printWindow.print();
+
+                    printWindow.close();
+
+                };
+
+            printImage.onerror =
+                function () {
+
+                    printWindow.close();
+
+                    alert(
+                        'Unable to load the photo for printing.'
+                    );
+
+                };
+
+            printImage.src =
+                generatedPhoto;
+
+            printDoc.body.appendChild(
+                printImage
+            );
+
+        }
     );
 
 
-const image =
-    document.getElementById(
-        'resultImage'
+
+    /*
+    |--------------------------------------------------------------------------
+    | STAR RATING
+    |--------------------------------------------------------------------------
+    */
+
+    let selectedRating = 0;
+
+
+    const stars =
+        document.querySelectorAll(
+            '.star'
+        );
+
+
+    stars.forEach(
+        function (star) {
+
+            star.addEventListener(
+                'click',
+                function () {
+
+                    selectedRating =
+                        Number(
+                            this.dataset.rating
+                        );
+
+
+                    stars.forEach(
+                        function (item) {
+
+                            const rating =
+                                Number(
+                                    item.dataset.rating
+                                );
+
+
+                            if (
+                                rating <=
+                                selectedRating
+                            ) {
+
+                                item.textContent =
+                                    '★';
+
+                                item.classList.add(
+                                    'selected'
+                                );
+
+                            } else {
+
+                                item.textContent =
+                                    '☆';
+
+                                item.classList.remove(
+                                    'selected'
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+        }
     );
 
 
-const download =
-    document.getElementById(
-        'downloadButton'
+
+    /*
+    |--------------------------------------------------------------------------
+    | QUICK FEEDBACK
+    |--------------------------------------------------------------------------
+    */
+
+    let selectedFeedback = '';
+
+
+    const feedbackOptions =
+        document.querySelectorAll(
+            '.feedback-option'
+        );
+
+
+    feedbackOptions.forEach(
+        function (option) {
+
+            option.addEventListener(
+                'click',
+                function () {
+
+                    feedbackOptions.forEach(
+                        function (item) {
+
+                            item.classList.remove(
+                                'selected'
+                            );
+
+                        }
+                    );
+
+
+                    this.classList.add(
+                        'selected'
+                    );
+
+
+                    selectedFeedback =
+                        this.dataset.feedback;
+
+                }
+            );
+
+        }
     );
 
 
-/*
-|--------------------------------------------------------------------------
-| Display generated image
-|--------------------------------------------------------------------------
-*/
 
-if (!imageUrl) {
+    /*
+    |--------------------------------------------------------------------------
+    | COMMENT COUNTER
+    |--------------------------------------------------------------------------
+    */
 
-    image.alt =
-        'Generated image not found.';
-
-} else {
-
-    image.src =
-        imageUrl;
-
-    download.href =
-        imageUrl;
-
-}
+    const comment =
+        document.getElementById(
+            'comment'
+        );
 
 
-/*
-|--------------------------------------------------------------------------
-| Prevent broken download button
-|--------------------------------------------------------------------------
-*/
+    const commentCount =
+        document.getElementById(
+            'commentCount'
+        );
 
-if (!imageUrl) {
 
-    download.style.display =
-        'none';
+    comment.addEventListener(
+        'input',
+        function () {
 
-}
+            commentCount.textContent =
+                this.value.length +
+                '/200';
+
+        }
+    );
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUBMIT FEEDBACK
+    |--------------------------------------------------------------------------
+    */
+
+    const submitFeedback =
+        document.getElementById(
+            'submitFeedback'
+        );
+
+
+    const successMessage =
+        document.getElementById(
+            'successMessage'
+        );
+
+
+    submitFeedback.addEventListener(
+        'click',
+        async function () {
+
+            if (!selectedRating) {
+
+                alert(
+                    'Please select a star rating first.'
+                );
+
+                return;
+
+            }
+
+
+            if (!generatedImageId) {
+
+                alert(
+                    'Feedback is not available for this photo.'
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                submitFeedback.disabled =
+                    true;
+
+
+                submitFeedback.textContent =
+                    'Submitting...';
+
+
+                const response =
+                    await fetch(
+                        "{{ route('photobooth.feedback.store') }}",
+                        {
+
+                            method: 'POST',
+
+                            headers: {
+
+                                'Content-Type':
+                                    'application/json',
+
+                                'X-CSRF-TOKEN':
+                                    '{{ csrf_token() }}',
+
+                                'Accept':
+                                    'application/json'
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    generated_image_id:
+                                        Number(generatedImageId),
+
+                                    rating:
+                                        selectedRating,
+
+                                    feedback:
+                                        selectedFeedback,
+
+                                    comment:
+                                        comment.value,
+
+                                    theme:
+                                        selectedTheme
+
+                                })
+
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        'Failed to submit feedback.'
+                    );
+
+                }
+
+
+                submitFeedback.style.display =
+                    'none';
+
+
+                successMessage.style.display =
+                    'block';
+
+
+            } catch (error) {
+
+                console.error(
+                    'Feedback error:',
+                    error
+                );
+
+
+                submitFeedback.disabled =
+                    false;
+
+
+                submitFeedback.textContent =
+                    'Submit Feedback';
+
+
+                alert(
+                    'Unable to submit feedback. Please try again.'
+                );
+
+            }
+
+        }
+    );
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | START NEW SESSION
+    |--------------------------------------------------------------------------
+    */
+
+    const newSessionButton =
+        document.getElementById(
+            'newSessionButton'
+        );
+
+
+    newSessionButton.addEventListener(
+        'click',
+        function () {
+
+            sessionStorage.removeItem(
+                'rupavueCapturedPhoto'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueGeneratedPhoto'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueGeneratedImageId'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueOriginalPhoto'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueThemeId'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueThemeName'
+            );
+
+
+            window.location.href =
+                "{{ route('home') }}";
+
+        }
+    );
 
 </script>
+
 
 </body>
 

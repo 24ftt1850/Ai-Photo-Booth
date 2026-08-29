@@ -1,433 +1,564 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Creating AI Portrait</title>
-
-    @vite([
-        'resources/css/app.css',
-        'resources/js/app.js'
-    ])
+    <title>Creating Your Photo - RupaVue</title>
 
     <style>
-
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
+        html,
         body {
-
-            margin: 0;
-
-            font-family:
-                Arial,
-                sans-serif;
-
-            background:
-                #0f172a;
-
-            color:
-                white;
-
+            width: 100%;
+            min-height: 100%;
         }
 
-        .page {
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #111;
+            color: white;
+        }
 
+        /* =========================
+           MAIN PAGE
+        ========================= */
+
+        .generate-page {
             min-height: 100vh;
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            padding:
-                30px;
-
-        }
-
-        .card {
-
-            width:
-                100%;
-
-            max-width:
-                650px;
-
-            background:
-                #1e293b;
-
-            border-radius:
-                24px;
-
-            padding:
-                50px 40px;
-
-            text-align:
-                center;
-
-            box-shadow:
-                0 25px 70px
-                rgba(0,0,0,0.4);
-
-        }
-
-        .icon {
-
-            width:
-                100px;
-
-            height:
-                100px;
-
-            margin:
-                0 auto 30px;
-
-            border-radius:
-                30px;
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            font-size:
-                45px;
+            width: 100%;
 
             background:
                 linear-gradient(
-                    135deg,
-                    #7c3aed,
-                    #06b6d4
-                );
+                    rgba(0, 0, 0, 0.60),
+                    rgba(0, 0, 0, 0.82)
+                ),
+                url('/images/demo-background.jpg');
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            padding: 30px 5% 45px;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 35px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+
+            letter-spacing: 4px;
+        }
+
+        .step {
+            font-size: 13px;
+            font-weight: 600;
+
+            letter-spacing: 2px;
+
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        /* =========================
+           TITLE
+        ========================= */
+
+        .title-section {
+            text-align: center;
+
+            margin-bottom: 30px;
+        }
+
+        .title-section h1 {
+            font-size: clamp(30px, 4vw, 50px);
+
+            font-weight: 700;
+
+            margin-bottom: 10px;
+        }
+
+        .title-section p {
+            font-size: 15px;
+
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* =========================
+           THEME
+        ========================= */
+
+        .theme-label {
+            text-align: center;
+
+            margin-bottom: 25px;
+        }
+
+        .theme-label span {
+            display: inline-block;
+
+            padding: 8px 18px;
+
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            border-radius: 50px;
+
+            background: rgba(255, 255, 255, 0.08);
+
+            font-size: 13px;
+
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           GENERATION AREA
+        ========================= */
+
+        .generation-container {
+            width: 100%;
+            max-width: 1000px;
+
+            margin: 0 auto;
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 120px 1fr;
+
+            align-items: center;
+
+            gap: 30px;
+        }
+
+        /* =========================
+           PHOTO
+        ========================= */
+
+        .photo-container {
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+        }
+
+        .photo-title {
+            font-size: 13px;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+
+            color: rgba(255, 255, 255, 0.65);
+
+            margin-bottom: 12px;
+        }
+
+        .photo-frame {
+            width: min(100%, 330px);
+
+            aspect-ratio: 2 / 3;
+
+            border-radius: 18px;
+
+            overflow: hidden;
+
+            background: #151515;
+
+            border: 2px solid rgba(255, 255, 255, 0.15);
+
+            box-shadow:
+                0 15px 45px rgba(0, 0, 0, 0.45);
+
+            position: relative;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+
+            display: block;
+
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-direction: column;
+
+            color: rgba(255, 255, 255, 0.4);
+
+            text-align: center;
+        }
+
+        .photo-placeholder-icon {
+            font-size: 45px;
+
+            margin-bottom: 12px;
+        }
+
+        .photo-placeholder p {
+            font-size: 13px;
+        }
+
+        /* =========================
+           ARROW
+        ========================= */
+
+        .arrow {
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 38px;
+
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* =========================
+           AI LOADING
+        ========================= */
+
+        .ai-status {
+            margin-top: 30px;
+
+            text-align: center;
+        }
+
+        .loading-circle {
+            width: 55px;
+            height: 55px;
+
+            margin: 0 auto 18px;
+
+            border-radius: 50%;
+
+            border: 4px solid rgba(255, 255, 255, 0.2);
+
+            border-top-color: white;
 
             animation:
-                glow 2s infinite;
-
+                spin 1s linear infinite;
         }
 
-        @keyframes glow {
+        @keyframes spin {
 
-            0% {
-
-                transform:
-                    scale(1);
-
-                box-shadow:
-                    0 0 0
-                    rgba(124,58,237,0);
-
+            from {
+                transform: rotate(0deg);
             }
 
-            50% {
-
-                transform:
-                    scale(1.05);
-
-                box-shadow:
-                    0 0 40px
-                    rgba(124,58,237,0.4);
-
-            }
-
-            100% {
-
-                transform:
-                    scale(1);
-
-                box-shadow:
-                    0 0 0
-                    rgba(124,58,237,0);
-
+            to {
+                transform: rotate(360deg);
             }
 
         }
 
-        h1 {
+        .ai-status h2 {
+            font-size: 20px;
 
-            margin:
-                0;
-
-            font-size:
-                32px;
-
+            margin-bottom: 8px;
         }
 
-        .description {
+        .ai-status p {
+            font-size: 14px;
 
-            margin-top:
-                15px;
-
-            color:
-                #94a3b8;
-
-            line-height:
-                1.6;
-
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        .theme {
+        /* =========================
+           PROGRESS
+        ========================= */
 
-            display:
-                inline-block;
+        .progress-container {
+            width: min(90%, 450px);
 
-            margin-top:
-                25px;
-
-            padding:
-                10px 18px;
-
-            border-radius:
-                30px;
-
-            background:
-                #334155;
-
-            color:
-                #c4b5fd;
-
-            font-weight:
-                bold;
-
+            margin: 25px auto 0;
         }
 
-        .loader {
+        .progress-bar {
+            width: 100%;
 
-            display:
-                flex;
+            height: 5px;
 
-            justify-content:
-                center;
+            border-radius: 10px;
 
-            gap:
-                8px;
+            overflow: hidden;
 
-            margin-top:
-                35px;
-
+            background: rgba(255, 255, 255, 0.15);
         }
 
-        .dot {
+        .progress-fill {
+            width: 0%;
 
-            width:
-                10px;
+            height: 100%;
 
-            height:
-                10px;
+            background: white;
 
-            border-radius:
-                50%;
+            border-radius: 10px;
 
-            background:
-                #8b5cf6;
-
-            animation:
-                loading 1.4s
-                infinite
-                ease-in-out;
-
+            transition: width 0.5s ease;
         }
 
-        .dot:nth-child(2) {
+        .progress-text {
+            text-align: center;
 
-            animation-delay:
-                0.2s;
+            margin-top: 8px;
 
+            font-size: 12px;
+
+            color: rgba(255, 255, 255, 0.55);
         }
 
-        .dot:nth-child(3) {
+        /* =========================
+           RESPONSIVE
+        ========================= */
 
-            animation-delay:
-                0.4s;
+        @media (max-width: 800px) {
 
-        }
+            .generation-container {
+                grid-template-columns: 1fr;
 
-        @keyframes loading {
-
-            0%,
-            80%,
-            100% {
-
-                transform:
-                    scale(0.6);
-
-                opacity:
-                    0.4;
-
+                gap: 20px;
             }
 
-            40% {
+            .arrow {
+                transform: rotate(90deg);
 
-                transform:
-                    scale(1);
+                font-size: 30px;
+            }
 
-                opacity:
-                    1;
-
+            .photo-frame {
+                width: min(70vw, 300px);
             }
 
         }
 
-        .status {
+        @media (max-width: 480px) {
 
-            margin-top:
-                25px;
+            .generate-page {
+                padding: 25px 20px 35px;
+            }
 
-            color:
-                #94a3b8;
+            .logo {
+                font-size: 20px;
+            }
 
-            font-size:
-                14px;
+            .step {
+                font-size: 10px;
+            }
 
-            min-height:
-                20px;
+            .title-section h1 {
+                font-size: 30px;
+            }
 
-        }
+            .title-section p {
+                font-size: 13px;
+            }
 
-        .timer {
-
-            margin-top:
-                10px;
-
-            color:
-                #64748b;
-
-            font-size:
-                13px;
-
-        }
-
-        .cancel {
-
-            margin-top:
-                30px;
-
-            padding:
-                12px 20px;
-
-            border:
-                none;
-
-            border-radius:
-                10px;
-
-            background:
-                #334155;
-
-            color:
-                white;
-
-            cursor:
-                pointer;
-
-            font-size:
-                14px;
+            .photo-frame {
+                width: min(75vw, 270px);
+            }
 
         }
-
-        .cancel:hover {
-
-            background:
-                #475569;
-
-        }
-
-        .cancel:disabled {
-
-            opacity:
-                0.5;
-
-            cursor:
-                not-allowed;
-
-        }
-
     </style>
-
 </head>
-
 
 <body>
 
-<div class="page">
+<div class="generate-page">
 
-    <div class="card">
+    <!-- =========================
+         HEADER
+    ========================== -->
 
-        <div class="icon">
-            ✨
+    <header class="header">
+
+        <div class="logo">
+            RUPAVUE
         </div>
 
+        <div class="step">
+            STEP 3 OF 3
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         TITLE
+    ========================== -->
+
+    <section class="title-section">
 
         <h1>
-            Creating Your AI Portrait
+            Creating Your Photo
         </h1>
 
-
-        <p class="description">
-
-            Gemini is transforming your
-            photo into your selected theme.
-
+        <p>
+            Our AI is transforming your photo.
         </p>
 
+    </section>
+
+
+    <!-- =========================
+         THEME
+    ========================== -->
+
+    <div class="theme-label">
+
+        <span>
+            Theme:
+            <strong id="themeName">
+                {{ $theme->name ?? 'Unknown Theme' }}
+            </strong>
+        </span>
+
+    </div>
+
+
+    <!-- =========================
+         PHOTO COMPARISON
+    ========================== -->
+
+    <div class="generation-container">
+
+        <!-- ORIGINAL -->
+
+        <div class="photo-container">
+
+            <div class="photo-title">
+                Your Photo
+            </div>
+
+            <div class="photo-frame">
+
+                <img
+                    id="originalPhoto"
+                    alt="Your captured photo"
+                    style="display: none;"
+                >
+
+                <div
+                    class="photo-placeholder"
+                    id="photoPlaceholder"
+                >
+
+                    <div class="photo-placeholder-icon">
+                        📷
+                    </div>
+
+                    <p>
+                        Preparing your photo...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ARROW -->
+
+        <div class="arrow">
+            →
+        </div>
+
+
+        <!-- GENERATED -->
+
+        <div class="photo-container">
+
+            <div class="photo-title">
+                AI Result
+            </div>
+
+            <div class="photo-frame">
+
+                <div class="photo-placeholder">
+
+                    <div class="loading-circle"></div>
+
+                    <p>
+                        AI is creating...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         STATUS
+    ========================== -->
+
+    <div class="ai-status">
+
+        <div class="loading-circle"></div>
+
+        <h2>
+            Applying AI Magic
+        </h2>
+
+        <p id="statusText">
+            Preparing your image...
+        </p>
+
+    </div>
+
+
+    <!-- =========================
+         PROGRESS
+    ========================== -->
+
+    <div class="progress-container">
+
+        <div class="progress-bar">
+
+            <div
+                class="progress-fill"
+                id="progressFill"
+            ></div>
+
+        </div>
 
         <div
-            id="theme"
-            class="theme"
+            class="progress-text"
+            id="progressText"
         >
-            Preparing...
+            0%
         </div>
-
-
-        <div class="loader">
-
-            <div class="dot"></div>
-
-            <div class="dot"></div>
-
-            <div class="dot"></div>
-
-        </div>
-
-
-        <div
-            id="status"
-            class="status"
-        >
-            Starting AI generation...
-        </div>
-
-
-        <div
-            id="timer"
-            class="timer"
-        >
-            0 seconds
-        </div>
-
-
-        <button
-            id="cancelButton"
-            class="cancel"
-            onclick="goBack()"
-        >
-            ← Go Back
-        </button>
 
     </div>
 
@@ -436,763 +567,311 @@
 
 <script>
 
-/*
-|--------------------------------------------------------------------------
-| Get stored photo and theme
-|--------------------------------------------------------------------------
-*/
+    /*
+     * =========================
+     * ELEMENTS
+     * =========================
+     */
 
-const photo =
-    sessionStorage.getItem(
-        'photobooth_photo'
-    );
+    const originalPhoto =
+        document.getElementById('originalPhoto');
 
+    const photoPlaceholder =
+        document.getElementById('photoPlaceholder');
 
-const selectedTheme =
-    sessionStorage.getItem(
-        'selected_scene'
-    );
+    const statusText =
+        document.getElementById('statusText');
 
+    const progressFill =
+        document.getElementById('progressFill');
 
-/*
-|--------------------------------------------------------------------------
-| UI
-|--------------------------------------------------------------------------
-*/
-
-const themeElement =
-    document.getElementById(
-        'theme'
-    );
+    const progressText =
+        document.getElementById('progressText');
 
 
-const statusElement =
-    document.getElementById(
-        'status'
-    );
+    /*
+     * =========================
+     * THEME (RESOLVED SERVER-SIDE)
+     * =========================
+     */
+
+    const themeId =
+        @json($theme->id ?? null);
 
 
-const timerElement =
-    document.getElementById(
-        'timer'
-    );
+    /*
+     * =========================
+     * LOAD CAPTURED PHOTO
+     * =========================
+     */
 
-
-const cancelButton =
-    document.getElementById(
-        'cancelButton'
-    );
-
-
-/*
-|--------------------------------------------------------------------------
-| Check photo
-|--------------------------------------------------------------------------
-*/
-
-if (!photo) {
-
-    statusElement.textContent =
-        'No photo was found.';
-
-    throw new Error(
-        'Photo not found.'
-    );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Check theme
-|--------------------------------------------------------------------------
-*/
-
-if (!selectedTheme) {
-
-    statusElement.textContent =
-        'No theme was selected.';
-
-    throw new Error(
-        'Theme not found.'
-    );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Parse theme
-|--------------------------------------------------------------------------
-*/
-
-let theme;
-
-try {
-
-    theme =
-        JSON.parse(
-            selectedTheme
+    const capturedPhoto =
+        sessionStorage.getItem(
+            'rupavueCapturedPhoto'
         );
 
-} catch (error) {
 
-    statusElement.textContent =
-        'Invalid theme information.';
+    if (capturedPhoto) {
 
-    throw error;
+        originalPhoto.src =
+            capturedPhoto;
 
-}
+        originalPhoto.style.display =
+            'block';
 
+        photoPlaceholder.style.display =
+            'none';
 
-/*
-|--------------------------------------------------------------------------
-| Theme identifiers
-|--------------------------------------------------------------------------
-|
-| Themes are managed in the admin panel, so the prompt guests generate
-| with is whatever the admin configured for the selected theme.
-|
-*/
+    } else {
 
-const themeName =
-    String(
-        theme.slug || ''
-    )
-    .toLowerCase()
-    .trim();
-
-
-const themeDisplayName =
-    String(
-        theme.name || themeName
-    )
-    .trim();
-
-
-if (!themeName) {
-
-    statusElement.textContent =
-        'No theme was selected.';
-
-    alert(
-        'No theme was selected.'
-    );
-
-    throw new Error(
-        'No theme was selected.'
-    );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Get prompt
-|--------------------------------------------------------------------------
-*/
-
-const themePrompt =
-    String(
-        theme.prompt || ''
-    )
-    .trim();
-
-
-const selectedPrompt =
-    themePrompt
-        ? themePrompt
-        : `Transform the person in the provided photo into a creative professional portrait themed as "${themeDisplayName}". ${String(theme.description || '').trim()}`.trim();
-
-
-/*
-|--------------------------------------------------------------------------
-| Display theme
-|--------------------------------------------------------------------------
-*/
-
-themeElement.textContent =
-    themeDisplayName;
-
-
-/*
-|--------------------------------------------------------------------------
-| Variables
-|--------------------------------------------------------------------------
-*/
-
-let generationStarted =
-    false;
-
-let elapsedSeconds =
-    0;
-
-let timerInterval =
-    null;
-
-
-/*
-|--------------------------------------------------------------------------
-| Timer
-|--------------------------------------------------------------------------
-*/
-
-function startTimer() {
-
-    elapsedSeconds =
-        0;
-
-
-    timerInterval =
-        setInterval(
-            () => {
-
-                elapsedSeconds++;
-
-
-                timerElement.textContent =
-                    elapsedSeconds
-                    + ' seconds';
-
-            },
-            1000
-        );
-
-}
-
-
-function stopTimer() {
-
-    if (
-        timerInterval
-    ) {
-
-        clearInterval(
-            timerInterval
-        );
-
-        timerInterval =
-            null;
+        statusText.textContent =
+            'No captured photo found.';
 
     }
 
-}
 
+    /*
+    |--------------------------------------------------------------------------
+    | Progress
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| Status
-|--------------------------------------------------------------------------
-*/
-
-function updateStatus(
-    message
-) {
-
-    statusElement.textContent =
-        message;
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Go back
-|--------------------------------------------------------------------------
-*/
-
-function goBack() {
-
-    if (
-        generationStarted
+    function updateProgress(
+        value,
+        message
     ) {
 
-        const confirmed =
-            confirm(
-                'AI generation is still running. Are you sure you want to leave?'
-            );
+        progressFill.style.width =
+            value + '%';
+
+        progressText.textContent =
+            value + '%';
+
+        statusText.textContent =
+            message;
+
+    }
 
 
-        if (!confirmed) {
+    /*
+    |--------------------------------------------------------------------------
+    | Wait Helper
+    |--------------------------------------------------------------------------
+    */
+
+    function wait(milliseconds) {
+
+        return new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    milliseconds
+                )
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate AI Image
+    |--------------------------------------------------------------------------
+    */
+
+    async function generateAIImage() {
+
+        if (!capturedPhoto) {
+
+            statusText.textContent =
+                'No photo was captured.';
 
             return;
 
         }
 
-    }
+
+        if (!themeId) {
+
+            statusText.textContent =
+                'No theme was selected.';
+
+            return;
+
+        }
 
 
-    stopTimer();
+        try {
+
+            updateProgress(
+                10,
+                'Preparing your photo...'
+            );
 
 
-    window.location.href =
-        "{{ route('photobooth.scene') }}";
-
-}
+            await wait(500);
 
 
-/*
-|--------------------------------------------------------------------------
-| Generate portrait
-|--------------------------------------------------------------------------
-*/
-
-async function generatePortrait() {
-
-    if (
-        generationStarted
-    ) {
-
-        return;
-
-    }
+            updateProgress(
+                25,
+                'Uploading your photo...'
+            );
 
 
-    generationStarted =
-        true;
+            /*
+            * Send photo + theme to Laravel
+            */
 
+            const response =
+                await fetch(
+                    "{{ route('gemini.generate') }}",
+                    {
 
-    cancelButton.disabled =
-        true;
+                        method: 'POST',
 
+                        headers: {
 
-    startTimer();
+                            'Content-Type':
+                                'application/json',
 
+                            'X-CSRF-TOKEN':
+                                '{{ csrf_token() }}',
 
-    updateStatus(
-        'Connecting to Gemini...'
-    );
+                            'Accept':
+                                'application/json'
 
+                        },
 
-    try {
+                        body: JSON.stringify({
 
+                            image:
+                                capturedPhoto,
 
-        /*
-        |--------------------------------------------------------------------------
-        | Send request
-        |--------------------------------------------------------------------------
-        */
-
-        const response =
-            await fetch(
-
-                "{{ route('gemini.generate') }}",
-
-                {
-
-                    method:
-                        'POST',
-
-                    headers: {
-
-                        'Content-Type':
-                            'application/json',
-
-                        'X-CSRF-TOKEN':
-                            "{{ csrf_token() }}",
-
-                        'Accept':
-                            'text/event-stream'
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            photo:
-                                photo,
-
-                            theme:
-                                themeName,
-
-                            prompt:
-                                selectedPrompt
+                            theme_id:
+                                themeId
 
                         })
 
-                }
-
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check HTTP status
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !response.ok
-        ) {
-
-            const errorText =
-                await response.text();
-
-            throw new Error(
-                errorText
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get stream reader
-        |--------------------------------------------------------------------------
-        */
-
-        const reader =
-            response.body.getReader();
-
-
-        const decoder =
-            new TextDecoder();
-
-
-        let buffer =
-            '';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Read stream
-        |--------------------------------------------------------------------------
-        */
-
-        while (true) {
-
-            const {
-                value,
-                done
-            } =
-                await reader.read();
-
-
-            if (done) {
-
-                break;
-
-            }
-
-
-            buffer +=
-                decoder.decode(
-                    value,
-                    {
-                        stream:
-                            true
                     }
                 );
 
 
+            updateProgress(
+                45,
+                'AI is creating your photo...'
+            );
+
+
+            const data =
+                await response.json();
+
+
             /*
-            |--------------------------------------------------------------------------
-            | SSE events separated by blank line
-            |--------------------------------------------------------------------------
+            * Check response
             */
 
-            const events =
-                buffer.split(
-                    /\r?\n\r?\n/
+            if (!response.ok ||
+                !data.success) {
+
+                console.error(
+                    'Generation error:',
+                    data
                 );
 
-
-            buffer =
-                events.pop();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Process events
-            |--------------------------------------------------------------------------
-            */
-
-            for (
-                const eventBlock
-                of events
-            ) {
-
-
-                const lines =
-                    eventBlock.split(
-                        /\r?\n/
-                    );
-
-
-                let eventName =
-                    'message';
-
-
-                let eventData =
-                    '';
-
-
-                for (
-                    const line
-                    of lines
-                ) {
-
-                    if (
-                        line.startsWith(
-                            'event:'
-                        )
-                    ) {
-
-                        eventName =
-                            line
-                                .substring(6)
-                                .trim();
-
-                    }
-
-
-                    if (
-                        line.startsWith(
-                            'data:'
-                        )
-                    ) {
-
-                        eventData +=
-                            line
-                                .substring(5)
-                                .trim();
-
-                    }
-
-                }
-
-
-                if (
-                    !eventData
-                ) {
-
-                    continue;
-
-                }
-
-
-                if (
-                    eventData ===
-                    '[DONE]'
-                ) {
-
-                    continue;
-
-                }
-
-
-                let data;
-
-
-                try {
-
-                    data =
-                        JSON.parse(
-                            eventData
-                        );
-
-                } catch (error) {
-
-                    console.warn(
-                        'Invalid SSE data:',
-                        eventData
-                    );
-
-                    continue;
-
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Status event
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-                    eventName ===
-                    'status'
-                ) {
-
-                    updateStatus(
-                        data.message
-                        ||
-                        'Gemini is generating your portrait...'
-                    );
-
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Error event
-                |--------------------------------------------------------------------------
-                */
-
-                if (eventName === 'error') {
-
-                    console.error(
-                        'GEMINI SERVER ERROR:',
-                        data
-                    );
-
-                    throw new Error(
-
-                        (data.message || 'Gemini generation failed.')
-
-                        +
-
-                        '\n\nDetails:\n'
-
-                        +
-
-                        (
-                            data.details
-                            || 'No additional details.'
-                        )
-
-                    );
-
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Complete event
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-                    eventName ===
-                    'complete'
-                ) {
-
-                    if (
-                        !data.success
-                        ||
-                        !data.image_url
-                    ) {
-
-                        throw new Error(
-                            'Gemini did not return a generated image.'
-                        );
-
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Stop timer
-                    |--------------------------------------------------------------------------
-                    */
-
-                    stopTimer();
-
-
-                    updateStatus(
-                        'Portrait generated successfully!'
-                    );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Save result
-                    |--------------------------------------------------------------------------
-                    */
-
-                    sessionStorage.setItem(
-                        'generated_image',
-                        data.image_url
-                    );
-
-
-                    sessionStorage.setItem(
-                        'generated_theme',
-                        themeName
-                    );
-
-
-                    sessionStorage.setItem(
-                        'generated_image_id',
-                        data.generated_image_id
-                    );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Move to result
-                    |--------------------------------------------------------------------------
-                    */
-
-                    setTimeout(
-                        () => {
-
-                            window.location.href =
-                                "{{ route('photobooth.result') }}";
-
-                        },
-                        500
-                    );
-
-                }
+                throw new Error(
+                    data.message ||
+                    'AI generation failed.'
+                );
 
             }
 
+
+            updateProgress(
+                90,
+                'Finishing your photo...'
+            );
+
+
+            /*
+            * Save generated image
+            */
+
+            sessionStorage.setItem(
+                'rupavueGeneratedPhoto',
+                data.generated_image
+            );
+
+
+            sessionStorage.setItem(
+                'rupavueGeneratedImageId',
+                data.generated_image_id
+            );
+
+
+            sessionStorage.setItem(
+                'rupavueOriginalPhoto',
+                data.original_image
+            );
+
+
+            sessionStorage.setItem(
+                'rupavueThemeName',
+                data.theme
+            );
+
+
+            await wait(700);
+
+
+            updateProgress(
+                100,
+                'Your photo is ready!'
+            );
+
+
+            await wait(500);
+
+
+            /*
+            * Go to result
+            */
+
+            window.location.href =
+                "{{ route('photobooth.result') }}";
+
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            statusText.textContent =
+                error.message ||
+                'Something went wrong while creating your photo.';
+
+
+            progressText.textContent =
+                'Error';
+
+
+            progressFill.style.width =
+                '0%';
+
         }
-
-
-    } catch (error) {
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Error
-        |--------------------------------------------------------------------------
-        */
-
-        console.error(
-            'GEMINI STREAM ERROR:',
-            error
-        );
-
-
-        stopTimer();
-
-
-        generationStarted =
-            false;
-
-
-        cancelButton.disabled =
-            false;
-
-
-        updateStatus(
-            'Generation failed.'
-        );
-
-
-        alert(
-            'Gemini Error\n\n'
-            +
-            error.message
-        );
 
     }
 
-}
 
+    /*
+    |--------------------------------------------------------------------------
+    | Start Generation
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| Start
-|--------------------------------------------------------------------------
-*/
-
-generatePortrait();
+    generateAIImage();
 
 </script>
 
 </body>
-
 </html>

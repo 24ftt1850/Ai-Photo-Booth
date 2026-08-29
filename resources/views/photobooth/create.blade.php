@@ -4,666 +4,1705 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AI Photo Booth</title>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>Capture Photo - RupaVue</title>
 
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0f172a;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #111;
             color: white;
         }
 
-        .page {
-            min-height: 100vh;
+        /* =========================
+           MAIN PAGE
+        ========================= */
+
+        .camera-page {
+            width: 100%;
+            height: 100vh;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.55),
+                    rgba(0, 0, 0, 0.78)
+                ),
+                url('/images/demo-background.jpg');
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            padding: 20px 5%;
+
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
+            flex-direction: column;
         }
 
-        .booth {
-            width: 100%;
-            max-width: 1000px;
-            background: #1e293b;
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-        }
+        /* =========================
+           HEADER
+        ========================= */
 
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 32px;
-        }
-
-        .header p {
-            color: #94a3b8;
-            margin-top: 10px;
-        }
-
-        .camera-area {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 10;
-            background: #020617;
-            border-radius: 20px;
-            overflow: hidden;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 12px;
+
+            flex-shrink: 0;
         }
 
-        video,
-        #preview {
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+
+            letter-spacing: 4px;
+        }
+
+        .step {
+            font-size: 13px;
+            font-weight: 600;
+
+            letter-spacing: 2px;
+
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        /* =========================
+           TITLE
+        ========================= */
+
+        .title-section {
+            text-align: center;
+
+            margin-bottom: 10px;
+
+            flex-shrink: 0;
+        }
+
+        .title-section h1 {
+            font-size: clamp(24px, 3vw, 38px);
+
+            font-weight: 700;
+
+            margin-bottom: 4px;
+        }
+
+        .title-section p {
+            font-size: 15px;
+
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* =========================
+           SELECTED THEME
+        ========================= */
+
+        .selected-theme {
+            text-align: center;
+
+            margin-bottom: 10px;
+
+            flex-shrink: 0;
+        }
+
+        .selected-theme span {
+            display: inline-block;
+
+            padding: 8px 18px;
+
+            border: 1px solid rgba(255, 255, 255, 0.25);
+
+            border-radius: 50px;
+
+            background: rgba(255, 255, 255, 0.08);
+
+            font-size: 13px;
+
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           CAMERA AREA
+        ========================= */
+
+        .camera-wrapper {
+            width: 100%;
+            max-width: 600px;
+
+            margin: 0 auto;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+
+            flex: 1;
+
+            min-height: 0;
+        }
+
+        /*
+         * 3:2 Camera frame
+         */
+
+        .camera-frame {
+            position: relative;
+
+            width: min(55vh, 600px);
+
+            aspect-ratio: 2 / 3;
+
+            max-height: 55vh;
+
+            background: #050505;
+
+            border-radius: 24px;
+
+            overflow: hidden;
+
+            border: 2px solid rgba(255, 255, 255, 0.2);
+
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /*
+         * Video
+         */
+
+        #cameraVideo {
             width: 100%;
             height: 100%;
+
+            display: block;
+
             object-fit: cover;
+
+            /*
+             * Mirror camera preview
+             */
+            transform: scaleX(-1);
+
+            background: #050505;
         }
 
-        #preview {
+        /*
+         * Canvas is hidden.
+         * It is used to capture the actual image.
+         */
+
+        #photoCanvas {
             display: none;
         }
+
+        /* =========================
+           CAMERA PLACEHOLDER
+        ========================= */
 
         .camera-placeholder {
-            text-align: center;
-            color: #64748b;
-        }
+            position: absolute;
 
-        .camera-placeholder .icon {
-            font-size: 60px;
-            margin-bottom: 10px;
-        }
+            inset: 0;
 
-        .controls {
             display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-top: 25px;
-            flex-wrap: wrap;
+
+            text-align: center;
+
+            background: #151515;
+
+            z-index: 2;
         }
 
-        button,
-        .upload-button {
-            border: none;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .camera-button {
-            background: #7c3aed;
-            color: white;
-        }
-
-        .camera-button:hover {
-            background: #6d28d9;
-        }
-
-        .capture-button {
-            background: #ef4444;
-            color: white;
-        }
-
-        .capture-button:hover {
-            background: #dc2626;
-        }
-
-        .upload-button {
-            background: #334155;
-            color: white;
-            display: inline-block;
-        }
-
-        .upload-button:hover {
-            background: #475569;
-        }
-
-        .continue-button {
-            background: #06b6d4;
-            color: white;
-        }
-
-        .continue-button:hover {
-            background: #0891b2;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #photoInput {
+        .camera-placeholder.hidden {
             display: none;
         }
 
-        .message {
-            text-align: center;
-            margin-top: 15px;
-            color: #f87171;
+        .camera-icon {
+            font-size: 55px;
+
+            margin-bottom: 15px;
         }
 
-        .photo-info {
-            text-align: center;
-            margin-top: 15px;
-            color: #94a3b8;
+        .camera-placeholder h2 {
+            font-size: 22px;
+
+            margin-bottom: 8px;
         }
 
-        .back-home-button {
-            display: inline-flex;
+        .camera-placeholder p {
+            font-size: 14px;
+
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* =========================
+           COUNTDOWN
+        ========================= */
+
+        .countdown {
+            position: absolute;
+
+            inset: 0;
+
+            z-index: 5;
+
+            display: none;
 
             align-items: center;
+            justify-content: center;
 
+            background: rgba(0, 0, 0, 0.25);
+
+            pointer-events: none;
+        }
+
+        .countdown.active {
+            display: flex;
+        }
+
+        .countdown-number {
+            font-size: clamp(100px, 18vw, 220px);
+
+            font-weight: 800;
+
+            line-height: 1;
+
+            color: white;
+
+            text-shadow:
+                0 5px 30px rgba(0, 0, 0, 0.8);
+
+            animation: countdownPop 0.9s ease;
+        }
+
+        @keyframes countdownPop {
+
+            0% {
+                transform: scale(1.4);
+                opacity: 0;
+            }
+
+            30% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            80% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.85);
+                opacity: 0;
+            }
+        }
+
+        /* =========================
+           CAMERA STATUS
+        ========================= */
+
+        .camera-status {
+            margin-top: 8px;
+
+            font-size: 14px;
+
+            color: rgba(255, 255, 255, 0.65);
+
+            min-height: 20px;
+
+            text-align: center;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .actions {
+            display: flex;
+
+            align-items: center;
             justify-content: center;
 
             gap: 10px;
 
-            padding: 12px 18px;
+            margin-top: 10px;
 
-            border: 1px solid #334155;
+            flex-wrap: wrap;
+
+            flex-shrink: 0;
+        }
+
+        .or-text {
+            font-size: 12px;
+            font-weight: 600;
+
+            letter-spacing: 1px;
+
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .upload-button {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+
+            background: rgba(255, 255, 255, 0.08);
+
+            color: white;
+        }
+
+        .upload-button:hover {
+            background: white;
+
+            color: #111;
+
+            transform: translateY(-3px);
+        }
+
+        .button {
+            min-width: 180px;
+
+            padding: 12px 24px;
+
+            border-radius: 50px;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease,
+                color 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+        .capture-button {
+            border: 2px solid white;
+
+            background: white;
+
+            color: #111;
+        }
+
+        .capture-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .capture-button:disabled {
+            opacity: 0.4;
+
+            cursor: not-allowed;
+        }
+
+        .retake-button {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+
+            background: rgba(255, 255, 255, 0.08);
+
+            color: white;
+
+            display: none;
+        }
+
+        .retake-button:hover {
+            background: white;
+
+            color: #111;
+        }
+
+        .continue-button {
+            border: 2px solid white;
+
+            background: white;
+
+            color: #111;
+
+            display: none;
+        }
+
+        .continue-button:hover {
+            transform: translateY(-3px);
+        }
+
+        /* =========================
+           CAPTURED PHOTO
+        ========================= */
+
+        .captured-photo {
+            position: absolute;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            display: none;
+
+            z-index: 3;
+        }
+
+        .captured-photo.visible {
+            display: block;
+        }
+
+        /* =========================
+           CAMERA ERROR
+        ========================= */
+
+        .camera-error {
+            display: none;
+
+            margin-top: 20px;
+
+            padding: 14px 20px;
+
+            max-width: 700px;
+
+            margin-left: auto;
+            margin-right: auto;
 
             border-radius: 12px;
 
-            color: #94a3b8;
+            background: rgba(180, 30, 30, 0.2);
 
-            background: transparent;
+            border: 1px solid rgba(255, 100, 100, 0.35);
+
+            color: rgba(255, 255, 255, 0.85);
+
+            text-align: center;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .camera-error.visible {
+            display: block;
+        }
+
+        /* =========================
+           BACK BUTTON
+        ========================= */
+
+        .back-button {
+            margin-top: 8px;
+
+            text-align: center;
+
+            flex-shrink: 0;
+        }
+
+        .back-button a {
+            color: rgba(255, 255, 255, 0.55);
 
             text-decoration: none;
 
             font-size: 13px;
 
-            font-weight: bold;
+            letter-spacing: 1px;
 
-            transition: 0.2s ease;
+            transition: color 0.2s ease;
         }
 
-        .back-home-button:hover {
+        .back-button a:hover {
             color: white;
-
-            border-color: #64748b;
-
-            background: #1e293b;
         }
 
-        .back-home-arrow {
-            font-size: 14px;
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            .camera-page {
+                padding: 25px 20px 35px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .step {
+                font-size: 10px;
+            }
+
+            .title-section h1 {
+                font-size: 30px;
+            }
+
+            .camera-frame {
+                width: 100%;
+
+                border-radius: 18px;
+            }
+
+            .button {
+                width: 100%;
+
+                max-width: 320px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .title-section p {
+                font-size: 13px;
+            }
+
+            .camera-frame {
+                border-radius: 14px;
+            }
+
+            .actions {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="page">
+<div class="camera-page">
 
-    <div class="booth">
+    <!-- =========================
+         HEADER
+    ========================== -->
 
-        <div class="header">
-            <h1>✨ AI Photo Booth</h1>
+    <header class="header">
 
-            <p>
-                Take a photo or upload an image to create your AI portrait.
-            </p>
+        <div class="logo">
+            RUPAVUE
         </div>
 
-        <!-- Camera / Preview -->
+        <div class="step">
+            STEP 2 OF 3
+        </div>
 
-        <div class="camera-area">
+    </header>
 
-            <!-- Webcam -->
+
+    <!-- =========================
+         TITLE
+    ========================== -->
+
+    <section class="title-section">
+
+        <h1>
+            Strike a Pose
+        </h1>
+
+        <p>
+            Get ready and capture your photo.
+        </p>
+
+    </section>
+
+
+    <!-- =========================
+         SELECTED THEME
+    ========================== -->
+
+    <div class="selected-theme">
+
+        <span>
+            Theme:
+            <strong>
+                {{ $theme->name ?? 'No Theme Selected' }}
+            </strong>
+        </span>
+
+    </div>
+
+
+    <!-- =========================
+         CAMERA
+    ========================== -->
+
+    <div class="camera-wrapper">
+
+        <div class="camera-frame">
+
+            <!-- Camera -->
 
             <video
-                id="camera"
+                id="cameraVideo"
                 autoplay
                 playsinline
+                muted
             ></video>
 
-            <!-- Image Preview -->
 
-            <img
-                id="preview"
-                alt="Photo preview"
-            >
-
-            <!-- Initial placeholder -->
+            <!-- Placeholder -->
 
             <div
-                id="placeholder"
                 class="camera-placeholder"
+                id="cameraPlaceholder"
             >
-                <div class="icon">📷</div>
 
-                <div>
-                    Camera preview will appear here
+                <div class="camera-icon">
+                    📷
                 </div>
+
+                <h2>
+                    Camera Ready
+                </h2>
+
+                <p>
+                    Allow camera access to continue.
+                </p>
+
+            </div>
+
+
+            <!-- Captured photo -->
+
+            <img
+                id="capturedPhoto"
+                class="captured-photo"
+                alt="Captured photo"
+            >
+
+
+            <!-- Countdown -->
+
+            <div
+                class="countdown"
+                id="countdown"
+                aria-live="assertive"
+            >
+
+                <div
+                    class="countdown-number"
+                    id="countdownNumber"
+                >
+                    3
+                </div>
+
             </div>
 
         </div>
 
 
-        <!-- Controls -->
+        <!-- Status -->
 
-        <div class="controls">
+        <div
+            class="camera-status"
+            id="cameraStatus"
+        >
+            Starting camera...
+        </div>
 
-            <!-- Open Camera -->
+
+        <!-- Error -->
+
+        <div
+            class="camera-error"
+            id="cameraError"
+        >
+            Camera access could not be started.
+            Please allow camera permission and try again.
+        </div>
+
+
+        <!-- Buttons -->
+
+        <div class="actions">
 
             <button
-                id="openCamera"
-                class="camera-button"
                 type="button"
+                class="button capture-button"
+                id="captureButton"
+                disabled
             >
-                📷 Open Camera
+                📷 Capture Photo
             </button>
 
-
-            <!-- Capture -->
+            <span class="or-text">
+                OR
+            </span>
 
             <button
-                id="capture"
-                class="capture-button hidden"
                 type="button"
+                class="button upload-button"
+                id="uploadButton"
             >
-                📸 Take Photo
+                📁 Upload Image
             </button>
-
-
-            <!-- Upload -->
-
-            <label
-                for="photoInput"
-                class="upload-button"
-            >
-                🖼️ Upload Image
-            </label>
 
             <input
                 type="file"
-                id="photoInput"
-                accept="image/*"
+                id="imageUpload"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
             >
 
-
-            <!-- Continue -->
+            <button
+                type="button"
+                class="button retake-button"
+                id="retakeButton"
+            >
+                ↻ Retake
+            </button>
 
             <button
-                id="continueButton"
-                class="continue-button hidden"
                 type="button"
+                class="button continue-button"
+                id="continueButton"
             >
                 Continue →
             </button>
 
-            <a
-                href="{{ route('home') }}"
-                class="back-home-button"
-            >
-                <span class="back-home-arrow">←</span>
-                <span>BACK TO HOME</span>
-            </a>
-
         </div>
 
 
-        <div
-            id="message"
-            class="message"
-        ></div>
+        <!-- Back -->
 
-        <div
-            id="photoInfo"
-            class="photo-info"
-        ></div>
+        <div class="back-button">
+
+            <a href="{{ route('photobooth.scene') }}">
+                ← Change Theme
+            </a>
+
+        </div>
 
     </div>
 
 </div>
 
 
+<!-- =========================
+     HIDDEN CANVAS
+========================== -->
+
+<canvas id="photoCanvas"></canvas>
+
+
 <script>
 
-const camera = document.getElementById('camera');
-const preview = document.getElementById('preview');
-const placeholder = document.getElementById('placeholder');
+    /*
+     * =========================
+     * ELEMENTS
+     * =========================
+     */
 
-const openCameraButton = document.getElementById('openCamera');
-const captureButton = document.getElementById('capture');
-const continueButton = document.getElementById('continueButton');
+    const video =
+        document.getElementById('cameraVideo');
 
-const photoInput = document.getElementById('photoInput');
+    const canvas =
+        document.getElementById('photoCanvas');
 
-const message = document.getElementById('message');
-const photoInfo = document.getElementById('photoInfo');
+    const capturedPhoto =
+        document.getElementById('capturedPhoto');
 
-let stream = null;
-let selectedFile = null;
+    const placeholder =
+        document.getElementById('cameraPlaceholder');
+
+    const countdown =
+        document.getElementById('countdown');
+
+    const countdownNumber =
+        document.getElementById('countdownNumber');
+
+    const captureButton =
+        document.getElementById('captureButton');
+
+    const uploadButton =
+    document.getElementById('uploadButton');
+
+    const imageUpload =
+        document.getElementById('imageUpload');
+
+    const retakeButton =
+        document.getElementById('retakeButton');
+
+    const continueButton =
+        document.getElementById('continueButton');
+
+    const cameraStatus =
+        document.getElementById('cameraStatus');
+
+    const cameraError =
+        document.getElementById('cameraError');
 
 
-/*
-|--------------------------------------------------------------------------
-| Open Camera
-|--------------------------------------------------------------------------
-*/
+    /*
+     * =========================
+     * VARIABLES
+     * =========================
+     */
 
-openCameraButton.addEventListener('click', async () => {
+    let cameraStream = null;
 
-    message.textContent = '';
+    let capturedImageData = null;
 
-    try {
+    let countdownRunning = false;
 
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: 'user'
-            },
-            audio: false
-        });
 
-        camera.srcObject = stream;
+    /*
+     * =========================
+     * START CAMERA
+     * =========================
+     */
 
-        camera.style.display = 'block';
-        preview.style.display = 'none';
+    async function startCamera() {
 
-        placeholder.style.display = 'none';
+        try {
 
-        captureButton.classList.remove('hidden');
+            cameraStatus.textContent =
+                'Starting camera...';
 
-        openCameraButton.textContent = '📷 Camera Active';
+            cameraError.classList.remove(
+                'visible'
+            );
 
-    } catch (error) {
+            cameraStream =
+                await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
 
-        console.error(error);
+                        aspectRatio: {
+                            ideal: 3 / 2
+                        }
+                    },
 
-        message.textContent =
-            'Unable to access the camera. Please allow camera permission.';
+                    audio: false
+                });
+
+
+            video.srcObject =
+                cameraStream;
+
+
+            await video.play();
+
+
+            placeholder.classList.add(
+                'hidden'
+            );
+
+
+            captureButton.disabled =
+                false;
+
+
+            cameraStatus.textContent =
+                'Camera ready. Strike a pose!';
+
+        } catch (error) {
+
+            console.error(
+                'Camera error:',
+                error
+            );
+
+            cameraStatus.textContent =
+                'Camera unavailable.';
+
+            cameraError.classList.add(
+                'visible'
+            );
+
+            captureButton.disabled =
+                true;
+
+        }
 
     }
 
-});
+
+    /*
+     * =========================
+     * COUNTDOWN
+     * =========================
+     */
+
+    async function startCountdown() {
+
+        if (countdownRunning) {
+            return;
+        }
+
+        countdownRunning = true;
+
+        captureButton.disabled = true;
 
 
-/*
-|--------------------------------------------------------------------------
-| Take Photo
-|--------------------------------------------------------------------------
-*/
+        const numbers = [
+            '3',
+            '2',
+            '1'
+        ];
 
-captureButton.addEventListener('click', () => {
 
-    if (!stream) {
-        return;
+        for (const number of numbers) {
+
+            countdownNumber.textContent =
+                number;
+
+            countdown.classList.add(
+                'active'
+            );
+
+
+            /*
+             * Restart animation
+             */
+
+            countdownNumber.style.animation =
+                'none';
+
+            void countdownNumber.offsetWidth;
+
+            countdownNumber.style.animation =
+                'countdownPop 0.9s ease';
+
+
+            await wait(1000);
+
+
+            countdown.classList.remove(
+                'active'
+            );
+
+            await wait(100);
+
+        }
+
+
+        /*
+         * Capture after countdown
+         */
+
+        capturePhoto();
+
+
+        countdownRunning = false;
+
     }
 
-    const canvas = document.createElement('canvas');
+    /*
+ * =========================
+ * UPLOAD IMAGE
+ * =========================
+ */
 
-    canvas.width = camera.videoWidth;
-    canvas.height = camera.videoHeight;
+        uploadButton.addEventListener(
+            'click',
+            function () {
 
-    const context = canvas.getContext('2d');
+                imageUpload.click();
 
-    context.drawImage(
-        camera,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    canvas.toBlob((blob) => {
-
-        selectedFile = new File(
-            [blob],
-            'camera-photo.jpg',
-            {
-                type: 'image/jpeg'
             }
         );
 
-        preview.src = URL.createObjectURL(blob);
 
-        showPreview();
+        imageUpload.addEventListener(
+            'change',
+            function (event) {
 
-    }, 'image/jpeg', 0.9);
+                const file =
+                    event.target.files[0];
 
-});
+                if (!file) {
+                    return;
+                }
 
-
-/*
-|--------------------------------------------------------------------------
-| Upload Image
-|--------------------------------------------------------------------------
-*/
-
-photoInput.addEventListener('change', (event) => {
-
-    const file = event.target.files[0];
-
-    if (!file) {
-        return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-
-        message.textContent =
-            'Please select an image file.';
-
-        return;
-    }
-
-    selectedFile = file;
-
-    preview.src = URL.createObjectURL(file);
-
-    showPreview();
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Show Preview
-|--------------------------------------------------------------------------
-*/
-
-function showPreview() {
-
-    /*
-     * Stop camera
-     */
-
-    stopCamera();
-
-    /*
-     * Show image
-     */
-
-    camera.style.display = 'none';
-
-    preview.style.display = 'block';
-
-    placeholder.style.display = 'none';
-
-    /*
-     * Buttons
-     */
-
-    captureButton.classList.add('hidden');
-
-    continueButton.classList.remove('hidden');
-
-    openCameraButton.textContent = '📷 Retake Photo';
-
-    /*
-     * Information
-     */
-
-    if (selectedFile) {
-
-        const size =
-            (selectedFile.size / 1024 / 1024).toFixed(2);
-
-        photoInfo.textContent =
-            `${selectedFile.name} • ${size} MB`;
-
-    }
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Stop Camera
-|--------------------------------------------------------------------------
-*/
-
-function stopCamera() {
-
-    if (stream) {
-
-        stream.getTracks().forEach(track => {
-            track.stop();
-        });
-
-        stream = null;
-    }
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Continue
-|--------------------------------------------------------------------------
-*/
-
-continueButton.addEventListener('click', () => {
-
-    if (!selectedFile) {
-
-        message.textContent =
-            'Please take or upload a photo first.';
-
-        return;
-    }
-
-    message.textContent = 'Preparing your photo...';
-
-    /*
-    |--------------------------------------------------------------------------
-    | Compress image before storing it
-    |--------------------------------------------------------------------------
-    */
-
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-
-        const img = new Image();
-
-        img.onload = function() {
-
-            const canvas = document.createElement('canvas');
-
-            /*
-             * Limit image size.
-             * This prevents sessionStorage from becoming too large.
-             */
-
-            const maxWidth = 1200;
-            const maxHeight = 1200;
-
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxWidth || height > maxHeight) {
-
-                const ratio = Math.min(
-                    maxWidth / width,
-                    maxHeight / height
-                );
-
-                width = Math.round(width * ratio);
-                height = Math.round(height * ratio);
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-
-            const context = canvas.getContext('2d');
-
-            context.drawImage(
-                img,
-                0,
-                0,
-                width,
-                height
-            );
-
-            /*
-             * Convert to compressed JPEG.
-             */
-
-            const compressedPhoto =
-                canvas.toDataURL(
-                    'image/jpeg',
-                    0.75
-                );
-
-            try {
-
-                sessionStorage.setItem(
-                    'photobooth_photo',
-                    compressedPhoto
-                );
-
-                console.log(
-                    'Photo saved successfully.'
-                );
 
                 /*
-                 * Move to theme selection.
-                 */
+                * Check file type
+                */
 
-                window.location.href =
-                    "{{ route('photobooth.scene') }}";
+                const allowedTypes = [
+                    'image/jpeg',
+                    'image/png',
+                    'image/webp'
+                ];
 
-            } catch (error) {
+                if (!allowedTypes.includes(file.type)) {
 
-                console.error(error);
+                    cameraStatus.textContent =
+                        'Please upload a JPG, PNG, or WebP image.';
 
-                message.textContent =
-                    'The image is too large. Please choose a smaller image.';
+                    return;
+                }
+
+
+                /*
+                * Check file size
+                *
+                * Maximum: 10 MB
+                */
+
+                if (file.size > 10 * 1024 * 1024) {
+
+                    cameraStatus.textContent =
+                        'Image must be smaller than 10 MB.';
+
+                    return;
+                }
+
+
+                /*
+                * Read image
+                */
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload = function (e) {
+
+                    processUploadedImage(
+                        e.target.result
+                    );
+
+                };
+
+
+                reader.readAsDataURL(file);
 
             }
+        );
 
-        };
+    /*
+        * =========================
+        * PROCESS UPLOADED IMAGE
+        * =========================
+        */
 
-        img.onerror = function() {
+        function processUploadedImage(imageData) {
 
-            message.textContent =
-                'Unable to process this image.';
+            const image =
+                new Image();
 
-        };
 
-        img.src = event.target.result;
+            image.onload = function () {
 
-    };
+                /*
+                * Target ratio
+                *
+                * 2:3 portrait
+                */
 
-    reader.onerror = function() {
+                const targetRatio =
+                    2 / 3;
 
-        message.textContent =
-            'Unable to read the selected image.';
 
-    };
+                const sourceWidth =
+                    image.naturalWidth;
 
-    reader.readAsDataURL(selectedFile);
+                const sourceHeight =
+                    image.naturalHeight;
 
-});
+
+                const sourceRatio =
+                    sourceWidth / sourceHeight;
+
+
+                let cropWidth =
+                    sourceWidth;
+
+                let cropHeight =
+                    sourceHeight;
+
+                let cropX = 0;
+
+                let cropY = 0;
+
+
+                /*
+                * Crop image to 2:3
+                */
+
+                if (sourceRatio > targetRatio) {
+
+                    /*
+                    * Image is too wide
+                    */
+
+                    cropWidth =
+                        sourceHeight * targetRatio;
+
+                    cropX =
+                        (sourceWidth - cropWidth) / 2;
+
+                } else {
+
+                    /*
+                    * Image is too tall
+                    */
+
+                    cropHeight =
+                        sourceWidth / targetRatio;
+
+                    cropY =
+                        (sourceHeight - cropHeight) / 2;
+
+                }
+
+
+                /*
+                * Output size
+                */
+
+                const outputWidth =
+                    800;
+
+                const outputHeight =
+                    1200;
+
+
+                canvas.width =
+                    outputWidth;
+
+                canvas.height =
+                    outputHeight;
+
+
+                const context =
+                    canvas.getContext('2d');
+
+
+                /*
+                * Draw cropped image
+                */
+
+                context.drawImage(
+
+                    image,
+
+                    cropX,
+                    cropY,
+
+                    cropWidth,
+                    cropHeight,
+
+                    0,
+                    0,
+
+                    outputWidth,
+                    outputHeight
+
+                );
+
+
+                /*
+                * Convert to JPEG
+                */
+
+                capturedImageData =
+                    canvas.toDataURL(
+                        'image/jpeg',
+                        0.92
+                    );
+
+
+                /*
+                * Display uploaded image
+                */
+
+                capturedPhoto.src =
+                    capturedImageData;
+
+                capturedPhoto.classList.add(
+                    'visible'
+                );
+
+
+                /*
+                * Hide camera
+                */
+
+                video.style.display =
+                    'none';
+
+
+                placeholder.classList.add(
+                    'hidden'
+                );
+
+
+                /*
+                * Stop camera
+                */
+
+                stopCamera();
+
+
+                /*
+                * Update UI
+                */
+
+                cameraStatus.textContent =
+                    'Image uploaded successfully!';
+
+
+                captureButton.style.display =
+                    'none';
+
+                uploadButton.style.display =
+                    'none';
+
+
+                document
+                    .querySelector('.or-text')
+                    .style.display =
+                    'none';
+
+
+                retakeButton.style.display =
+                    'inline-flex';
+
+                continueButton.style.display =
+                    'inline-flex';
+
+            };
+
+
+            image.src =
+                imageData;
+
+        }
+
+
+    /*
+     * =========================
+     * CAPTURE PHOTO
+     * =========================
+     */
+
+    function capturePhoto() {
+
+        if (!video.videoWidth ||
+            !video.videoHeight) {
+
+            cameraStatus.textContent =
+                'Camera is not ready yet.';
+
+            captureButton.disabled =
+                false;
+
+            return;
+        }
+
+
+       
+        const targetRatio =
+            2 / 3;
+
+        let sourceWidth =
+            video.videoWidth;
+
+        let sourceHeight =
+            video.videoHeight;
+
+
+        const sourceRatio =
+            sourceWidth / sourceHeight;
+
+
+        let cropWidth =
+            sourceWidth;
+
+        let cropHeight =
+            sourceHeight;
+
+        let cropX = 0;
+
+        let cropY = 0;
+
+
+        /*
+         * Crop the camera image
+         * to exactly 3:2.
+         */
+
+        if (sourceRatio > targetRatio) {
+
+            cropWidth =
+                sourceHeight * targetRatio;
+
+            cropX =
+                (sourceWidth - cropWidth) / 2;
+
+        } else {
+
+            cropHeight =
+                sourceWidth / targetRatio;
+
+            cropY =
+                (sourceHeight - cropHeight) / 2;
+        }
+
+
+        /*
+         * Canvas output
+         */
+
+        const outputWidth =
+            800;
+
+        const outputHeight =
+            1200;
+
+
+        canvas.width =
+            outputWidth;
+
+        canvas.height =
+            outputHeight;
+
+
+        const context =
+            canvas.getContext('2d');
+
+
+        /*
+         * Mirror the captured photo
+         * so it matches the preview.
+         */
+
+        context.save();
+
+        context.translate(
+            outputWidth,
+            0
+        );
+
+        context.scale(
+            -1,
+            1
+        );
+
+
+        context.drawImage(
+            video,
+
+            cropX,
+            cropY,
+            cropWidth,
+            cropHeight,
+
+            0,
+            0,
+            outputWidth,
+            outputHeight
+        );
+
+
+        context.restore();
+
+
+        /*
+         * Convert to image
+         */
+
+        capturedImageData =
+            canvas.toDataURL(
+                'image/jpeg',
+                0.92
+            );
+
+
+        /*
+         * Display captured photo
+         */
+
+        capturedPhoto.src =
+            capturedImageData;
+
+        capturedPhoto.classList.add(
+            'visible'
+        );
+
+
+        /*
+         * Stop camera preview
+         */
+
+        stopCamera();
+
+
+        /*
+         * Update UI
+         */
+
+        cameraStatus.textContent =
+            'Photo captured successfully!';
+
+        captureButton.style.display =
+            'none';
+
+        retakeButton.style.display =
+            'inline-flex';
+
+        continueButton.style.display =
+            'inline-flex';
+
+    }
+
+
+    /*
+     * =========================
+     * RETAKE
+     * =========================
+     */
+
+    function retakePhoto() {
+
+            capturedImageData =
+                null;
+
+
+            capturedPhoto.src =
+                '';
+
+            capturedPhoto.classList.remove(
+                'visible'
+            );
+
+
+            /*
+            * Clear uploaded file
+            */
+
+            imageUpload.value =
+                '';
+
+
+            /*
+            * Show camera
+            */
+
+            video.style.display =
+                'block';
+
+
+            /*
+            * Show capture/upload buttons
+            */
+
+            captureButton.style.display =
+                'inline-flex';
+
+            uploadButton.style.display =
+                'inline-flex';
+
+
+            document
+                .querySelector('.or-text')
+                .style.display =
+                'inline';
+
+
+            /*
+            * Hide result buttons
+            */
+
+            retakeButton.style.display =
+                'none';
+
+            continueButton.style.display =
+                'none';
+
+
+            captureButton.disabled =
+                true;
+
+
+            cameraStatus.textContent =
+                'Starting camera...';
+
+
+            /*
+            * Start camera again
+            */
+
+            startCamera();
+
+        }
+
+
+    /*
+     * =========================
+     * STOP CAMERA
+     * =========================
+     */
+
+    function stopCamera() {
+
+        if (!cameraStream) {
+            return;
+        }
+
+
+        cameraStream
+            .getTracks()
+            .forEach(track => {
+                track.stop();
+            });
+
+
+        cameraStream = null;
+
+        video.srcObject = null;
+
+    }
+
+
+    /*
+     * =========================
+     * CONTINUE
+     * =========================
+     */
+
+    function continueToGeneration() {
+
+        if (!capturedImageData) {
+
+            cameraStatus.textContent =
+                'Please capture a photo first.';
+
+            return;
+        }
+
+
+        /*
+         * Store the captured image temporarily.
+         *
+         * Later we will replace this with
+         * proper Laravel file uploading.
+         */
+
+        sessionStorage.setItem(
+            'rupavueCapturedPhoto',
+            capturedImageData
+        );
+
+
+        /*
+         * Go to generation page.
+         */
+
+        window.location.href =
+            "{{ route('photobooth.generate') }}"
+            + "?theme_id={{ $theme->id ?? '' }}";
+
+    }
+
+
+    /*
+     * =========================
+     * WAIT HELPER
+     * =========================
+     */
+
+    function wait(milliseconds) {
+
+        return new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    milliseconds
+                )
+        );
+
+    }
+
+
+    /*
+     * =========================
+     * EVENTS
+     * =========================
+     */
+
+    captureButton.addEventListener(
+        'click',
+        startCountdown
+    );
+
+
+    retakeButton.addEventListener(
+        'click',
+        retakePhoto
+    );
+
+
+    continueButton.addEventListener(
+        'click',
+        continueToGeneration
+    );
+
+
+    /*
+     * =========================
+     * CLEANUP
+     * =========================
+     */
+
+    window.addEventListener(
+        'beforeunload',
+        stopCamera
+    );
+
+
+    /*
+     * =========================
+     * START
+     * =========================
+     */
+
+    if (
+        navigator.mediaDevices &&
+        navigator.mediaDevices.getUserMedia
+    ) {
+
+        startCamera();
+
+    } else {
+
+        cameraStatus.textContent =
+            'Your browser does not support camera access.';
+
+        cameraError.textContent =
+            'Please use a modern browser such as Chrome or Edge.';
+
+        cameraError.classList.add(
+            'visible'
+        );
+
+    }
 
 </script>
 
