@@ -2,13 +2,14 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>RupaVue - AI Photo Experience</title>
-
 
     <style>
 
@@ -22,16 +23,13 @@
             box-sizing: border-box;
         }
 
-
         html,
         body {
             width: 100%;
             height: 100%;
         }
 
-
         body {
-
             font-family:
                 Arial,
                 Helvetica,
@@ -39,8 +37,7 @@
 
             overflow: hidden;
 
-            background: #071b4a;
-
+            background: #020b2d;
         }
 
 
@@ -55,7 +52,6 @@
             width: 100%;
 
             height: 100vh;
-
             height: 100dvh;
 
             overflow: hidden;
@@ -67,22 +63,24 @@
             justify-content: center;
 
             background:
-
                 radial-gradient(
-                    ellipse at center,
+                    ellipse 62% 58% at 50% 48%,
                     #ffffff 0%,
-                    #f8fbff 18%,
-                    #dceaff 36%,
-                    #6f9fe0 60%,
-                    #022050 100%,
-                    #021742 100%
+                    #f5f9ff 16%,
+                    #d9eaff 30%,
+                    #9ac7fa 43%,
+                    #438ff0 57%,
+                    #0755c9 69%,
+                    #052c78 80%,
+                    #03194b 91%,
+                    #010b25 100%
                 );
 
         }
 
 
         /* =====================================================
-           MOVING BLUE LIGHT
+           DEEP BLUE ATMOSPHERE
         ===================================================== */
 
         .ambient-light {
@@ -91,49 +89,60 @@
 
             inset: -20%;
 
-            background:
-
-                radial-gradient(
-                    ellipse at 50% 45%,
-                    rgba(255,255,255,0.65),
-                    transparent 35%
-                ),
-
-                radial-gradient(
-                    ellipse at 15% 10%,
-                    rgba(0,90,255,0.65),
-                    transparent 25%
-                ),
-
-                radial-gradient(
-                    ellipse at 85% 15%,
-                    rgba(0,180,255,0.55),
-                    transparent 27%
-                ),
-
-                radial-gradient(
-                    ellipse at 15% 90%,
-                    rgba(75,50,255,0.60),
-                    transparent 28%
-                ),
-
-                radial-gradient(
-                    ellipse at 90% 90%,
-                    rgba(0,100,255,0.60),
-                    transparent 30%
-                );
-
-            filter: blur(45px);
-
-            animation:
-                ambientMove
-                16s
-                ease-in-out
-                infinite;
-
             z-index: 0;
 
             pointer-events: none;
+
+            background:
+
+                /* Bright blue glow around the center */
+                radial-gradient(
+                    ellipse 55% 42% at 50% 48%,
+                    rgba(255,255,255,0.55) 0%,
+                    rgba(120,185,255,0.35) 35%,
+                    rgba(25,105,235,0.25) 60%,
+                    transparent 80%
+                ),
+
+                /* Deep blue top-left */
+                radial-gradient(
+                    ellipse 40% 35% at 0% 0%,
+                    rgba(10,70,180,0.9) 0%,
+                    rgba(4,35,105,0.65) 55%,
+                    transparent 100%
+                ),
+
+                /* Blue top-right */
+                radial-gradient(
+                    ellipse 42% 38% at 100% 0%,
+                    rgba(10,115,205,0.85) 0%,
+                    rgba(3,55,130,0.65) 55%,
+                    transparent 100%
+                ),
+
+                /* Purple-blue bottom-left */
+                radial-gradient(
+                    ellipse 42% 40% at 0% 100%,
+                    rgba(65,50,190,0.9) 0%,
+                    rgba(15,45,135,0.7) 55%,
+                    transparent 100%
+                ),
+
+                /* Deep blue bottom-right */
+                radial-gradient(
+                    ellipse 43% 40% at 100% 100%,
+                    rgba(10,90,195,0.9) 0%,
+                    rgba(3,45,120,0.7) 55%,
+                    transparent 100%
+                );
+
+            filter: blur(35px);
+
+            animation:
+                ambientMove
+                18s
+                ease-in-out
+                infinite;
 
         }
 
@@ -142,35 +151,27 @@
 
             0%,
             100% {
-
                 transform:
                     translate(0, 0)
                     scale(1);
-
             }
 
             25% {
-
                 transform:
-                    translate(2%, -2%)
+                    translate(1.5%, -1%)
                     scale(1.04);
-
             }
 
             50% {
-
                 transform:
-                    translate(-2%, 2%)
-                    scale(1.08);
-
+                    translate(-1%, 1.5%)
+                    scale(1.07);
             }
 
             75% {
-
                 transform:
-                    translate(2%, 1%)
-                    scale(1.04);
-
+                    translate(1%, 1%)
+                    scale(1.03);
             }
 
         }
@@ -181,46 +182,108 @@
         ===================================================== */
 
         .liquid {
-
             position: absolute;
-
             z-index: 1;
-
             pointer-events: none;
-
             overflow: hidden;
 
+            opacity: 1;
+
             filter:
-                drop-shadow(
-                    0 0 18px
-                    rgba(30,130,255,0.45)
-                );
-
-            opacity: 0.95;
-
+                drop-shadow(0 0 18px rgba(30, 120, 255, 0.65))
+                drop-shadow(0 10px 30px rgba(0, 20, 90, 0.35));
         }
 
 
-        .liquid::after {
+        /* Dark transparent shading */
 
+        .liquid::before {
             content: "";
 
             position: absolute;
 
             inset: 0;
 
+            z-index: 1;
+
             border-radius: inherit;
 
             background:
-
                 linear-gradient(
                     135deg,
-                    rgba(255,255,255,0.28),
-                    transparent 35%,
-                    rgba(255,255,255,0.05)
+                    rgba(255,255,255,0.22) 0%,
+                    rgba(255,255,255,0.06) 18%,
+                    transparent 38%,
+                    rgba(0,20,80,0.15) 75%,
+                    rgba(0,10,50,0.30) 100%
+                );
+        }
+
+
+        /* =====================================================
+        WHITE LIQUID REFLECTION
+        ===================================================== */
+
+        .liquid::after {
+            content: "";
+
+            position: absolute;
+
+            z-index: 2;
+
+            width: 70%;
+
+            height: 32%;
+
+            top: 3%;
+
+            left: 12%;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    ellipse,
+                    rgba(255,255,255,0.95) 0%,
+                    rgba(255,255,255,0.65) 18%,
+                    rgba(180,225,255,0.35) 40%,
+                    rgba(80,170,255,0.12) 60%,
+                    transparent 78%
                 );
 
-            mix-blend-mode: screen;
+            filter: blur(9px);
+
+            transform:
+                rotate(-12deg);
+
+            opacity: 0.9;
+
+            animation:
+                liquidReflection
+                5s
+                ease-in-out
+                infinite;
+        }
+
+
+        @keyframes liquidReflection {
+
+            0%,
+            100% {
+                opacity: 0.55;
+
+                transform:
+                    rotate(-12deg)
+                    translateX(0);
+            }
+
+            50% {
+                opacity: 1;
+
+                transform:
+                    rotate(-8deg)
+                    translateX(18px);
+            }
 
         }
 
@@ -231,53 +294,51 @@
 
         .liquid-top-left {
 
-            width: 430px;
-
-            height: 390px;
+            width: 470px;
+            height: 410px;
 
             top: -190px;
-
-            left: -120px;
+            left: -110px;
 
             border-radius:
-                48% 52% 60% 40%
+                70% 30% 62% 38%
                 /
-                58% 42% 58% 42%;
+                45% 55% 45% 55%;
 
             background:
 
                 radial-gradient(
-                    circle at 70% 75%,
-                    #3f82d8,
-                    #235faf,
-                    #0d3f91,
-                    #05245f
+                    ellipse at 68% 70%,
+                    #65adff 0%,
+                    #317bdc 35%,
+                    #1052b5 65%,
+                    #042b78 100%
                 );
 
             transform:
-                rotate(-12deg);
+                rotate(-10deg);
 
             animation:
-                liquidTopLeft
-                11s
+                liquidTL
+                12s
                 ease-in-out
                 infinite;
 
         }
 
 
-        @keyframes liquidTopLeft {
+        @keyframes liquidTL {
 
             0%,
             100% {
 
                 border-radius:
-                    48% 52% 60% 40%
+                    70% 30% 62% 38%
                     /
-                    58% 42% 58% 42%;
+                    45% 55% 45% 55%;
 
                 transform:
-                    rotate(-12deg)
+                    rotate(-10deg)
                     translate(0,0);
 
             }
@@ -285,13 +346,13 @@
             50% {
 
                 border-radius:
-                    65% 35% 42% 58%
+                    40% 60% 35% 65%
                     /
-                    40% 60% 55% 45%;
+                    60% 40% 65% 35%;
 
                 transform:
-                    rotate(-5deg)
-                    translate(30px,25px);
+                    rotate(-3deg)
+                    translate(35px,25px);
 
             }
 
@@ -304,53 +365,51 @@
 
         .liquid-top-right {
 
-            width: 470px;
+            width: 500px;
+            height: 440px;
 
-            height: 430px;
-
-            top: -190px;
-
-            right: -160px;
+            top: -175px;
+            right: -150px;
 
             border-radius:
-                55% 45% 35% 65%
+                35% 65% 42% 58%
                 /
-                48% 52% 48% 52%;
+                60% 40% 60% 40%;
 
             background:
 
                 radial-gradient(
-                    circle at 30% 70%,
-                    #3ba8e8
-                    #247fc5
-                    #0e55a8
-                    #063477
+                    ellipse at 32% 72%,
+                    #70d5ff 0%,
+                    #319fe8 35%,
+                    #0b68c9 65%,
+                    #04347f 100%
                 );
 
             transform:
-                rotate(8deg);
+                rotate(7deg);
 
             animation:
-                liquidTopRight
-                13s
+                liquidTR
+                14s
                 ease-in-out
                 infinite;
 
         }
 
 
-        @keyframes liquidTopRight {
+        @keyframes liquidTR {
 
             0%,
             100% {
 
                 border-radius:
-                    55% 45% 35% 65%
+                    35% 65% 42% 58%
                     /
-                    48% 52% 48% 52%;
+                    60% 40% 60% 40%;
 
                 transform:
-                    rotate(8deg)
+                    rotate(7deg)
                     translate(0,0);
 
             }
@@ -358,13 +417,13 @@
             50% {
 
                 border-radius:
-                    35% 65% 58% 42%
+                    62% 38% 60% 40%
                     /
-                    60% 40% 55% 45%;
+                    38% 62% 42% 58%;
 
                 transform:
-                    rotate(14deg)
-                    translate(-25px,35px);
+                    rotate(13deg)
+                    translate(-30px,30px);
 
             }
 
@@ -377,54 +436,52 @@
 
         .liquid-bottom-left {
 
-            width: 450px;
-
+            width: 500px;
             height: 470px;
 
             bottom: -210px;
-
-            left: -150px;
+            left: -130px;
 
             border-radius:
-                60% 40% 35% 65%
+                42% 58% 68% 32%
                 /
-                48% 52% 58% 42%;
+                55% 45% 55% 45%;
 
             background:
 
                 radial-gradient(
-                    circle at 65% 30%,
-                    #806ee8
-                    #514fc5
-                    #3048b2
-                    #102f91
-                    #061f68
+                    ellipse at 68% 25%,
+                    #a99aff 0%,
+                    #716be8 28%,
+                    #464fc3 55%,
+                    #172f8c 80%,
+                    #051d5e 100%
                 );
 
             transform:
-                rotate(-8deg);
+                rotate(-6deg);
 
             animation:
-                liquidBottomLeft
-                12s
+                liquidBL
+                13s
                 ease-in-out
                 infinite;
 
         }
 
 
-        @keyframes liquidBottomLeft {
+        @keyframes liquidBL {
 
             0%,
             100% {
 
                 border-radius:
-                    60% 40% 35% 65%
+                    42% 58% 68% 32%
                     /
-                    48% 52% 58% 42%;
+                    55% 45% 55% 45%;
 
                 transform:
-                    rotate(-8deg)
+                    rotate(-6deg)
                     translate(0,0);
 
             }
@@ -432,12 +489,12 @@
             50% {
 
                 border-radius:
-                    40% 60% 65% 35%
+                    65% 35% 38% 62%
                     /
-                    55% 45% 40% 60%;
+                    40% 60% 65% 35%;
 
                 transform:
-                    rotate(2deg)
+                    rotate(3deg)
                     translate(35px,-25px);
 
             }
@@ -451,53 +508,52 @@
 
         .liquid-bottom-right {
 
-            width: 470px;
+            width: 510px;
+            height: 470px;
 
-            height: 450px;
-
-            bottom: -220px;
-
-            right: -140px;
+            bottom: -215px;
+            right: -135px;
 
             border-radius:
-                38% 62% 60% 40%
+                62% 38% 40% 60%
                 /
-                50% 50% 45% 55%;
+                45% 55% 60% 40%;
 
             background:
 
                 radial-gradient(
-                    circle at 30% 25%,
-                    #459ce8
-                    #2874c9
-                    #124ca8
-                    #062e78
+                    ellipse at 28% 28%,
+                    #70caff 0%,
+                    #358ee1 35%,
+                    #175abd 62%,
+                    #07347f 85%,
+                    #031c59 100%
                 );
 
             transform:
-                rotate(6deg);
+                rotate(7deg);
 
             animation:
-                liquidBottomRight
-                14s
+                liquidBR
+                15s
                 ease-in-out
                 infinite;
 
         }
 
 
-        @keyframes liquidBottomRight {
+        @keyframes liquidBR {
 
             0%,
             100% {
 
                 border-radius:
-                    38% 62% 60% 40%
+                    62% 38% 40% 60%
                     /
-                    50% 50% 45% 55%;
+                    45% 55% 60% 40%;
 
                 transform:
-                    rotate(6deg)
+                    rotate(7deg)
                     translate(0,0);
 
             }
@@ -505,64 +561,13 @@
             50% {
 
                 border-radius:
-                    58% 42% 42% 58%
+                    38% 62% 65% 35%
                     /
-                    40% 60% 55% 45%;
+                    60% 40% 42% 58%;
 
                 transform:
                     rotate(-3deg)
-                    translate(-30px,-20px);
-
-            }
-
-        }
-
-
-        /* =====================================================
-           LIQUID HIGHLIGHT
-        ===================================================== */
-
-        .liquid-glow {
-
-            position: absolute;
-
-            z-index: 2;
-
-            pointer-events: none;
-
-            width: 100%;
-
-            height: 100%;
-
-            background:
-
-                radial-gradient(
-                    ellipse at center,
-                    rgba(255,255,255,0.12),
-                    transparent 55%
-                );
-
-            animation:
-                glowPulse
-                5s
-                ease-in-out
-                infinite;
-
-        }
-
-
-        @keyframes glowPulse {
-
-            0%,
-            100% {
-
-                opacity: 0.5;
-
-            }
-
-            50% {
-
-                opacity: 1;
+                    translate(-35px,-20px);
 
             }
 
@@ -579,7 +584,7 @@
 
             inset: 0;
 
-            z-index: 3;
+            z-index: 4;
 
             pointer-events: none;
 
@@ -600,16 +605,17 @@
 
             box-shadow:
 
-                0 0 5px
-                #ffffff,
+                0 0 5px #ffffff,
 
-                0 0 12px
-                rgba(80,170,255,0.95);
+                0 0 12px #66baff,
+
+                0 0 20px
+                rgba(30,130,255,0.8);
 
             opacity: 0.9;
 
             animation:
-                starTwinkle
+                twinkle
                 3s
                 ease-in-out
                 infinite;
@@ -617,130 +623,127 @@
         }
 
 
-        /* Star positions */
-
         .star:nth-child(1) {
-            top: 7%;
+            top: 6%;
             left: 8%;
-            animation-delay: 0s;
         }
 
         .star:nth-child(2) {
             top: 12%;
-            left: 22%;
-            animation-delay: 0.7s;
+            left: 24%;
+            animation-delay: .5s;
         }
 
         .star:nth-child(3) {
             top: 5%;
-            left: 45%;
-            animation-delay: 1.2s;
+            left: 48%;
+            animation-delay: 1s;
         }
 
         .star:nth-child(4) {
-            top: 10%;
-            left: 67%;
-            animation-delay: 0.3s;
+            top: 14%;
+            left: 69%;
+            animation-delay: 1.5s;
         }
 
         .star:nth-child(5) {
-            top: 16%;
-            left: 88%;
-            animation-delay: 1.8s;
+            top: 9%;
+            right: 8%;
+            animation-delay: 2s;
         }
 
         .star:nth-child(6) {
-            top: 31%;
+            top: 30%;
             left: 12%;
-            animation-delay: 2.1s;
+            animation-delay: .7s;
         }
 
         .star:nth-child(7) {
-            top: 28%;
-            left: 82%;
-            animation-delay: 0.8s;
+            top: 27%;
+            right: 14%;
+            animation-delay: 1.3s;
         }
 
         .star:nth-child(8) {
-            top: 43%;
+            top: 44%;
             left: 5%;
-            animation-delay: 1.4s;
+            animation-delay: 2.2s;
         }
 
         .star:nth-child(9) {
-            top: 45%;
-            left: 94%;
-            animation-delay: 2.3s;
+            top: 42%;
+            right: 6%;
+            animation-delay: .8s;
         }
 
         .star:nth-child(10) {
-            top: 61%;
+            top: 58%;
             left: 15%;
-            animation-delay: 0.5s;
+            animation-delay: 1.8s;
         }
 
         .star:nth-child(11) {
-            top: 66%;
-            left: 85%;
-            animation-delay: 1.6s;
-        }
-
-        .star:nth-child(12) {
-            top: 77%;
-            left: 8%;
+            top: 63%;
+            right: 12%;
             animation-delay: 2.4s;
         }
 
+        .star:nth-child(12) {
+            top: 76%;
+            left: 7%;
+            animation-delay: 1s;
+        }
+
         .star:nth-child(13) {
-            top: 82%;
-            left: 28%;
-            animation-delay: 0.9s;
+            top: 84%;
+            left: 27%;
+            animation-delay: 1.7s;
         }
 
         .star:nth-child(14) {
             top: 73%;
-            left: 72%;
-            animation-delay: 1.3s;
+            right: 28%;
+            animation-delay: .4s;
         }
 
         .star:nth-child(15) {
-            top: 90%;
+            top: 88%;
             left: 58%;
             animation-delay: 2.1s;
         }
 
         .star:nth-child(16) {
-            top: 87%;
-            left: 92%;
-            animation-delay: 0.4s;
+            top: 83%;
+            right: 8%;
+            animation-delay: .9s;
         }
 
         .star:nth-child(17) {
-            top: 36%;
-            left: 74%;
-            animation-delay: 2.6s;
+            top: 35%;
+            right: 27%;
+            animation-delay: 2.5s;
         }
 
         .star:nth-child(18) {
             top: 54%;
             left: 25%;
-            animation-delay: 1.9s;
+            animation-delay: 1.4s;
         }
 
         .star:nth-child(19) {
-            top: 20%;
+            top: 21%;
             left: 54%;
-            animation-delay: 0.6s;
+            animation-delay: .3s;
         }
 
         .star:nth-child(20) {
-            top: 69%;
+            top: 68%;
             left: 48%;
-            animation-delay: 1.1s;
+            animation-delay: 1.9s;
         }
 
 
-        @keyframes starTwinkle {
+        @keyframes twinkle {
 
             0%,
             100% {
@@ -757,7 +760,7 @@
                 opacity: 1;
 
                 transform:
-                    scale(1.7);
+                    scale(1.8);
 
             }
 
@@ -765,7 +768,7 @@
 
 
         /* =====================================================
-           BRIGHT STAR
+           LARGE STAR
         ===================================================== */
 
         .bright-star {
@@ -776,22 +779,19 @@
 
             height: 5px;
 
-            background: #ffffff;
+            z-index: 5;
 
             border-radius: 50%;
 
+            background: #ffffff;
+
             box-shadow:
 
-                0 0 8px
-                #ffffff,
+                0 0 8px #ffffff,
 
-                0 0 20px
-                #49a6ff,
+                0 0 20px #42aaff,
 
-                0 0 35px
-                #248cff;
-
-            z-index: 3;
+                0 0 35px #167dff;
 
             animation:
                 brightTwinkle
@@ -817,14 +817,14 @@
                 translate(-50%, -50%);
 
             background:
-                rgba(255,255,255,0.9);
+                rgba(255,255,255,0.95);
 
         }
 
 
         .bright-star::before {
 
-            width: 35px;
+            width: 34px;
 
             height: 1px;
 
@@ -835,7 +835,7 @@
 
             width: 1px;
 
-            height: 35px;
+            height: 34px;
 
         }
 
@@ -844,7 +844,7 @@
 
             top: 13%;
 
-            left: 23%;
+            left: 24%;
 
         }
 
@@ -853,7 +853,7 @@
 
             top: 18%;
 
-            right: 25%;
+            right: 24%;
 
             animation-delay: 1.5s;
 
@@ -862,11 +862,22 @@
 
         .bright-star-3 {
 
-            bottom: 15%;
+            bottom: 17%;
 
-            left: 14%;
+            left: 15%;
 
             animation-delay: 2.5s;
+
+        }
+
+
+        .bright-star-4 {
+
+            bottom: 25%;
+
+            right: 19%;
+
+            animation-delay: 1s;
 
         }
 
@@ -876,10 +887,10 @@
             0%,
             100% {
 
-                opacity: 0.5;
+                opacity: .45;
 
                 transform:
-                    scale(0.7);
+                    scale(.7);
 
             }
 
@@ -915,45 +926,47 @@
 
             align-items: center;
 
+            justify-content: center;
+
             text-align: center;
 
-            margin-top: -10px;
+            margin-top: -5px;
 
         }
 
 
         /* =====================================================
-           LOGO
+           RUPAVUE
         ===================================================== */
 
         .logo {
 
-            color: #050914;
+            color: #020817;
 
             font-size:
                 clamp(
-                    52px,
+                    55px,
                     8vw,
-                    92px
+                    96px
                 );
 
-            font-weight: 800;
+            font-weight: 900;
 
             letter-spacing:
                 clamp(
                     7px,
                     1.3vw,
-                    15px
+                    16px
                 );
 
             line-height: 1;
 
-            margin-bottom: 16px;
+            margin-bottom: 15px;
 
             text-shadow:
 
-                0 4px 12px
-                rgba(255,255,255,0.65);
+                0 3px 10px
+                rgba(255,255,255,.85);
 
         }
 
@@ -970,27 +983,26 @@
 
             justify-content: center;
 
-            gap: 14px;
+            gap: 15px;
 
-            color: #1679ed;
+            color: #147fff;
 
             font-size:
                 clamp(
                     12px,
                     1.5vw,
-                    19px
+                    20px
                 );
 
             font-weight: 500;
 
             letter-spacing: 5px;
 
-            margin-bottom: 48px;
+            margin-bottom: 42px;
 
             text-shadow:
-
                 0 1px 8px
-                rgba(255,255,255,0.85);
+                rgba(255,255,255,.9);
 
         }
 
@@ -1000,30 +1012,16 @@
 
             content: "";
 
-            width: 42px;
+            width: 45px;
 
             height: 1px;
 
             background:
+                #238cff;
 
-                linear-gradient(
-                    to right,
-                    transparent,
-                    #2589ef
-                );
-
-        }
-
-
-        .subtitle::after {
-
-            background:
-
-                linear-gradient(
-                    to left,
-                    transparent,
-                    #2589ef
-                );
+            box-shadow:
+                0 0 6px
+                rgba(30,130,255,.5);
 
         }
 
@@ -1034,16 +1032,16 @@
 
         .welcome-title {
 
-            color: #060b19;
+            color: #050b19;
 
             font-size:
                 clamp(
                     30px,
                     4vw,
-                    52px
+                    53px
                 );
 
-            font-weight: 700;
+            font-weight: 750;
 
             line-height: 1.2;
 
@@ -1052,7 +1050,7 @@
             text-shadow:
 
                 0 3px 10px
-                rgba(255,255,255,0.7);
+                rgba(255,255,255,.8);
 
         }
 
@@ -1071,7 +1069,7 @@
 
             gap: 18px;
 
-            margin-bottom: 24px;
+            margin-bottom: 25px;
 
         }
 
@@ -1087,8 +1085,12 @@
                 linear-gradient(
                     to right,
                     transparent,
-                    #1686f2
+                    #1686ff
                 );
+
+            box-shadow:
+                0 0 6px
+                rgba(30,130,255,.4);
 
         }
 
@@ -1100,7 +1102,7 @@
                 linear-gradient(
                     to left,
                     transparent,
-                    #1686f2
+                    #1686ff
                 );
 
         }
@@ -1108,15 +1110,15 @@
 
         .camera-icon {
 
-            color: #087cff;
+            color: #087fff;
 
-            font-size: 30px;
+            font-size: 29px;
 
             filter:
 
                 drop-shadow(
-                    0 0 8px
-                    rgba(0,120,255,0.65)
+                    0 0 7px
+                    rgba(0,125,255,.7)
                 );
 
             animation:
@@ -1132,17 +1134,13 @@
 
             0%,
             100% {
-
                 transform:
                     translateY(0);
-
             }
 
             50% {
-
                 transform:
                     translateY(-5px);
-
             }
 
         }
@@ -1156,7 +1154,7 @@
 
             max-width: 650px;
 
-            color: #101827;
+            color: #0c172b;
 
             font-size:
                 clamp(
@@ -1167,12 +1165,12 @@
 
             line-height: 1.8;
 
-            margin-bottom: 42px;
+            margin-bottom: 40px;
 
             text-shadow:
 
                 0 1px 5px
-                rgba(255,255,255,0.8);
+                rgba(255,255,255,.85);
 
         }
 
@@ -1193,17 +1191,17 @@
 
             gap: 22px;
 
-            width: 540px;
+            width: 530px;
 
             max-width: 90vw;
 
             padding:
                 20px
-                28px;
+                30px;
 
             border:
                 2px solid
-                #087cff;
+                #087fff;
 
             border-radius: 60px;
 
@@ -1211,11 +1209,11 @@
 
                 linear-gradient(
                     135deg,
-                    #061b4d,
-                    #020a25
+                    #061c4e,
+                    #020a24
                 );
 
-            color: #ffffff;
+            color: white;
 
             font-size: 17px;
 
@@ -1229,22 +1227,22 @@
 
             box-shadow:
 
-                0 0 15px
-                rgba(0,125,255,0.8),
+                0 0 16px
+                rgba(0,130,255,.9),
 
-                0 0 35px
-                rgba(0,100,255,0.4),
+                0 0 40px
+                rgba(0,100,255,.45),
 
                 0 12px 35px
-                rgba(0,50,130,0.35);
+                rgba(0,30,100,.5);
 
             transition:
 
-                transform 0.25s ease,
+                transform .25s ease,
 
-                box-shadow 0.25s ease,
+                box-shadow .25s ease,
 
-                border-color 0.25s ease;
+                border-color .25s ease;
 
             overflow: hidden;
 
@@ -1265,17 +1263,17 @@
 
             height: 100%;
 
+            transform:
+                skewX(-20deg);
+
             background:
 
                 linear-gradient(
                     90deg,
                     transparent,
-                    rgba(255,255,255,0.18),
+                    rgba(255,255,255,.2),
                     transparent
                 );
-
-            transform:
-                skewX(-20deg);
 
             animation:
                 buttonShine
@@ -1289,21 +1287,15 @@
         @keyframes buttonShine {
 
             0% {
-
                 left: -120%;
-
             }
 
             35% {
-
                 left: 140%;
-
             }
 
             100% {
-
                 left: 140%;
-
             }
 
         }
@@ -1316,42 +1308,33 @@
                 scale(1.015);
 
             border-color:
-                #55b7ff;
+                #5bc1ff;
 
             box-shadow:
 
-                0 0 20px
-                rgba(0,135,255,0.95),
+                0 0 25px
+                rgba(0,145,255,1),
 
-                0 0 50px
-                rgba(0,100,255,0.5),
+                0 0 55px
+                rgba(0,110,255,.6),
 
-                0 15px 40px
-                rgba(0,50,130,0.4);
-
-        }
-
-
-        .start-button:active {
-
-            transform:
-                translateY(0)
-                scale(0.99);
+                0 15px 45px
+                rgba(0,30,100,.55);
 
         }
 
 
         .button-camera {
 
-            color: #198cff;
+            color: #168cff;
 
-            font-size: 25px;
+            font-size: 26px;
 
             filter:
 
                 drop-shadow(
                     0 0 8px
-                    rgba(0,140,255,0.8)
+                    rgba(0,145,255,.9)
                 );
 
         }
@@ -1359,12 +1342,12 @@
 
         .button-arrow {
 
-            color: #198cff;
+            color: #168cff;
 
-            font-size: 29px;
+            font-size: 30px;
 
             transition:
-                transform 0.2s ease;
+                transform .2s ease;
 
         }
 
@@ -1404,14 +1387,14 @@
                 linear-gradient(
                     to right,
                     transparent,
-                    #2993ff,
+                    #218cff,
                     transparent
                 );
 
             box-shadow:
 
                 0 0 8px
-                rgba(0,130,255,0.6);
+                rgba(0,130,255,.7);
 
         }
 
@@ -1424,12 +1407,12 @@
 
             left: 50%;
 
-            bottom: 27px;
+            bottom: 26px;
 
             transform:
                 translateX(-50%);
 
-            color: #12315f;
+            color: #0c3a78;
 
             font-size: 10px;
 
@@ -1465,9 +1448,9 @@
                 radial-gradient(
                     circle at center,
                     #ffffff 0%,
-                    #edf7ff 22%,
-                    #b9dcff 50%,
-                    #2779db 100%
+                    #eaf5ff 22%,
+                    #8fc6ff 50%,
+                    #0758bd 100%
                 );
 
             transform:
@@ -1475,11 +1458,11 @@
 
             transition:
 
-                opacity 0.45s ease,
+                opacity .45s ease,
 
-                transform 0.6s ease,
+                transform .6s ease,
 
-                visibility 0.45s ease;
+                visibility .45s ease;
 
         }
 
@@ -1521,9 +1504,9 @@
                 radial-gradient(
                     circle,
                     #ffffff 0%,
-                    rgba(90,180,255,0.8) 35%,
-                    rgba(30,110,230,0.3) 65%,
-                    transparent 76%
+                    rgba(80,180,255,.85) 35%,
+                    rgba(20,110,240,.35) 65%,
+                    transparent 78%
                 );
 
             filter:
@@ -1538,7 +1521,7 @@
 
             animation:
                 transitionGlow
-                0.65s
+                .65s
                 ease-out
                 forwards;
 
@@ -1589,9 +1572,9 @@
 
             transition:
 
-                opacity 0.45s ease,
+                opacity .45s ease,
 
-                transform 0.55s ease;
+                transform .55s ease;
 
         }
 
@@ -1603,30 +1586,11 @@
         @media (max-width: 800px) {
 
             .logo {
-
-                font-size: 58px;
-
+                font-size: 60px;
             }
-
-
-            .subtitle {
-
-                margin-bottom: 35px;
-
-            }
-
-
-            .description {
-
-                max-width: 550px;
-
-            }
-
 
             .start-button {
-
-                width: 430px;
-
+                width: 440px;
             }
 
         }
@@ -1639,20 +1603,16 @@
         @media (max-width: 500px) {
 
             .content {
-
                 width: 88%;
-
             }
-
 
             .logo {
 
-                font-size: 42px;
+                font-size: 43px;
 
                 letter-spacing: 5px;
 
             }
-
 
             .subtitle {
 
@@ -1666,7 +1626,6 @@
 
             }
 
-
             .subtitle::before,
             .subtitle::after {
 
@@ -1674,20 +1633,13 @@
 
             }
 
-
             .welcome-title {
-
                 font-size: 29px;
-
             }
-
 
             .camera-line {
-
                 width: 40px;
-
             }
-
 
             .description {
 
@@ -1698,7 +1650,6 @@
                 margin-bottom: 30px;
 
             }
-
 
             .start-button {
 
@@ -1716,20 +1667,13 @@
 
             }
 
-
             .button-camera {
-
                 font-size: 20px;
-
             }
-
 
             .button-arrow {
-
                 font-size: 23px;
-
             }
-
 
             .bottom-text {
 
@@ -1741,7 +1685,6 @@
 
             }
 
-
             .footer-line {
 
                 bottom: 38px;
@@ -1750,55 +1693,43 @@
 
             }
 
-
             .liquid-top-left {
 
-                width: 260px;
-
-                height: 250px;
-
-                top: -120px;
-
-                left: -100px;
-
-            }
-
-
-            .liquid-top-right {
-
                 width: 280px;
+                height: 260px;
 
-                height: 270px;
-
-                top: -110px;
-
-                right: -110px;
-
-            }
-
-
-            .liquid-bottom-left {
-
-                width: 280px;
-
-                height: 300px;
-
-                bottom: -130px;
-
+                top: -130px;
                 left: -110px;
 
             }
 
+            .liquid-top-right {
+
+                width: 300px;
+                height: 280px;
+
+                top: -120px;
+                right: -120px;
+
+            }
+
+            .liquid-bottom-left {
+
+                width: 300px;
+                height: 320px;
+
+                bottom: -140px;
+                left: -120px;
+
+            }
 
             .liquid-bottom-right {
 
-                width: 300px;
+                width: 320px;
+                height: 320px;
 
-                height: 300px;
-
-                bottom: -140px;
-
-                right: -110px;
+                bottom: -150px;
+                right: -120px;
 
             }
 
@@ -1839,13 +1770,13 @@
 
 
     <!-- =====================================================
-         WELCOME PAGE
+         MAIN WELCOME PAGE
     ===================================================== -->
 
     <div class="welcome-container">
 
 
-        <!-- Background -->
+        <!-- Background atmosphere -->
 
         <div class="ambient-light"></div>
 
@@ -1861,30 +1792,17 @@
         <div class="liquid liquid-bottom-right"></div>
 
 
-        <!-- Stars -->
+        <!-- =================================================
+             STARS
+        ================================================== -->
 
         <div class="stars">
 
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
-            <span class="star"></span>
+            @for ($i = 0; $i < 20; $i++)
+
+                <span class="star"></span>
+
+            @endfor
 
         </div>
 
@@ -1897,6 +1815,8 @@
 
         <span class="bright-star bright-star-3"></span>
 
+        <span class="bright-star bright-star-4"></span>
+
 
         <!-- =================================================
              CONTENT
@@ -1908,27 +1828,21 @@
             <!-- Logo -->
 
             <div class="logo">
-
                 RUPAVUE
-
             </div>
 
 
             <!-- Subtitle -->
 
             <div class="subtitle">
-
                 AI PHOTO EXPERIENCE
-
             </div>
 
 
-            <!-- Welcome -->
+            <!-- Welcome title -->
 
             <h1 class="welcome-title">
-
                 Welcome to RupaVue
-
             </h1>
 
 
@@ -1979,11 +1893,9 @@
                     📷
                 </span>
 
-
                 <span>
                     START SESSION
                 </span>
-
 
                 <span class="button-arrow">
                     →
@@ -2001,11 +1913,8 @@
 
         <div class="footer-line"></div>
 
-
         <div class="bottom-text">
-
             AI POWERED PHOTO BOOTH
-
         </div>
 
 
@@ -2013,7 +1922,7 @@
 
 
     <!-- =====================================================
-         PAGE TRANSITION SCRIPT
+         PAGE TRANSITION JAVASCRIPT
     ===================================================== -->
 
     <script>
@@ -2023,12 +1932,10 @@
                 'startSessionButton'
             );
 
-
         const pageTransition =
             document.querySelector(
                 '.page-transition'
             );
-
 
         const welcomeContainer =
             document.querySelector(
@@ -2054,7 +1961,7 @@
 
 
                     /*
-                     * Start transition
+                     * Start page transition
                      */
 
                     pageTransition.classList.add(
