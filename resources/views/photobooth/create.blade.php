@@ -637,7 +637,7 @@
 
         <span>
             Theme:
-            <strong>
+            <strong id="selectedThemeLabel">
                 {{ $theme->name ?? 'No Theme Selected' }}
             </strong>
         </span>
@@ -867,6 +867,47 @@
     let capturedImageData = null;
 
     let countdownRunning = false;
+
+
+    /*
+     * =========================
+     * SELECTED THEME
+     * =========================
+     *
+     * Prefer the theme_id from the URL. If it is
+     * missing (page opened directly, or the theme
+     * step navigated without a query string), fall
+     * back to the id the theme page saved in
+     * sessionStorage.
+     */
+
+    let currentThemeId =
+        new URLSearchParams(window.location.search)
+            .get('theme_id')
+        || sessionStorage.getItem('rupavueThemeId')
+        || '';
+
+    (function restoreThemeLabel() {
+
+        const serverTheme =
+            @json($theme->name ?? null);
+
+        if (serverTheme) {
+            return;
+        }
+
+        const savedName =
+            sessionStorage.getItem('rupavueThemeName');
+
+        if (savedName) {
+
+            document
+                .getElementById('selectedThemeLabel')
+                .textContent = savedName;
+
+        }
+
+    })();
 
 
     /*
@@ -1617,7 +1658,8 @@
 
         window.location.href =
             "{{ route('photobooth.generate') }}"
-            + "?theme_id={{ $theme->id ?? '' }}";
+            + "?theme_id="
+            + encodeURIComponent(currentThemeId);
 
     }
 
