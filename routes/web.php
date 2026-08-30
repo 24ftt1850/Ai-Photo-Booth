@@ -80,6 +80,3 @@ Route::get('/', function () {
 })->name('home');
 
 
-Route::get('/access', function () {
-    return view('access');
-})->name('access');
