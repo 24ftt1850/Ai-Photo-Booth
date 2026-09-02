@@ -30,28 +30,96 @@
         ========================= */
 
         .camera-page {
+            position: relative;
+
             width: 100%;
             height: 100vh;
+            height: 100dvh;
 
             overflow: hidden;
-
-            background:
-                linear-gradient(
-                    rgba(0, 0, 0, 0.55),
-                    rgba(0, 0, 0, 0.78)
-                ),
-                url('/images/demo-background.jpg');
-
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
 
             padding: 20px 5%;
 
             display: flex;
             flex-direction: column;
+
+            background:
+                radial-gradient(
+                    ellipse 65% 70% at 50% 42%,
+                    #ffffff 0%,
+                    #f1f7ff 18%,
+                    #c8e1ff 34%,
+                    #78adf1 52%,
+                    #286bd0 68%,
+                    #073477 83%,
+                    #010d2d 100%
+                );
         }
 
+        /* =====================================================
+        BLUE ATMOSPHERE
+        ===================================================== */
+
+        .camera-page::before {
+
+            content: "";
+
+            position: absolute;
+
+            inset: -20%;
+
+            z-index: 0;
+
+            pointer-events: none;
+
+            background:
+
+                radial-gradient(
+                    ellipse at 0% 0%,
+                    rgba(5,63,160,0.90),
+                    transparent 34%
+                ),
+
+                radial-gradient(
+                    ellipse at 100% 0%,
+                    rgba(8,122,210,0.78),
+                    transparent 35%
+                ),
+
+                radial-gradient(
+                    ellipse at 0% 100%,
+                    rgba(55,45,180,0.82),
+                    transparent 34%
+                ),
+
+                radial-gradient(
+                    ellipse at 100% 100%,
+                    rgba(0,91,200,0.82),
+                    transparent 35%
+                );
+
+            filter: blur(40px);
+
+            animation:
+                cameraAtmosphere
+                18s
+                ease-in-out
+                infinite;
+        }
+
+
+        @keyframes cameraAtmosphere {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.06);
+            }
+
+        }
         /* =========================
            HEADER
         ========================= */
@@ -157,22 +225,16 @@
         }
 
         /*
-         * 3:2 Camera frame
+         * 2:3 Camera frame
          */
 
         .camera-frame {
             position: relative;
-
             width: min(55vh, 600px);
-
             aspect-ratio: 2 / 3;
-
             max-height: 55vh;
-
             background: #050505;
-
             border-radius: 24px;
-
             overflow: hidden;
 
             border: 2px solid rgba(255, 255, 255, 0.2);
@@ -188,9 +250,7 @@
         #cameraVideo {
             width: 100%;
             height: 100%;
-
             display: block;
-
             object-fit: cover;
 
             /*
@@ -588,12 +648,161 @@
                 width: 100%;
             }
         }
+
+        /* =========================
+           STARFIELD
+        ========================= */
+
+        .header,
+        .title-section,
+        .selected-theme,
+        .camera-wrapper,
+        .back-button {
+            position: relative;
+            z-index: 2;
+        }
+
+        .capture-stars {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .capture-star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow:
+                0 0 7px #ffffff,
+                0 0 14px #62baff;
+            animation:
+                cameraTwinkle
+                3s
+                ease-in-out
+                infinite;
+        }
+
+        .capture-star:nth-child(1)  { top: 8%;  left: 8%; }
+        .capture-star:nth-child(2)  { top: 15%; left: 23%; animation-delay: .8s; }
+        .capture-star:nth-child(3)  { top: 7%;  left: 48%; animation-delay: 1.2s; }
+        .capture-star:nth-child(4)  { top: 12%; right: 27%; animation-delay: 1.8s; }
+        .capture-star:nth-child(5)  { top: 9%;  right: 8%; animation-delay: .5s; }
+        .capture-star:nth-child(6)  { top: 28%; left: 13%; animation-delay: 1.5s; }
+        .capture-star:nth-child(7)  { top: 25%; right: 12%; animation-delay: 2s; }
+        .capture-star:nth-child(8)  { top: 43%; left: 5%; animation-delay: .3s; }
+        .capture-star:nth-child(9)  { top: 40%; right: 7%; animation-delay: 1.4s; }
+        .capture-star:nth-child(10) { top: 55%; left: 18%; animation-delay: 2.3s; }
+        .capture-star:nth-child(11) { top: 60%; right: 17%; animation-delay: .9s; }
+        .capture-star:nth-child(12) { top: 76%; left: 9%; animation-delay: 1.6s; }
+        .capture-star:nth-child(13) { top: 82%; left: 32%; animation-delay: .6s; }
+        .capture-star:nth-child(14) { top: 72%; right: 30%; animation-delay: 1.9s; }
+        .capture-star:nth-child(15) { top: 85%; right: 9%; animation-delay: 2.4s; }
+
+        @keyframes cameraTwinkle {
+            0%,
+            100% {
+                opacity: .3;
+                transform: scale(.7);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.7);
+            }
+        }
+
+        /* =========================
+           SHOOTING STARS
+        ========================= */
+
+        .shooting-star {
+            position: absolute;
+            z-index: 1;
+            width: 90px;
+            height: 2px;
+            border-radius: 999px;
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, .25),
+                    white
+                );
+            transform: rotate(-35deg);
+            opacity: 0;
+            pointer-events: none;
+            filter:
+                drop-shadow(0 0 5px #ffffff);
+            animation:
+                shootingStar
+                7s
+                linear
+                infinite;
+        }
+
+        .shooting-star::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            background: white;
+            box-shadow:
+                0 0 8px white,
+                0 0 15px #52aaff;
+        }
+
+        .shooting-one   { top: 13%; left: 15%; }
+        .shooting-two   { top: 19%; right: 20%; animation-delay: 2.5s; }
+        .shooting-three { top: 54%; right: 8%; animation-delay: 5s; }
+
+        @keyframes shootingStar {
+            0% {
+                opacity: 0;
+                transform:
+                    translate(0, 0)
+                    rotate(-35deg);
+            }
+            5% {
+                opacity: 1;
+            }
+            18% {
+                opacity: 1;
+                transform:
+                    translate(-170px, 110px)
+                    rotate(-35deg);
+            }
+            20%,
+            100% {
+                opacity: 0;
+                transform:
+                    translate(-210px, 140px)
+                    rotate(-35deg);
+            }
+        }
     </style>
 </head>
 
 <body>
 
-<div class="camera-page">
+        <div class="camera-page">
+
+        <div class="capture-stars">
+
+            @for ($i = 0; $i < 15; $i++)
+                <span class="capture-star"></span>
+            @endfor
+
+        </div>
+
+        <span class="shooting-star shooting-one"></span>
+        <span class="shooting-star shooting-two"></span>
+        <span class="shooting-star shooting-three"></span>
 
     <!-- =========================
          HEADER
@@ -638,7 +847,7 @@
         <span>
             Theme:
             <strong id="selectedThemeLabel">
-                {{ $theme->name ?? 'No Theme Selected' }}
+                {{ $theme->theme_name ?? 'No Theme Selected' }}
             </strong>
         </span>
 
@@ -890,9 +1099,26 @@
     (function restoreThemeLabel() {
 
         const serverTheme =
-            @json($theme->name ?? null);
+            @json($theme->theme_name ?? null);
 
         if (serverTheme) {
+
+            document
+                .getElementById('selectedThemeLabel')
+                .textContent = serverTheme;
+
+            sessionStorage.setItem(
+                'rupavueThemeName',
+                serverTheme
+            );
+
+            if (currentThemeId) {
+                sessionStorage.setItem(
+                    'rupavueThemeId',
+                    currentThemeId
+                );
+            }
+
             return;
         }
 
@@ -933,7 +1159,7 @@
                         facingMode: 'user',
 
                         aspectRatio: {
-                            ideal: 3 / 2
+                            ideal: 2 / 3
                         }
                     },
 

@@ -1858,25 +1858,19 @@
                 @forelse ($themes as $theme)
 
                     @php
+                        $themeImage = $theme->thumbnail_path ?? null;
 
-                        $themeImage =
-                            $theme->image_url
-                            ?? $theme->image
-                            ?? $theme->image_path
-                            ?? null;
-
-                        $themePrompt =
-                            $theme->prompt
-                            ?? $theme->ai_prompt
-                            ?? '';
-
+                        $themePrompt = trim(
+                            ($theme->prompt_prefix ?? '') . ' ' .
+                            ($theme->prompt_suffix ?? '')
+                        );
                     @endphp
 
 
                     <div
                         class="theme-card {{ $loop->first ? 'selected' : '' }}"
                         data-theme-id="{{ $theme->id }}"
-                        data-theme-name="{{ $theme->name }}"
+                        data-theme-name="{{ $theme->theme_name }}"
                         data-theme-prompt="{{ $themePrompt }}"
                     >
 
@@ -1885,7 +1879,7 @@
 
                             <img
                                 src="{{ $themeImage }}"
-                                alt="{{ $theme->name }}"
+                                alt="{{ $theme->theme_name }}"
                                 class="theme-image"
                             >
 
@@ -1925,7 +1919,7 @@
                             </div>
 
                             <div class="theme-name">
-                                {{ $theme->name }}
+                                {{ $theme->theme_name }}
                             </div>
 
                             <div class="theme-description">
@@ -2048,7 +2042,7 @@
                     </span>
 
                     <strong id="selectedThemeName">
-                        {{ $themes->first()->name ?? 'None' }}
+                        {{ $themes->first()->theme_name ?? 'None' }}
                     </strong>
 
                     <span

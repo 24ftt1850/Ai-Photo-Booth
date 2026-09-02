@@ -9,21 +9,24 @@ class Theme extends Model
 {
     use HasFactory;
 
+    protected $table = 'photoshoot_themes';
+
     protected $fillable = [
-        'name',
-        'slug',
+        'theme_name',
         'description',
-        'prompt',
-        'thumbnail',
-        'is_enabled',
+        'thumbnail_path',
+        'prompt_prefix',
+        'prompt_suffix',
+        'negative_prompt',
+        'is_active',
     ];
 
     protected $casts = [
-        'is_enabled' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function generatedImages()
     {
-        return $this->hasMany(GeneratedImage::class);
+        return $this->hasMany(GeneratedImage::class, 'theme_id');
     }
 }

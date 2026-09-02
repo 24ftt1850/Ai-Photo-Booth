@@ -23,7 +23,7 @@ class PhotoboothFeedbackController extends Controller
             ->implode(' — ');
 
         $generatedImage->update([
-            'rating' => $data['rating'],
+            'satisfaction_rating' => $data['rating'],
             'feedback_comment' => $feedbackComment !== '' ? $feedbackComment : null,
         ]);
 

@@ -10,22 +10,18 @@ class PhotoSession extends Model
     use HasFactory;
 
     protected $fillable = [
-        'event_id',
-        'guest_name',
+        'session_code',
+        'raw_photo_path',
+        'consent_given',
+        'consent_timestamp',
+        'occasion_id',
         'status',
-        'started_at',
-        'ended_at',
     ];
 
     protected $casts = [
-        'started_at' => 'datetime',
-        'ended_at' => 'datetime',
+        'consent_given' => 'boolean',
+        'consent_timestamp' => 'datetime',
     ];
-
-    public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
 
     public function generatedImages()
     {

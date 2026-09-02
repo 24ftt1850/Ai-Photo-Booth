@@ -28,7 +28,7 @@ Route::get('/photobooth', function () {
 
 
 Route::get('/photobooth/scene', function () {
-    $themes = Theme::where('is_enabled', true)->orderBy('name')->get();
+    $themes = Theme::where('is_active', true)->orderBy('theme_name')->get();
 
     return view('photobooth.scene', compact('themes'));
 })->name('photobooth.scene');

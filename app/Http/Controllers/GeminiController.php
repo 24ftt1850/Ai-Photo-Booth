@@ -2,18 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
 use App\Models\GeneratedImage;
 use App\Models\PhotoSession;
 use App\Models\Theme;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GeminiController extends Controller
 {
     public function generateImage(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Allow Time For The Gemini Call
+        |--------------------------------------------------------------------------
+        |
+        | Image generation regularly takes longer than PHP's default
+        | max_execution_time (30s), which was killing the request mid-call
+        | ("Maximum execution time of 30 seconds exceeded" in Guzzle). Give
+        | the script enough headroom to cover the 120s HTTP timeout below.
+        */
+
+        set_time_limit(180);
+
+
         /*
         |--------------------------------------------------------------------------
         | Validate Request
@@ -22,7 +37,7 @@ class GeminiController extends Controller
 
         $request->validate([
             'image' => 'required|string',
-            'theme_id' => 'required|integer|exists:themes,id',
+            'theme_id' => 'required|exists:photoshoot_themes,id',
         ]);
 
 
@@ -39,17 +54,23 @@ class GeminiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Active Event
+        | Active Occasion
         |--------------------------------------------------------------------------
+        |
+        | The live database stores events as "occasions" (there is always a
+        | default "Walk-In Shop" row). Photo sessions are tied to one.
         */
 
-        $event = Event::where('status', 'active')->latest()->first();
+        $occasion = DB::table('occasions')
+            ->where('status', 'active')
+            ->orderByDesc('id')
+            ->first();
 
-        if (!$event) {
+        if (!$occasion) {
 
             return response()->json([
                 'success' => false,
-                'message' => 'No active event is configured for the photobooth.'
+                'message' => 'No active occasion is configured for the photobooth.'
             ], 500);
 
         }
@@ -115,9 +136,11 @@ class GeminiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $prompt = $theme->prompt;
+        $prompt = trim(
+            ($theme->prompt_prefix ?? '') . ' ' . ($theme->prompt_suffix ?? '')
+        );
 
-        if (!$prompt) {
+        if ($prompt === '') {
 
             return response()->json([
                 'success' => false,
@@ -344,19 +367,20 @@ class GeminiController extends Controller
         */
 
         $photoSession = PhotoSession::create([
-            'event_id' => $event->id,
+            'session_code' => 'PS-' . now()->format('ymdHis') . '-' . strtoupper(Str::random(4)),
+            'raw_photo_path' => 'photobooth/' . $fileName,
+            'consent_given' => true,
+            'occasion_id' => $occasion->id,
             'status' => 'completed',
-            'started_at' => now(),
-            'ended_at' => now(),
         ]);
 
-        $generatedImage = GeneratedImage::create([
+        $generatedRecord = GeneratedImage::create([
             'photo_session_id' => $photoSession->id,
-            'event_id' => $event->id,
             'theme_id' => $theme->id,
-            'original_image_path' => 'photobooth/' . $fileName,
-            'generated_image_path' => 'photobooth/' . $generatedFileName,
-            'status' => 'completed',
+            'model_id' => 1,
+            'final_prompt_used' => $prompt,
+            'generated_photo_path' => 'photobooth/' . $generatedFileName,
+            'generation_status' => 'success',
         ]);
 
 
@@ -371,10 +395,10 @@ class GeminiController extends Controller
             'success' => true,
 
             'theme' =>
-                $theme->name,
+                $theme->theme_name,
 
             'generated_image_id' =>
-                $generatedImage->id,
+                $generatedRecord->id,
 
             'original_image' =>
                 Storage::url(

@@ -9,20 +9,26 @@ class GeneratedImage extends Model
 {
     use HasFactory;
 
+    /*
+     * The live `generated_images` table has a `created_at` column but no
+     * `updated_at`, so let Eloquent manage only the former.
+     */
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'photo_session_id',
-        'event_id',
         'theme_id',
-        'original_image_path',
-        'generated_image_path',
-        'status',
-        'error_message',
-        'rating',
+        'model_id',
+        'final_prompt_used',
+        'resolution',
+        'generated_photo_path',
+        'generation_status',
+        'satisfaction_rating',
         'feedback_comment',
     ];
 
     protected $casts = [
-        'rating' => 'integer',
+        'satisfaction_rating' => 'integer',
     ];
 
     public function photoSession()
@@ -30,13 +36,8 @@ class GeneratedImage extends Model
         return $this->belongsTo(PhotoSession::class);
     }
 
-    public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
-
     public function theme()
     {
-        return $this->belongsTo(Theme::class);
+        return $this->belongsTo(Theme::class, 'theme_id');
     }
 }
