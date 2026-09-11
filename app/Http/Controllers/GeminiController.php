@@ -172,6 +172,15 @@ class GeminiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Gemini Model
+        |--------------------------------------------------------------------------
+        */
+
+        $model = config('services.gemini.model', '<gemini-3 class="1"></gemini-3>-pro-image-preview');
+
+
+        /*
+        |--------------------------------------------------------------------------
         | Gemini Request
         |--------------------------------------------------------------------------
         */
@@ -182,7 +191,9 @@ class GeminiController extends Controller
                     'application/json',
             ])
             ->post(
-                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key='
+                'https://generativelanguage.googleapis.com/v1beta/models/'
+                . $model
+                . ':generateContent?key='
                 . $apiKey,
 
                 [
@@ -222,6 +233,13 @@ class GeminiController extends Controller
                         'responseModalities' => [
                             'TEXT',
                             'IMAGE'
+                        ],
+
+                        'imageConfig' => [
+
+                            'imageSize' =>
+                                '4K',
+
                         ],
 
                     ],
