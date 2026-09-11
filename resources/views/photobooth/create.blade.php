@@ -21,7 +21,20 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background: #111;
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+                    rgba(7, 58, 145, 0.28) 0%,
+                    rgba(3, 25, 63, 0.42) 28%,
+                    rgba(1, 8, 23, 0.85) 65%,
+                    #010611 100%
+                ),
+                linear-gradient(
+                    135deg,
+                    #010611 0%,
+                    #02122f 45%,
+                    #010816 100%
+                );
             color: white;
         }
 
@@ -42,114 +55,391 @@
 
             display: flex;
             flex-direction: column;
-
-            background:
-                radial-gradient(
-                    ellipse 65% 70% at 50% 42%,
-                    #ffffff 0%,
-                    #f1f7ff 18%,
-                    #c8e1ff 34%,
-                    #78adf1 52%,
-                    #286bd0 68%,
-                    #073477 83%,
-                    #010d2d 100%
-                );
         }
 
         /* =====================================================
-        BLUE ATMOSPHERE
+           BACKGROUND
         ===================================================== */
 
-        .camera-page::before {
-
-            content: "";
-
-            position: absolute;
-
-            inset: -20%;
-
-            z-index: 0;
-
+        .rv-background {
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            overflow: hidden;
             pointer-events: none;
 
             background:
-
                 radial-gradient(
-                    ellipse at 0% 0%,
-                    rgba(5,63,160,0.90),
-                    transparent 34%
-                ),
-
-                radial-gradient(
-                    ellipse at 100% 0%,
-                    rgba(8,122,210,0.78),
-                    transparent 35%
-                ),
-
-                radial-gradient(
-                    ellipse at 0% 100%,
-                    rgba(55,45,180,0.82),
-                    transparent 34%
-                ),
-
-                radial-gradient(
-                    ellipse at 100% 100%,
-                    rgba(0,91,200,0.82),
-                    transparent 35%
+                    circle at 50% 50%,
+                    rgba(0, 76, 190, 0.10),
+                    transparent 55%
                 );
-
-            filter: blur(40px);
-
-            animation:
-                cameraAtmosphere
-                18s
-                ease-in-out
-                infinite;
         }
 
 
-        @keyframes cameraAtmosphere {
+        /* Large blue corner glows */
+
+        .rv-glow {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(2px);
+        }
+
+        .rv-glow-one {
+            width: 430px;
+            height: 430px;
+
+            top: -240px;
+            left: -170px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 92, 255, 0.58) 0%,
+                    rgba(0, 55, 180, 0.25) 40%,
+                    transparent 72%
+                );
+        }
+
+        .rv-glow-two {
+            width: 500px;
+            height: 500px;
+
+            top: -250px;
+            right: -220px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 115, 255, 0.55) 0%,
+                    rgba(0, 58, 180, 0.24) 40%,
+                    transparent 72%
+                );
+        }
+
+        .rv-glow-three {
+            width: 480px;
+            height: 480px;
+
+            bottom: -270px;
+            left: -180px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(35, 50, 255, 0.45) 0%,
+                    rgba(0, 75, 200, 0.22) 42%,
+                    transparent 72%
+                );
+        }
+
+        .rv-glow-four {
+            width: 500px;
+            height: 500px;
+
+            bottom: -290px;
+            right: -180px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 100, 255, 0.52) 0%,
+                    rgba(0, 53, 175, 0.22) 42%,
+                    transparent 72%
+                );
+        }
+
+
+        /* =====================================================
+           LIQUID GLASS BACKGROUND SHAPES
+        ===================================================== */
+
+        .rv-liquid {
+            position: absolute;
+            border-radius: 50%;
+
+            border: 1px solid rgba(65, 151, 255, 0.25);
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    rgba(39, 125, 255, 0.18),
+                    rgba(5, 36, 92, 0.08) 45%,
+                    transparent 72%
+                );
+
+            box-shadow:
+                inset 0 0 40px rgba(40, 130, 255, 0.08),
+                0 0 50px rgba(0, 90, 255, 0.07);
+
+            backdrop-filter: blur(5px);
+
+            animation: liquidFloat 12s ease-in-out infinite;
+        }
+
+        .rv-liquid-one {
+            width: 360px;
+            height: 360px;
+
+            top: 15%;
+            left: -220px;
+        }
+
+        .rv-liquid-two {
+            width: 300px;
+            height: 300px;
+
+            top: 55%;
+            right: -180px;
+
+            animation-delay: -4s;
+        }
+
+        .rv-liquid-three {
+            width: 220px;
+            height: 220px;
+
+            top: 32%;
+            right: 10%;
+
+            opacity: 0.22;
+
+            animation-delay: -8s;
+        }
+
+        @keyframes liquidFloat {
 
             0%,
             100% {
-                transform: scale(1);
+                transform: translate3d(0, 0, 0);
             }
 
             50% {
-                transform: scale(1.06);
+                transform: translate3d(0, -25px, 0);
+            }
+        }
+
+
+        /* =====================================================
+           STAR FIELD
+        ===================================================== */
+
+        .rv-stars {
+            position: absolute;
+            inset: 0;
+        }
+
+        .rv-star {
+            position: absolute;
+
+            width: 2px;
+            height: 2px;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 0 5px rgba(100, 180, 255, 0.9);
+
+            opacity: 0.55;
+
+            animation: starPulse 4s ease-in-out infinite;
+        }
+
+        .rv-star:nth-child(1) {
+            top: 12%;
+            left: 11%;
+            animation-delay: -1s;
+        }
+
+        .rv-star:nth-child(2) {
+            top: 18%;
+            left: 82%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(3) {
+            top: 28%;
+            left: 6%;
+            animation-delay: -3s;
+        }
+
+        .rv-star:nth-child(4) {
+            top: 37%;
+            left: 91%;
+            animation-delay: -1.5s;
+        }
+
+        .rv-star:nth-child(5) {
+            top: 48%;
+            left: 15%;
+            animation-delay: -2.5s;
+        }
+
+        .rv-star:nth-child(6) {
+            top: 59%;
+            left: 86%;
+            animation-delay: -0.5s;
+        }
+
+        .rv-star:nth-child(7) {
+            top: 72%;
+            left: 7%;
+            animation-delay: -3.5s;
+        }
+
+        .rv-star:nth-child(8) {
+            top: 78%;
+            left: 94%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(9) {
+            top: 87%;
+            left: 25%;
+            animation-delay: -1s;
+        }
+
+        .rv-star:nth-child(10) {
+            top: 92%;
+            left: 72%;
+            animation-delay: -3s;
+        }
+
+        .rv-star:nth-child(11) {
+            top: 9%;
+            left: 48%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(12) {
+            top: 42%;
+            left: 97%;
+            animation-delay: -1s;
+        }
+
+        @keyframes starPulse {
+
+            0%,
+            100% {
+                opacity: 0.25;
+                transform: scale(0.8);
             }
 
-        }
-        /* =========================
-           HEADER
-        ========================= */
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            margin-bottom: 12px;
-
-            flex-shrink: 0;
+            50% {
+                opacity: 0.9;
+                transform: scale(1.5);
+            }
         }
 
-        .logo {
-            font-size: 25px;
-            font-weight: 800;
 
-            letter-spacing: 4px;
+        /* =====================================================
+           SHOOTING STARS
+        ===================================================== */
+
+        .rv-shooting-star {
+            position: absolute;
+            pointer-events: none;
         }
 
-        .step {
-            font-size: 13px;
-            font-weight: 600;
+        .rv-shooting-star span {
+            display: block;
 
-            letter-spacing: 2px;
+            width: 130px;
+            height: 2px;
 
-            color: rgba(255, 255, 255, 0.65);
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.95),
+                    rgba(255, 255, 255, 0)
+                );
+
+            border-radius: 999px;
+
+            filter: drop-shadow(0 0 4px rgba(170, 210, 255, 0.9));
+
+            opacity: 0;
+
+            animation: shootingStar 7s linear infinite;
         }
 
+        .rv-shooting-star-one {
+            top: 12%;
+            left: 62%;
+
+            transform: rotate(35deg);
+        }
+
+        .rv-shooting-star-one span {
+            animation-delay: 0.4s;
+        }
+
+        .rv-shooting-star-two {
+            top: 32%;
+            left: 12%;
+
+            transform: rotate(28deg);
+        }
+
+        .rv-shooting-star-two span {
+            width: 100px;
+
+            animation-duration: 8.5s;
+            animation-delay: 3.6s;
+        }
+
+        .rv-shooting-star-three {
+            top: 68%;
+            left: 78%;
+
+            transform: rotate(40deg);
+        }
+
+        .rv-shooting-star-three span {
+            width: 90px;
+
+            animation-duration: 6s;
+            animation-delay: 6.2s;
+        }
+
+        .rv-shooting-star-four {
+            top: 6%;
+            left: 22%;
+
+            transform: rotate(30deg);
+        }
+
+        .rv-shooting-star-four span {
+            width: 110px;
+
+            animation-duration: 9s;
+            animation-delay: 2s;
+        }
+
+        @keyframes shootingStar {
+
+            0% {
+                opacity: 0;
+                transform: translateX(0);
+            }
+
+            4% {
+                opacity: 1;
+            }
+
+            18% {
+                opacity: 0;
+                transform: translateX(-320px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateX(-320px);
+            }
+        }
         /* =========================
            TITLE
         ========================= */
@@ -163,17 +453,46 @@
         }
 
         .title-section h1 {
-            font-size: clamp(24px, 3vw, 38px);
+            font-size: clamp(32px, 4.2vw, 50px);
 
-            font-weight: 700;
+            font-weight: 800;
 
-            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+
+            margin-bottom: 8px;
+
+            color: #ffffff;
+
+            text-shadow:
+                0 0 12px rgba(255, 255, 255, 0.35),
+                0 0 30px rgba(30, 140, 255, 0.55),
+                0 0 60px rgba(20, 110, 255, 0.35);
+
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+
+            0%,
+            100% {
+                text-shadow:
+                    0 0 12px rgba(255, 255, 255, 0.35),
+                    0 0 30px rgba(30, 140, 255, 0.55),
+                    0 0 60px rgba(20, 110, 255, 0.35);
+            }
+
+            50% {
+                text-shadow:
+                    0 0 18px rgba(255, 255, 255, 0.55),
+                    0 0 45px rgba(30, 140, 255, 0.8),
+                    0 0 85px rgba(20, 110, 255, 0.5);
+            }
         }
 
         .title-section p {
-            font-size: 15px;
+            font-size: 17px;
 
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.75);
         }
 
         /* =========================
@@ -210,7 +529,7 @@
 
         .camera-wrapper {
             width: 100%;
-            max-width: 600px;
+            max-width: 1100px;
 
             margin: 0 auto;
 
@@ -225,14 +544,28 @@
         }
 
         /*
-         * 2:3 Camera frame
+         * 3:2 Camera frame (landscape)
          */
 
         .camera-frame {
             position: relative;
-            width: min(55vh, 600px);
-            aspect-ratio: 2 / 3;
-            max-height: 55vh;
+
+            /*
+             * Single explicit dimension (width) so
+             * aspect-ratio always derives the other
+             * one cleanly, no matter which constraint
+             * (viewport height or width, minus room
+             * for the side controls) ends up binding.
+             */
+            width:
+                min(
+                    calc(min(70vh, 620px) * 1.5),
+                    calc(100vw - 600px),
+                    950px
+                );
+
+            aspect-ratio: 3 / 2;
+            max-width: 100%;
             background: #050505;
             border-radius: 24px;
             overflow: hidden;
@@ -395,61 +728,101 @@
         }
 
         /* =========================
-           BUTTONS
+           CAPTURE ROW
         ========================= */
 
-        .actions {
+        .capture-row {
+            width: 100%;
+
             display: flex;
 
             align-items: center;
             justify-content: center;
 
-            gap: 10px;
+            flex: 1;
 
-            margin-top: 10px;
+            min-height: 0;
+        }
 
-            flex-wrap: wrap;
+        /*
+         * Sized to the frame alone (side-controls
+         * is absolutely positioned, out of flow) so
+         * the frame stays perfectly centered in the
+         * row no matter what sits beside it.
+         */
+
+        .frame-holder {
+            position: relative;
+
+            min-width: 0;
+        }
+
+        /*
+         * Buttons stacked to the left
+         * of the camera frame.
+         */
+
+        .side-controls {
+            position: absolute;
+
+            top: 50%;
+            right: 100%;
+            margin-right: 50px;
+
+            transform: translateY(-50%);
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 12px;
+
+            width: 200px;
 
             flex-shrink: 0;
         }
 
-        .or-text {
-            font-size: 12px;
-            font-weight: 600;
+        /*
+         * Upload option, stacked to the
+         * right of the camera frame.
+         */
 
-            letter-spacing: 1px;
+        .side-controls-right {
+            position: absolute;
 
-            color: rgba(255, 255, 255, 0.45);
+            top: 50%;
+            left: 100%;
+            margin-left: 50px;
+
+            transform: translateY(-50%);
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 12px;
+
+            width: 200px;
+
+            flex-shrink: 0;
         }
 
-        .upload-button {
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        .side-button {
+            display: flex;
 
-            background: rgba(255, 255, 255, 0.08);
+            align-items: center;
+            justify-content: center;
 
-            color: white;
-        }
+            text-align: center;
+            text-decoration: none;
 
-        .upload-button:hover {
-            background: white;
+            padding: 26px 22px;
 
-            color: #111;
+            border-radius: 18px;
 
-            transform: translateY(-3px);
-        }
-
-        .button {
-            min-width: 180px;
-
-            padding: 12px 24px;
-
-            border-radius: 50px;
-
-            font-size: 14px;
+            font-size: 17px;
 
             font-weight: 700;
 
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
 
             text-transform: uppercase;
 
@@ -462,19 +835,58 @@
                 opacity 0.2s ease;
         }
 
-        .capture-button {
-            border: 2px solid white;
+        /*
+         * Shutter button, floating inside the
+         * bottom of the camera frame, centered.
+         */
 
-            background: white;
+        .capture-button {
+            position: absolute;
+
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+
+            z-index: 6;
+
+            width: 68px;
+            height: 68px;
+
+            min-width: 0;
+            padding: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 26px;
+
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.85);
+
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(4px);
 
             color: #111;
+
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.4);
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
         }
 
         .capture-button:hover:not(:disabled) {
-            transform: translateY(-3px);
+            transform:
+                translateX(-50%)
+                translateY(-3px);
 
             box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.35);
+                0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .capture-button:disabled {
@@ -511,6 +923,34 @@
 
         .continue-button:hover {
             transform: translateY(-3px);
+        }
+
+        .back-button {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+
+            background: rgba(255, 255, 255, 0.08);
+
+            color: white;
+        }
+
+        .back-button:hover {
+            background: white;
+
+            color: #111;
+        }
+
+        .upload-button {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+
+            background: rgba(255, 255, 255, 0.08);
+
+            color: white;
+        }
+
+        .upload-button:hover {
+            background: white;
+
+            color: #111;
         }
 
         /* =========================
@@ -572,34 +1012,6 @@
         }
 
         /* =========================
-           BACK BUTTON
-        ========================= */
-
-        .back-button {
-            margin-top: 8px;
-
-            text-align: center;
-
-            flex-shrink: 0;
-        }
-
-        .back-button a {
-            color: rgba(255, 255, 255, 0.55);
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            letter-spacing: 1px;
-
-            transition: color 0.2s ease;
-        }
-
-        .back-button a:hover {
-            color: white;
-        }
-
-        /* =========================
            RESPONSIVE
         ========================= */
 
@@ -609,28 +1021,61 @@
                 padding: 25px 20px 35px;
             }
 
-            .logo {
-                font-size: 20px;
-            }
-
-            .step {
-                font-size: 10px;
-            }
-
             .title-section h1 {
-                font-size: 30px;
+                font-size: 34px;
             }
 
             .camera-frame {
-                width: 100%;
+                /*
+                 * Side controls stack below the frame
+                 * on mobile, so no width needs to be
+                 * reserved for them here.
+                 */
+                width:
+                    min(
+                        calc(min(70vh, 620px) * 1.5),
+                        92vw,
+                        950px
+                    );
+
+                max-width: 100%;
 
                 border-radius: 18px;
             }
 
-            .button {
+            .capture-row {
+                flex-direction: column;
+            }
+
+            .side-controls,
+            .side-controls-right {
+                position: static;
+
+                top: auto;
+                right: auto;
+                left: auto;
+                margin-right: 0;
+                margin-left: 0;
+
+                transform: none;
+
+                order: 2;
+
+                flex-direction: row;
+
                 width: 100%;
 
-                max-width: 320px;
+                margin-top: 14px;
+
+                justify-content: center;
+
+                flex-wrap: wrap;
+            }
+
+            .side-button {
+                flex: 1 1 auto;
+
+                min-width: 170px;
             }
         }
 
@@ -643,17 +1088,12 @@
             .camera-frame {
                 border-radius: 14px;
             }
-
-            .actions {
-                width: 100%;
-            }
         }
 
         /* =========================
            STARFIELD
         ========================= */
 
-        .header,
         .title-section,
         .selected-theme,
         .camera-wrapper,
@@ -661,164 +1101,55 @@
             position: relative;
             z-index: 2;
         }
-
-        .capture-stars {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .capture-star {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: #ffffff;
-            box-shadow:
-                0 0 7px #ffffff,
-                0 0 14px #62baff;
-            animation:
-                cameraTwinkle
-                3s
-                ease-in-out
-                infinite;
-        }
-
-        .capture-star:nth-child(1)  { top: 8%;  left: 8%; }
-        .capture-star:nth-child(2)  { top: 15%; left: 23%; animation-delay: .8s; }
-        .capture-star:nth-child(3)  { top: 7%;  left: 48%; animation-delay: 1.2s; }
-        .capture-star:nth-child(4)  { top: 12%; right: 27%; animation-delay: 1.8s; }
-        .capture-star:nth-child(5)  { top: 9%;  right: 8%; animation-delay: .5s; }
-        .capture-star:nth-child(6)  { top: 28%; left: 13%; animation-delay: 1.5s; }
-        .capture-star:nth-child(7)  { top: 25%; right: 12%; animation-delay: 2s; }
-        .capture-star:nth-child(8)  { top: 43%; left: 5%; animation-delay: .3s; }
-        .capture-star:nth-child(9)  { top: 40%; right: 7%; animation-delay: 1.4s; }
-        .capture-star:nth-child(10) { top: 55%; left: 18%; animation-delay: 2.3s; }
-        .capture-star:nth-child(11) { top: 60%; right: 17%; animation-delay: .9s; }
-        .capture-star:nth-child(12) { top: 76%; left: 9%; animation-delay: 1.6s; }
-        .capture-star:nth-child(13) { top: 82%; left: 32%; animation-delay: .6s; }
-        .capture-star:nth-child(14) { top: 72%; right: 30%; animation-delay: 1.9s; }
-        .capture-star:nth-child(15) { top: 85%; right: 9%; animation-delay: 2.4s; }
-
-        @keyframes cameraTwinkle {
-            0%,
-            100% {
-                opacity: .3;
-                transform: scale(.7);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1.7);
-            }
-        }
-
-        /* =========================
-           SHOOTING STARS
-        ========================= */
-
-        .shooting-star {
-            position: absolute;
-            z-index: 1;
-            width: 90px;
-            height: 2px;
-            border-radius: 999px;
-            background:
-                linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255, 255, 255, .25),
-                    white
-                );
-            transform: rotate(-35deg);
-            opacity: 0;
-            pointer-events: none;
-            filter:
-                drop-shadow(0 0 5px #ffffff);
-            animation:
-                shootingStar
-                7s
-                linear
-                infinite;
-        }
-
-        .shooting-star::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 50%;
-            width: 5px;
-            height: 5px;
-            transform: translateY(-50%);
-            border-radius: 50%;
-            background: white;
-            box-shadow:
-                0 0 8px white,
-                0 0 15px #52aaff;
-        }
-
-        .shooting-one   { top: 13%; left: 15%; }
-        .shooting-two   { top: 19%; right: 20%; animation-delay: 2.5s; }
-        .shooting-three { top: 54%; right: 8%; animation-delay: 5s; }
-
-        @keyframes shootingStar {
-            0% {
-                opacity: 0;
-                transform:
-                    translate(0, 0)
-                    rotate(-35deg);
-            }
-            5% {
-                opacity: 1;
-            }
-            18% {
-                opacity: 1;
-                transform:
-                    translate(-170px, 110px)
-                    rotate(-35deg);
-            }
-            20%,
-            100% {
-                opacity: 0;
-                transform:
-                    translate(-210px, 140px)
-                    rotate(-35deg);
-            }
-        }
     </style>
 </head>
 
 <body>
 
-        <div class="camera-page">
+    <!-- =====================================================
+         BACKGROUND
+    ===================================================== -->
 
-        <div class="capture-stars">
+    <div class="rv-background">
 
-            @for ($i = 0; $i < 15; $i++)
-                <span class="capture-star"></span>
+        <div class="rv-glow rv-glow-one"></div>
+        <div class="rv-glow rv-glow-two"></div>
+        <div class="rv-glow rv-glow-three"></div>
+        <div class="rv-glow rv-glow-four"></div>
+
+        <div class="rv-liquid rv-liquid-one"></div>
+        <div class="rv-liquid rv-liquid-two"></div>
+        <div class="rv-liquid rv-liquid-three"></div>
+
+        <div class="rv-stars">
+
+            @for ($i = 0; $i < 12; $i++)
+                <span class="rv-star"></span>
             @endfor
 
         </div>
 
-        <span class="shooting-star shooting-one"></span>
-        <span class="shooting-star shooting-two"></span>
-        <span class="shooting-star shooting-three"></span>
-
-    <!-- =========================
-         HEADER
-    ========================== -->
-
-    <header class="header">
-
-        <div class="logo">
-            RUPAVUE
+        <div class="rv-shooting-star rv-shooting-star-one">
+            <span></span>
         </div>
 
-        <div class="step">
-            STEP 2 OF 3
+        <div class="rv-shooting-star rv-shooting-star-two">
+            <span></span>
         </div>
 
-    </header>
+        <div class="rv-shooting-star rv-shooting-star-three">
+            <span></span>
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-four">
+            <span></span>
+        </div>
+
+    </div>
+
+
+        <div class="camera-page">
+
 
 
     <!-- =========================
@@ -860,65 +1191,139 @@
 
     <div class="camera-wrapper">
 
-        <div class="camera-frame">
+        <div class="capture-row">
 
-            <!-- Camera -->
+          <div class="frame-holder">
 
-            <video
-                id="cameraVideo"
-                autoplay
-                playsinline
-                muted
-            ></video>
+            <!-- Side controls -->
 
+            <div class="side-controls">
 
-            <!-- Placeholder -->
-
-            <div
-                class="camera-placeholder"
-                id="cameraPlaceholder"
-            >
-
-                <div class="camera-icon">
-                    📷
-                </div>
-
-                <h2>
-                    Camera Ready
-                </h2>
-
-                <p>
-                    Allow camera access to continue.
-                </p>
+                <a
+                    href="{{ route('photobooth.scene') }}"
+                    class="side-button back-button"
+                    id="backButton"
+                >
+                    ← Change Theme
+                </a>
 
             </div>
 
 
-            <!-- Captured photo -->
+            <div class="camera-frame">
 
-            <img
-                id="capturedPhoto"
-                class="captured-photo"
-                alt="Captured photo"
-            >
+                <!-- Camera -->
+
+                <video
+                    id="cameraVideo"
+                    autoplay
+                    playsinline
+                    muted
+                ></video>
 
 
-            <!-- Countdown -->
-
-            <div
-                class="countdown"
-                id="countdown"
-                aria-live="assertive"
-            >
+                <!-- Placeholder -->
 
                 <div
-                    class="countdown-number"
-                    id="countdownNumber"
+                    class="camera-placeholder"
+                    id="cameraPlaceholder"
                 >
-                    3
+
+                    <div class="camera-icon">
+                        📷
+                    </div>
+
+                    <h2>
+                        Camera Ready
+                    </h2>
+
+                    <p>
+                        Allow camera access to continue.
+                    </p>
+
                 </div>
 
+
+                <!-- Captured photo -->
+
+                <img
+                    id="capturedPhoto"
+                    class="captured-photo"
+                    alt="Captured photo"
+                >
+
+
+                <!-- Countdown -->
+
+                <div
+                    class="countdown"
+                    id="countdown"
+                    aria-live="assertive"
+                >
+
+                    <div
+                        class="countdown-number"
+                        id="countdownNumber"
+                    >
+                        3
+                    </div>
+
+                </div>
+
+
+                <!-- Shutter button -->
+
+                <button
+                    type="button"
+                    class="capture-button"
+                    id="captureButton"
+                    aria-label="Capture Photo"
+                    disabled
+                >
+                    📷
+                </button>
+
             </div>
+
+
+            <!-- Upload option -->
+
+            <div class="side-controls-right">
+
+                <button
+                    type="button"
+                    class="side-button upload-button"
+                    id="uploadButton"
+                >
+                    📁 Upload Image
+                </button>
+
+                <input
+                    type="file"
+                    id="imageUpload"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                >
+
+                <button
+                    type="button"
+                    class="side-button retake-button"
+                    id="retakeButton"
+                >
+                    ↻ Retake
+                </button>
+
+                <button
+                    type="button"
+                    class="side-button continue-button"
+                    id="continueButton"
+                >
+                    Continue →
+                </button>
+
+            </div>
+
+          </div>
 
         </div>
 
@@ -941,68 +1346,6 @@
         >
             Camera access could not be started.
             Please allow camera permission and try again.
-        </div>
-
-
-        <!-- Buttons -->
-
-        <div class="actions">
-
-            <button
-                type="button"
-                class="button capture-button"
-                id="captureButton"
-                disabled
-            >
-                📷 Capture Photo
-            </button>
-
-            <span class="or-text">
-                OR
-            </span>
-
-            <button
-                type="button"
-                class="button upload-button"
-                id="uploadButton"
-            >
-                📁 Upload Image
-            </button>
-
-            <input
-                type="file"
-                id="imageUpload"
-                accept="image/jpeg,image/png,image/webp"
-                hidden
-            >
-
-            <button
-                type="button"
-                class="button retake-button"
-                id="retakeButton"
-            >
-                ↻ Retake
-            </button>
-
-            <button
-                type="button"
-                class="button continue-button"
-                id="continueButton"
-            >
-                Continue →
-            </button>
-
-        </div>
-
-
-        <!-- Back -->
-
-        <div class="back-button">
-
-            <a href="{{ route('photobooth.scene') }}">
-                ← Change Theme
-            </a>
-
         </div>
 
     </div>
@@ -1046,8 +1389,11 @@
     const captureButton =
         document.getElementById('captureButton');
 
+    const backButton =
+        document.getElementById('backButton');
+
     const uploadButton =
-    document.getElementById('uploadButton');
+        document.getElementById('uploadButton');
 
     const imageUpload =
         document.getElementById('imageUpload');
@@ -1278,289 +1624,285 @@
 
     }
 
-    /*
- * =========================
- * UPLOAD IMAGE
- * =========================
- */
-
-        uploadButton.addEventListener(
-            'click',
-            function () {
-
-                imageUpload.click();
-
-            }
-        );
-
-
-        imageUpload.addEventListener(
-            'change',
-            function (event) {
-
-                const file =
-                    event.target.files[0];
-
-                if (!file) {
-                    return;
-                }
-
-
-                /*
-                * Check file type
-                */
-
-                const allowedTypes = [
-                    'image/jpeg',
-                    'image/png',
-                    'image/webp'
-                ];
-
-                if (!allowedTypes.includes(file.type)) {
-
-                    cameraStatus.textContent =
-                        'Please upload a JPG, PNG, or WebP image.';
-
-                    return;
-                }
-
-
-                /*
-                * Check file size
-                *
-                * Maximum: 10 MB
-                */
-
-                if (file.size > 10 * 1024 * 1024) {
-
-                    cameraStatus.textContent =
-                        'Image must be smaller than 10 MB.';
-
-                    return;
-                }
-
-
-                /*
-                * Read image
-                */
-
-                const reader =
-                    new FileReader();
-
-
-                reader.onload = function (e) {
-
-                    processUploadedImage(
-                        e.target.result
-                    );
-
-                };
-
-
-                reader.readAsDataURL(file);
-
-            }
-        );
 
     /*
-        * =========================
-        * PROCESS UPLOADED IMAGE
-        * =========================
-        */
+     * =========================
+     * UPLOAD IMAGE
+     * =========================
+     */
 
-        function processUploadedImage(imageData) {
+    uploadButton.addEventListener(
+        'click',
+        function () {
 
-            const image =
-                new Image();
+            imageUpload.click();
 
-
-            image.onload = function () {
-
-                /*
-                * Target ratio
-                *
-                * 2:3 portrait
-                */
-
-                const targetRatio =
-                    2 / 3;
+        }
+    );
 
 
-                const sourceWidth =
-                    image.naturalWidth;
+    imageUpload.addEventListener(
+        'change',
+        function (event) {
 
-                const sourceHeight =
-                    image.naturalHeight;
+            const file =
+                event.target.files[0];
 
-
-                const sourceRatio =
-                    sourceWidth / sourceHeight;
-
-
-                let cropWidth =
-                    sourceWidth;
-
-                let cropHeight =
-                    sourceHeight;
-
-                let cropX = 0;
-
-                let cropY = 0;
+            if (!file) {
+                return;
+            }
 
 
-                /*
-                * Crop image to 2:3
-                */
+            /*
+            * Check file type
+            */
 
-                if (sourceRatio > targetRatio) {
+            const allowedTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ];
 
-                    /*
-                    * Image is too wide
-                    */
-
-                    cropWidth =
-                        sourceHeight * targetRatio;
-
-                    cropX =
-                        (sourceWidth - cropWidth) / 2;
-
-                } else {
-
-                    /*
-                    * Image is too tall
-                    */
-
-                    cropHeight =
-                        sourceWidth / targetRatio;
-
-                    cropY =
-                        (sourceHeight - cropHeight) / 2;
-
-                }
-
-
-                /*
-                * Output size
-                */
-
-                const outputWidth =
-                    800;
-
-                const outputHeight =
-                    1200;
-
-
-                canvas.width =
-                    outputWidth;
-
-                canvas.height =
-                    outputHeight;
-
-
-                const context =
-                    canvas.getContext('2d');
-
-
-                /*
-                * Draw cropped image
-                */
-
-                context.drawImage(
-
-                    image,
-
-                    cropX,
-                    cropY,
-
-                    cropWidth,
-                    cropHeight,
-
-                    0,
-                    0,
-
-                    outputWidth,
-                    outputHeight
-
-                );
-
-
-                /*
-                * Convert to JPEG
-                */
-
-                capturedImageData =
-                    canvas.toDataURL(
-                        'image/jpeg',
-                        0.92
-                    );
-
-
-                /*
-                * Display uploaded image
-                */
-
-                capturedPhoto.src =
-                    capturedImageData;
-
-                capturedPhoto.classList.add(
-                    'visible'
-                );
-
-
-                /*
-                * Hide camera
-                */
-
-                video.style.display =
-                    'none';
-
-
-                placeholder.classList.add(
-                    'hidden'
-                );
-
-
-                /*
-                * Stop camera
-                */
-
-                stopCamera();
-
-
-                /*
-                * Update UI
-                */
+            if (!allowedTypes.includes(file.type)) {
 
                 cameraStatus.textContent =
-                    'Image uploaded successfully!';
+                    'Please upload a JPG, PNG, or WebP image.';
+
+                return;
+            }
 
 
-                captureButton.style.display =
-                    'none';
+            /*
+            * Check file size
+            *
+            * Maximum: 10 MB
+            */
 
-                uploadButton.style.display =
-                    'none';
+            if (file.size > 10 * 1024 * 1024) {
+
+                cameraStatus.textContent =
+                    'Image must be smaller than 10 MB.';
+
+                return;
+            }
 
 
-                document
-                    .querySelector('.or-text')
-                    .style.display =
-                    'none';
+            /*
+            * Read image
+            */
+
+            const reader =
+                new FileReader();
 
 
-                retakeButton.style.display =
-                    'inline-flex';
+            reader.onload = function (e) {
 
-                continueButton.style.display =
-                    'inline-flex';
+                processUploadedImage(
+                    e.target.result
+                );
 
             };
 
 
-            image.src =
-                imageData;
+            reader.readAsDataURL(file);
 
         }
+    );
+
+    /*
+     * =========================
+     * PROCESS UPLOADED IMAGE
+     * =========================
+     */
+
+    function processUploadedImage(imageData) {
+
+        const image =
+            new Image();
+
+
+        image.onload = function () {
+
+            /*
+            * Target ratio
+            *
+            * 3:2 landscape
+            */
+
+            const targetRatio =
+                3 / 2;
+
+
+            const sourceWidth =
+                image.naturalWidth;
+
+            const sourceHeight =
+                image.naturalHeight;
+
+
+            const sourceRatio =
+                sourceWidth / sourceHeight;
+
+
+            let cropWidth =
+                sourceWidth;
+
+            let cropHeight =
+                sourceHeight;
+
+            let cropX = 0;
+
+            let cropY = 0;
+
+
+            /*
+            * Crop image to 3:2
+            */
+
+            if (sourceRatio > targetRatio) {
+
+                /*
+                * Image is too wide
+                */
+
+                cropWidth =
+                    sourceHeight * targetRatio;
+
+                cropX =
+                    (sourceWidth - cropWidth) / 2;
+
+            } else {
+
+                /*
+                * Image is too tall
+                */
+
+                cropHeight =
+                    sourceWidth / targetRatio;
+
+                cropY =
+                    (sourceHeight - cropHeight) / 2;
+
+            }
+
+
+            /*
+            * Output size
+            */
+
+            const outputWidth =
+                1200;
+
+            const outputHeight =
+                800;
+
+
+            canvas.width =
+                outputWidth;
+
+            canvas.height =
+                outputHeight;
+
+
+            const context =
+                canvas.getContext('2d');
+
+
+            /*
+            * Draw cropped image
+            */
+
+            context.drawImage(
+
+                image,
+
+                cropX,
+                cropY,
+
+                cropWidth,
+                cropHeight,
+
+                0,
+                0,
+
+                outputWidth,
+                outputHeight
+
+            );
+
+
+            /*
+            * Convert to JPEG
+            */
+
+            capturedImageData =
+                canvas.toDataURL(
+                    'image/jpeg',
+                    0.92
+                );
+
+
+            /*
+            * Display uploaded image
+            */
+
+            capturedPhoto.src =
+                capturedImageData;
+
+            capturedPhoto.classList.add(
+                'visible'
+            );
+
+
+            /*
+            * Hide camera
+            */
+
+            video.style.display =
+                'none';
+
+
+            placeholder.classList.add(
+                'hidden'
+            );
+
+
+            /*
+            * Stop camera
+            */
+
+            stopCamera();
+
+
+            /*
+            * Update UI
+            */
+
+            cameraStatus.textContent =
+                'Image uploaded successfully!';
+
+            captureButton.style.display =
+                'none';
+
+            backButton.style.display =
+                'none';
+
+            uploadButton.style.display =
+                'none';
+
+            retakeButton.style.display =
+                'inline-flex';
+
+            continueButton.style.display =
+                'inline-flex';
+
+        };
+
+
+        image.src =
+            imageData;
+
+    }
 
 
     /*
@@ -1586,7 +1928,7 @@
 
        
         const targetRatio =
-            2 / 3;
+            3 / 2;
 
         let sourceWidth =
             video.videoWidth;
@@ -1638,10 +1980,10 @@
          */
 
         const outputWidth =
-            800;
+            1200;
 
         const outputHeight =
-            1200;
+            800;
 
 
         canvas.width =
@@ -1731,6 +2073,12 @@
         captureButton.style.display =
             'none';
 
+        backButton.style.display =
+            'none';
+
+        uploadButton.style.display =
+            'none';
+
         retakeButton.style.display =
             'inline-flex';
 
@@ -1761,14 +2109,6 @@
 
 
             /*
-            * Clear uploaded file
-            */
-
-            imageUpload.value =
-                '';
-
-
-            /*
             * Show camera
             */
 
@@ -1777,20 +2117,25 @@
 
 
             /*
-            * Show capture/upload buttons
+            * Show capture button and back link
             */
 
             captureButton.style.display =
+                'inline-flex';
+
+            backButton.style.display =
                 'inline-flex';
 
             uploadButton.style.display =
                 'inline-flex';
 
 
-            document
-                .querySelector('.or-text')
-                .style.display =
-                'inline';
+            /*
+            * Clear uploaded file
+            */
+
+            imageUpload.value =
+                '';
 
 
             /*
@@ -1931,6 +2276,95 @@
         'click',
         continueToGeneration
     );
+
+
+    /*
+     * =========================
+     * CENTER SIDE CONTROLS
+     *
+     * Keeps the left/right button
+     * columns centered in the gap
+     * between the frame and the
+     * page edge, no matter which
+     * constraint ends up sizing
+     * the frame.
+     * =========================
+     */
+
+    /*
+     * The "sidewall" is the page itself, not
+     * the (narrower, max-width capped) capture
+     * row, so the gap is measured against that.
+     */
+    const cameraPageEl =
+        document.querySelector('.camera-page');
+
+    const side =
+        document.querySelector('.side-controls');
+
+    const sideRight =
+        document.querySelector('.side-controls-right');
+
+    function centerSideControls() {
+
+        if (window.innerWidth <= 768) {
+
+            side.style.left = '';
+            side.style.marginRight = '';
+
+            sideRight.style.left = '';
+            sideRight.style.marginLeft = '';
+
+            return;
+        }
+
+
+        const frameRect =
+            video.parentElement
+                .getBoundingClientRect();
+
+        const rowRect =
+            cameraPageEl.getBoundingClientRect();
+
+        const leftGap =
+            frameRect.left - rowRect.left;
+
+        const rightGap =
+            rowRect.right - frameRect.right;
+
+        /*
+         * The stylesheet's margin-right/margin-left
+         * only serve as a before-JS fallback; zero
+         * them out so they don't stack on top of the
+         * computed "left" position below.
+         */
+        side.style.marginRight = '0';
+        sideRight.style.marginLeft = '0';
+
+        side.style.left =
+            (-leftGap / 2 - side.offsetWidth / 2)
+            + 'px';
+
+        sideRight.style.left =
+            (frameRect.width
+                + rightGap / 2
+                - sideRight.offsetWidth / 2)
+            + 'px';
+
+    }
+
+
+    window.addEventListener(
+        'load',
+        centerSideControls
+    );
+
+    window.addEventListener(
+        'resize',
+        centerSideControls
+    );
+
+    centerSideControls();
 
 
     /*

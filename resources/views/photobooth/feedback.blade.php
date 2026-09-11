@@ -27,7 +27,20 @@
             margin: 0;
             min-height: 100vh;
 
-            background: #050505;
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+                    rgba(7, 58, 145, 0.28) 0%,
+                    rgba(3, 25, 63, 0.42) 28%,
+                    rgba(1, 8, 23, 0.85) 65%,
+                    #010611 100%
+                ),
+                linear-gradient(
+                    135deg,
+                    #010611 0%,
+                    #02122f 45%,
+                    #010816 100%
+                );
             color: #fff;
 
             font-family:

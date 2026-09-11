@@ -828,18 +828,21 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            color: #07142f;
+            color: #ffffff;
             overflow-x: hidden;
             background:
                 radial-gradient(
-                    ellipse 68% 75% at 50% 42%,
-                    #ffffff 0%,
-                    #eef7ff 18%,
-                    #c8e2ff 36%,
-                    #76adf0 54%,
-                    #246bd0 68%,
-                    #073477 84%,
-                    #010d2d 100%
+                    circle at 50% 45%,
+                    rgba(7, 58, 145, 0.28) 0%,
+                    rgba(3, 25, 63, 0.42) 28%,
+                    rgba(1, 8, 23, 0.85) 65%,
+                    #010611 100%
+                ),
+                linear-gradient(
+                    135deg,
+                    #010611 0%,
+                    #02122f 45%,
+                    #010816 100%
                 );
         }
 
@@ -849,119 +852,397 @@
             padding: 22px 3.5% 28px;
             overflow: hidden;
 
+            /*
+             * Explicitly cleared (not just omitted) so this
+             * wins over the older unused .result-page rule
+             * earlier in the stylesheet, which still points
+             * at a background image.
+             */
+            background: none;
+        }
+
+        /* =====================================================
+           BACKGROUND
+        ===================================================== */
+
+        .rv-background {
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            overflow: hidden;
+            pointer-events: none;
+
             background:
                 radial-gradient(
-                    ellipse 66% 72% at 50% 43%,
-                    rgba(255,255,255,.94) 0%,
-                    rgba(232,244,255,.82) 23%,
-                    rgba(116,174,241,.38) 49%,
-                    rgba(18,87,185,.28) 70%,
-                    transparent 100%
+                    circle at 50% 50%,
+                    rgba(0, 76, 190, 0.10),
+                    transparent 55%
                 );
         }
 
-        .result-page::before {
-            content: "";
+
+        /* Large blue corner glows */
+
+        .rv-glow {
             position: absolute;
-            inset: -18%;
-            z-index: 0;
+            border-radius: 50%;
             pointer-events: none;
+            filter: blur(2px);
+        }
+
+        .rv-glow-one {
+            width: 430px;
+            height: 430px;
+
+            top: -240px;
+            left: -170px;
 
             background:
-                radial-gradient(ellipse at 0% 0%,
-                    rgba(4,67,165,.92), transparent 32%),
-                radial-gradient(ellipse at 100% 0%,
-                    rgba(8,137,225,.78), transparent 33%),
-                radial-gradient(ellipse at 0% 100%,
-                    rgba(61,48,190,.78), transparent 32%),
-                radial-gradient(ellipse at 100% 100%,
-                    rgba(0,92,205,.82), transparent 34%);
-
-            filter: blur(42px);
-            animation: resultAtmosphere 18s ease-in-out infinite;
+                radial-gradient(
+                    circle,
+                    rgba(0, 92, 255, 0.58) 0%,
+                    rgba(0, 55, 180, 0.25) 40%,
+                    transparent 72%
+                );
         }
 
-        @keyframes resultAtmosphere {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.055); }
+        .rv-glow-two {
+            width: 500px;
+            height: 500px;
+
+            top: -250px;
+            right: -220px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 115, 255, 0.55) 0%,
+                    rgba(0, 58, 180, 0.24) 40%,
+                    transparent 72%
+                );
         }
 
-        /* Stars */
-        .result-stars {
+        .rv-glow-three {
+            width: 480px;
+            height: 480px;
+
+            bottom: -270px;
+            left: -180px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(35, 50, 255, 0.45) 0%,
+                    rgba(0, 75, 200, 0.22) 42%,
+                    transparent 72%
+                );
+        }
+
+        .rv-glow-four {
+            width: 500px;
+            height: 500px;
+
+            bottom: -290px;
+            right: -180px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 100, 255, 0.52) 0%,
+                    rgba(0, 53, 175, 0.22) 42%,
+                    transparent 72%
+                );
+        }
+
+
+        /* =====================================================
+           LIQUID GLASS BACKGROUND SHAPES
+        ===================================================== */
+
+        .rv-liquid {
+            position: absolute;
+            border-radius: 50%;
+
+            border: 1px solid rgba(65, 151, 255, 0.25);
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    rgba(39, 125, 255, 0.18),
+                    rgba(5, 36, 92, 0.08) 45%,
+                    transparent 72%
+                );
+
+            box-shadow:
+                inset 0 0 40px rgba(40, 130, 255, 0.08),
+                0 0 50px rgba(0, 90, 255, 0.07);
+
+            backdrop-filter: blur(5px);
+
+            animation: liquidFloat 12s ease-in-out infinite;
+        }
+
+        .rv-liquid-one {
+            width: 360px;
+            height: 360px;
+
+            top: 15%;
+            left: -220px;
+        }
+
+        .rv-liquid-two {
+            width: 300px;
+            height: 300px;
+
+            top: 55%;
+            right: -180px;
+
+            animation-delay: -4s;
+        }
+
+        .rv-liquid-three {
+            width: 220px;
+            height: 220px;
+
+            top: 32%;
+            right: 10%;
+
+            opacity: 0.22;
+
+            animation-delay: -8s;
+        }
+
+        @keyframes liquidFloat {
+
+            0%,
+            100% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            50% {
+                transform: translate3d(0, -25px, 0);
+            }
+        }
+
+
+        /* =====================================================
+           STAR FIELD
+        ===================================================== */
+
+        .rv-stars {
             position: absolute;
             inset: 0;
-            z-index: 1;
-            pointer-events: none;
         }
 
-        .result-star {
+        .rv-star {
             position: absolute;
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 0 7px #fff, 0 0 15px #55aaff;
-            animation: resultTwinkle 3s ease-in-out infinite;
-        }
 
-        .result-star:nth-child(1) { top: 8%; left: 8%; }
-        .result-star:nth-child(2) { top: 15%; left: 23%; animation-delay:.8s; }
-        .result-star:nth-child(3) { top: 7%; left: 48%; animation-delay:1.2s; }
-        .result-star:nth-child(4) { top: 12%; right: 27%; animation-delay:1.8s; }
-        .result-star:nth-child(5) { top: 9%; right: 8%; animation-delay:.5s; }
-        .result-star:nth-child(6) { top: 30%; left: 13%; animation-delay:1.5s; }
-        .result-star:nth-child(7) { top: 27%; right: 12%; animation-delay:2s; }
-        .result-star:nth-child(8) { top: 48%; left: 5%; animation-delay:.3s; }
-        .result-star:nth-child(9) { top: 43%; right: 7%; animation-delay:1.4s; }
-        .result-star:nth-child(10) { top: 67%; left: 18%; animation-delay:2.3s; }
-        .result-star:nth-child(11) { top: 64%; right: 17%; animation-delay:.9s; }
-        .result-star:nth-child(12) { top: 82%; left: 9%; animation-delay:1.6s; }
-        .result-star:nth-child(13) { top: 88%; left: 38%; animation-delay:.6s; }
-        .result-star:nth-child(14) { top: 76%; right: 30%; animation-delay:1.9s; }
-        .result-star:nth-child(15) { top: 87%; right: 9%; animation-delay:2.4s; }
-
-        @keyframes resultTwinkle {
-            0%, 100% { opacity:.35; transform:scale(.7); }
-            50% { opacity:1; transform:scale(1.7); }
-        }
-
-        /* Shooting stars */
-        .result-shooting-star {
-            position: absolute;
-            z-index: 2;
-            width: 105px;
+            width: 2px;
             height: 2px;
-            border-radius: 999px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), #fff);
-            transform: rotate(-35deg);
-            opacity: 0;
-            filter: drop-shadow(0 0 5px #fff);
-            animation: resultShooting 7s linear infinite;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 0 5px rgba(100, 180, 255, 0.9);
+
+            opacity: 0.55;
+
+            animation: starPulse 4s ease-in-out infinite;
+        }
+
+        .rv-star:nth-child(1) {
+            top: 12%;
+            left: 11%;
+            animation-delay: -1s;
+        }
+
+        .rv-star:nth-child(2) {
+            top: 18%;
+            left: 82%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(3) {
+            top: 28%;
+            left: 6%;
+            animation-delay: -3s;
+        }
+
+        .rv-star:nth-child(4) {
+            top: 37%;
+            left: 91%;
+            animation-delay: -1.5s;
+        }
+
+        .rv-star:nth-child(5) {
+            top: 48%;
+            left: 15%;
+            animation-delay: -2.5s;
+        }
+
+        .rv-star:nth-child(6) {
+            top: 59%;
+            left: 86%;
+            animation-delay: -0.5s;
+        }
+
+        .rv-star:nth-child(7) {
+            top: 72%;
+            left: 7%;
+            animation-delay: -3.5s;
+        }
+
+        .rv-star:nth-child(8) {
+            top: 78%;
+            left: 94%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(9) {
+            top: 87%;
+            left: 25%;
+            animation-delay: -1s;
+        }
+
+        .rv-star:nth-child(10) {
+            top: 92%;
+            left: 72%;
+            animation-delay: -3s;
+        }
+
+        .rv-star:nth-child(11) {
+            top: 9%;
+            left: 48%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(12) {
+            top: 42%;
+            left: 97%;
+            animation-delay: -1s;
+        }
+
+        @keyframes starPulse {
+
+            0%,
+            100% {
+                opacity: 0.25;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: scale(1.5);
+            }
+        }
+
+
+        /* =====================================================
+           SHOOTING STARS
+        ===================================================== */
+
+        .rv-shooting-star {
+            position: absolute;
             pointer-events: none;
         }
 
-        .result-shooting-star::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 50%;
-            width: 5px;
-            height: 5px;
-            transform: translateY(-50%);
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 0 8px #fff, 0 0 16px #52aaff;
+        .rv-shooting-star span {
+            display: block;
+
+            width: 130px;
+            height: 2px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.95),
+                    rgba(255, 255, 255, 0)
+                );
+
+            border-radius: 999px;
+
+            filter: drop-shadow(0 0 4px rgba(170, 210, 255, 0.9));
+
+            opacity: 0;
+
+            animation: shootingStar 7s linear infinite;
         }
 
-        .result-shooting-one { top: 18%; left: 15%; }
-        .result-shooting-two { top: 30%; right: 18%; animation-delay: 2.7s; }
-        .result-shooting-three { top: 62%; right: 8%; animation-delay: 5.2s; }
+        .rv-shooting-star-one {
+            top: 12%;
+            left: 62%;
 
-        @keyframes resultShooting {
-            0% { opacity:0; transform:translate(0,0) rotate(-35deg); }
-            5% { opacity:1; }
-            18% { opacity:1; transform:translate(-170px,110px) rotate(-35deg); }
-            20%,100% { opacity:0; transform:translate(-210px,140px) rotate(-35deg); }
+            transform: rotate(35deg);
+        }
+
+        .rv-shooting-star-one span {
+            animation-delay: 0.4s;
+        }
+
+        .rv-shooting-star-two {
+            top: 32%;
+            left: 12%;
+
+            transform: rotate(28deg);
+        }
+
+        .rv-shooting-star-two span {
+            width: 100px;
+
+            animation-duration: 8.5s;
+            animation-delay: 3.6s;
+        }
+
+        .rv-shooting-star-three {
+            top: 68%;
+            left: 78%;
+
+            transform: rotate(40deg);
+        }
+
+        .rv-shooting-star-three span {
+            width: 90px;
+
+            animation-duration: 6s;
+            animation-delay: 6.2s;
+        }
+
+        .rv-shooting-star-four {
+            top: 6%;
+            left: 22%;
+
+            transform: rotate(30deg);
+        }
+
+        .rv-shooting-star-four span {
+            width: 110px;
+
+            animation-duration: 9s;
+            animation-delay: 2s;
+        }
+
+        @keyframes shootingStar {
+
+            0% {
+                opacity: 0;
+                transform: translateX(0);
+            }
+
+            4% {
+                opacity: 1;
+            }
+
+            18% {
+                opacity: 0;
+                transform: translateX(-320px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateX(-320px);
+            }
         }
 
         .header {
@@ -990,19 +1271,6 @@
             border-radius: 50%;
             background: #ff929b;
             box-shadow: 0 0 10px rgba(255,146,155,.55);
-        }
-
-        .ready {
-            padding: 7px 14px;
-            border-radius: 999px;
-            color: #fff;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            background: rgba(8,45,95,.28);
-            border: 1px solid rgba(255,255,255,.58);
-            backdrop-filter: blur(12px);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
         }
 
         /* Main split layout */
@@ -1152,7 +1420,7 @@
             border-radius: 999px;
             background: rgba(255,255,255,.65);
             color: #073477;
-            font-size: 13px;
+            font-size: 17px;
             font-weight: 800;
             cursor: pointer;
             box-shadow:
@@ -1314,7 +1582,7 @@
                     rgba(0,112,230,.92)
                 );
             color: white;
-            font-size: 14px;
+            font-size: 18px;
             font-weight: 800;
             letter-spacing: .5px;
             cursor: pointer;
@@ -1645,7 +1913,7 @@
 
         padding: 9px !important;
 
-        font-size: 10px !important;
+        font-size: 15px !important;
     }
 
 
@@ -1769,11 +2037,11 @@
 
         border-radius: 999px !important;
 
-        font-size: 11px !important;
+        font-size: 15px !important;
     }
 }
 
-    
+
 
 /* =========================================================
    FINAL CLEAN DESKTOP LAYOUT — 1 SCREEN
@@ -1792,16 +2060,10 @@
         min-height: 0 !important;
         padding: 10px 50px 10px !important;
         overflow: hidden !important;
-        background:
-            radial-gradient(ellipse 34% 28% at 8% 18%, rgba(36,104,200,.30), transparent 70%),
-            radial-gradient(ellipse 32% 25% at 92% 20%, rgba(28,86,180,.26), transparent 70%),
-            radial-gradient(ellipse 40% 30% at 48% 48%, rgba(90,150,230,.14), transparent 72%),
-            radial-gradient(ellipse 38% 28% at 78% 88%, rgba(22,74,170,.32), transparent 70%),
-            linear-gradient(145deg, #020a22 0%, #072358 32%, #0b3170 50%, #072a5c 68%, #01071b 100%) !important;
 
         display: grid !important;
         grid-template-columns: 560px 820px !important;
-        grid-template-rows: 32px 356px 300px 44px !important;
+        grid-template-rows: 32px 330px 280px 40px 40px !important;
         column-gap: 24px !important;
         row-gap: 8px !important;
         justify-content: center !important;
@@ -1833,7 +2095,7 @@
 
     .result-frame {
         grid-column: 1 !important;
-        grid-row: 2 / 5 !important;
+        grid-row: 2 / 6 !important;
         justify-self: start !important;
         align-self: start !important;
         width: 540px !important;
@@ -1864,7 +2126,7 @@
         width: 460px !important;
         max-width: 100% !important;
         justify-self: center !important;
-        height: 356px !important;
+        height: 330px !important;
         min-height: 0 !important;
         padding: 16px 22px !important;
         border-radius: 22px !important;
@@ -1904,11 +2166,20 @@
         margin-bottom: 5px !important;
     }
 
+    /* Print button — its own row, below the feedback card */
     .print-button {
-        width: 62% !important;
-        max-width: 360px !important;
+        grid-column: 2 !important;
+        grid-row: 4 !important;
+
+        width: 100% !important;
+        max-width: none !important;
+        height: 40px !important;
+        margin: 0 !important;
+
         padding: 8px !important;
-        font-size: 10px !important;
+        font-size: 15px !important;
+
+        z-index: 5 !important;
     }
 
     /* Feedback */
@@ -1916,7 +2187,7 @@
         grid-column: 2 !important;
         grid-row: 3 !important;
         width: 100% !important;
-        height: 300px !important;
+        height: 280px !important;
         min-height: 0 !important;
         padding: 14px 22px !important;
         border-radius: 22px !important;
@@ -1983,73 +2254,20 @@
     /* New session */
     .new-session {
         grid-column: 2 !important;
-        grid-row: 4 !important;
+        grid-row: 5 !important;
         width: 100% !important;
-        height: 44px !important;
+        height: 40px !important;
         margin: 0 !important;
         z-index: 5 !important;
     }
 
     .new-session-button {
         width: 100% !important;
-        height: 44px !important;
+        height: 40px !important;
         padding: 8px !important;
-        font-size: 11px !important;
+        font-size: 15px !important;
     }
 
-    /* Make the background feel alive */
-    .result-page::before {
-        opacity: .82 !important;
-        filter: blur(34px) !important;
-    }
-
-    /* Soft glassy cloud/light formations */
-    .result-page::after {
-        content: "";
-        position: absolute;
-        inset: -12%;
-        z-index: 0;
-        pointer-events: none;
-        background:
-            radial-gradient(ellipse 24% 10% at 18% 22%, rgba(255,255,255,.10), transparent 72%),
-            radial-gradient(ellipse 28% 12% at 46% 14%, rgba(255,255,255,.07), transparent 72%),
-            radial-gradient(ellipse 22% 9% at 76% 30%, rgba(255,255,255,.08), transparent 72%),
-            radial-gradient(ellipse 30% 11% at 83% 78%, rgba(255,255,255,.06), transparent 72%);
-        filter: blur(24px);
-        opacity: .5;
-    }
-
-    .result-star {
-        z-index: 2 !important;
-        width: 4px !important;
-        height: 4px !important;
-        box-shadow: 0 0 8px #fff, 0 0 18px #72c4ff !important;
-    }
-
-    /* Keep shooting stars in open background areas so they are visible */
-    .result-shooting-one {
-        top: 12% !important;
-        left: 3% !important;
-        width: 125px !important;
-        animation-duration: 6s !important;
-        animation-delay: -2.4s !important;
-    }
-
-    .result-shooting-two {
-        top: 72% !important;
-        right: 4% !important;
-        width: 145px !important;
-        animation-duration: 6.5s !important;
-        animation-delay: -4.1s !important;
-    }
-
-    .result-shooting-three {
-        top: 88% !important;
-        right: 24% !important;
-        width: 100px !important;
-        animation-duration: 5.5s !important;
-        animation-delay: -1.3s !important;
-    }
 }
 
     </style>
@@ -2060,22 +2278,49 @@
 <body>
 
 
-<div class="result-page">
-
-
     <!-- =====================================================
-         BACKGROUND — STARS + SHOOTING STARS
-    ====================================================== -->
+         BACKGROUND
+    ===================================================== -->
 
-    <div class="result-stars" aria-hidden="true">
-        @for ($i = 0; $i < 15; $i++)
-            <span class="result-star"></span>
-        @endfor
+    <div class="rv-background">
+
+        <div class="rv-glow rv-glow-one"></div>
+        <div class="rv-glow rv-glow-two"></div>
+        <div class="rv-glow rv-glow-three"></div>
+        <div class="rv-glow rv-glow-four"></div>
+
+        <div class="rv-liquid rv-liquid-one"></div>
+        <div class="rv-liquid rv-liquid-two"></div>
+        <div class="rv-liquid rv-liquid-three"></div>
+
+        <div class="rv-stars">
+
+            @for ($i = 0; $i < 12; $i++)
+                <span class="rv-star"></span>
+            @endfor
+
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-one">
+            <span></span>
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-two">
+            <span></span>
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-three">
+            <span></span>
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-four">
+            <span></span>
+        </div>
+
     </div>
 
-    <span class="result-shooting-star result-shooting-one" aria-hidden="true"></span>
-    <span class="result-shooting-star result-shooting-two" aria-hidden="true"></span>
-    <span class="result-shooting-star result-shooting-three" aria-hidden="true"></span>
+
+<div class="result-page">
 
 
     <!-- =====================================================
@@ -2093,13 +2338,6 @@
                 RupaVue
 
             </div>
-
-        </div>
-
-
-        <div class="ready">
-
-            READY!
 
         </div>
 
@@ -2180,19 +2418,6 @@
                 Preparing QR code...
 
             </div>
-
-
-            <!-- PRINT ONLY -->
-
-            <button
-                type="button"
-                class="print-button"
-                id="printButton"
-            >
-
-                🖨️ Print Photo
-
-            </button>
 
         </div>
 
@@ -2375,6 +2600,20 @@
 
     </section>
 
+
+    <!-- =====================================================
+         PRINT PHOTO
+    ====================================================== -->
+
+    <button
+        type="button"
+        class="print-button"
+        id="printButton"
+    >
+
+        🖨️ Print Photo
+
+    </button>
 
 
     <!-- =====================================================

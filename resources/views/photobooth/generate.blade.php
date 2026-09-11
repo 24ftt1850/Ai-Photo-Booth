@@ -22,8 +22,21 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background: #031535;
-            color: #07142f;
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+                    rgba(7, 58, 145, 0.28) 0%,
+                    rgba(3, 25, 63, 0.42) 28%,
+                    rgba(1, 8, 23, 0.85) 65%,
+                    #010611 100%
+                ),
+                linear-gradient(
+                    135deg,
+                    #010611 0%,
+                    #02122f 45%,
+                    #010816 100%
+                );
+            color: #ffffff;
         }
 
         /* =====================================================
@@ -41,197 +54,389 @@
 
             display: flex;
             flex-direction: column;
-
-            background:
-                radial-gradient(
-                    ellipse 65% 68% at 50% 43%,
-                    #ffffff 0%,
-                    #eef6ff 18%,
-                    #c8e1ff 34%,
-                    #75adf2 52%,
-                    #2167cf 67%,
-                    #073577 82%,
-                    #010d2c 100%
-                );
-        }
-
-        /* Deep blue corner atmosphere */
-        .generate-page::before {
-            content: "";
-            position: absolute;
-            inset: -22%;
-            z-index: 0;
-            pointer-events: none;
-
-            background:
-                radial-gradient(
-                    ellipse at 0% 0%,
-                    rgba(4, 62, 160, .92),
-                    transparent 34%
-                ),
-                radial-gradient(
-                    ellipse at 100% 0%,
-                    rgba(7, 130, 220, .80),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    ellipse at 0% 100%,
-                    rgba(55, 40, 190, .82),
-                    transparent 34%
-                ),
-                radial-gradient(
-                    ellipse at 100% 100%,
-                    rgba(0, 91, 205, .82),
-                    transparent 35%
-                );
-
-            filter: blur(42px);
-            animation: generateAtmosphere 18s ease-in-out infinite;
-        }
-
-        @keyframes generateAtmosphere {
-            0%, 100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.06);
-            }
         }
 
         /* =====================================================
-           STARS
+           BACKGROUND
         ===================================================== */
 
-        .generation-stars {
-            position: absolute;
+        .rv-background {
+            position: fixed;
             inset: 0;
-            z-index: 1;
+            z-index: -10;
+            overflow: hidden;
             pointer-events: none;
+
+            background:
+                radial-gradient(
+                    circle at 50% 50%,
+                    rgba(0, 76, 190, 0.10),
+                    transparent 55%
+                );
         }
 
-        .generation-star {
+
+        /* Large blue corner glows */
+
+        .rv-glow {
             position: absolute;
-            width: 3px;
-            height: 3px;
             border-radius: 50%;
-            background: #fff;
-            box-shadow:
-                0 0 7px #fff,
-                0 0 14px #55aaff;
-            animation: generationTwinkle 3s ease-in-out infinite;
+            pointer-events: none;
+            filter: blur(2px);
         }
 
-        .generation-star:nth-child(1) { top: 8%; left: 8%; }
-        .generation-star:nth-child(2) { top: 15%; left: 23%; animation-delay: .8s; }
-        .generation-star:nth-child(3) { top: 7%; left: 48%; animation-delay: 1.2s; }
-        .generation-star:nth-child(4) { top: 12%; right: 27%; animation-delay: 1.8s; }
-        .generation-star:nth-child(5) { top: 9%; right: 8%; animation-delay: .5s; }
-        .generation-star:nth-child(6) { top: 28%; left: 13%; animation-delay: 1.5s; }
-        .generation-star:nth-child(7) { top: 25%; right: 12%; animation-delay: 2s; }
-        .generation-star:nth-child(8) { top: 43%; left: 5%; animation-delay: .3s; }
-        .generation-star:nth-child(9) { top: 40%; right: 7%; animation-delay: 1.4s; }
-        .generation-star:nth-child(10) { top: 55%; left: 18%; animation-delay: 2.3s; }
-        .generation-star:nth-child(11) { top: 60%; right: 17%; animation-delay: .9s; }
-        .generation-star:nth-child(12) { top: 76%; left: 9%; animation-delay: 1.6s; }
-        .generation-star:nth-child(13) { top: 82%; left: 32%; animation-delay: .6s; }
-        .generation-star:nth-child(14) { top: 72%; right: 30%; animation-delay: 1.9s; }
-        .generation-star:nth-child(15) { top: 85%; right: 9%; animation-delay: 2.4s; }
+        .rv-glow-one {
+            width: 430px;
+            height: 430px;
 
-        @keyframes generationTwinkle {
-            0%, 100% {
-                opacity: .35;
-                transform: scale(.7);
+            top: -240px;
+            left: -170px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 92, 255, 0.58) 0%,
+                    rgba(0, 55, 180, 0.25) 40%,
+                    transparent 72%
+                );
+        }
+
+        .rv-glow-two {
+            width: 500px;
+            height: 500px;
+
+            top: -250px;
+            right: -220px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 115, 255, 0.55) 0%,
+                    rgba(0, 58, 180, 0.24) 40%,
+                    transparent 72%
+                );
+        }
+
+        .rv-glow-three {
+            width: 480px;
+            height: 480px;
+
+            bottom: -270px;
+            left: -180px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(35, 50, 255, 0.45) 0%,
+                    rgba(0, 75, 200, 0.22) 42%,
+                    transparent 72%
+                );
+        }
+
+        .rv-glow-four {
+            width: 500px;
+            height: 500px;
+
+            bottom: -290px;
+            right: -180px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0, 100, 255, 0.52) 0%,
+                    rgba(0, 53, 175, 0.22) 42%,
+                    transparent 72%
+                );
+        }
+
+
+        /* =====================================================
+           LIQUID GLASS BACKGROUND SHAPES
+        ===================================================== */
+
+        .rv-liquid {
+            position: absolute;
+            border-radius: 50%;
+
+            border: 1px solid rgba(65, 151, 255, 0.25);
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    rgba(39, 125, 255, 0.18),
+                    rgba(5, 36, 92, 0.08) 45%,
+                    transparent 72%
+                );
+
+            box-shadow:
+                inset 0 0 40px rgba(40, 130, 255, 0.08),
+                0 0 50px rgba(0, 90, 255, 0.07);
+
+            backdrop-filter: blur(5px);
+
+            animation: liquidFloat 12s ease-in-out infinite;
+        }
+
+        .rv-liquid-one {
+            width: 360px;
+            height: 360px;
+
+            top: 15%;
+            left: -220px;
+        }
+
+        .rv-liquid-two {
+            width: 300px;
+            height: 300px;
+
+            top: 55%;
+            right: -180px;
+
+            animation-delay: -4s;
+        }
+
+        .rv-liquid-three {
+            width: 220px;
+            height: 220px;
+
+            top: 32%;
+            right: 10%;
+
+            opacity: 0.22;
+
+            animation-delay: -8s;
+        }
+
+        @keyframes liquidFloat {
+
+            0%,
+            100% {
+                transform: translate3d(0, 0, 0);
             }
 
             50% {
-                opacity: 1;
-                transform: scale(1.7);
+                transform: translate3d(0, -25px, 0);
             }
         }
+
+
+        /* =====================================================
+           STAR FIELD
+        ===================================================== */
+
+        .rv-stars {
+            position: absolute;
+            inset: 0;
+        }
+
+        .rv-star {
+            position: absolute;
+
+            width: 2px;
+            height: 2px;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 0 5px rgba(100, 180, 255, 0.9);
+
+            opacity: 0.55;
+
+            animation: starPulse 4s ease-in-out infinite;
+        }
+
+        .rv-star:nth-child(1) {
+            top: 12%;
+            left: 11%;
+            animation-delay: -1s;
+        }
+
+        .rv-star:nth-child(2) {
+            top: 18%;
+            left: 82%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(3) {
+            top: 28%;
+            left: 6%;
+            animation-delay: -3s;
+        }
+
+        .rv-star:nth-child(4) {
+            top: 37%;
+            left: 91%;
+            animation-delay: -1.5s;
+        }
+
+        .rv-star:nth-child(5) {
+            top: 48%;
+            left: 15%;
+            animation-delay: -2.5s;
+        }
+
+        .rv-star:nth-child(6) {
+            top: 59%;
+            left: 86%;
+            animation-delay: -0.5s;
+        }
+
+        .rv-star:nth-child(7) {
+            top: 72%;
+            left: 7%;
+            animation-delay: -3.5s;
+        }
+
+        .rv-star:nth-child(8) {
+            top: 78%;
+            left: 94%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(9) {
+            top: 87%;
+            left: 25%;
+            animation-delay: -1s;
+        }
+
+        .rv-star:nth-child(10) {
+            top: 92%;
+            left: 72%;
+            animation-delay: -3s;
+        }
+
+        .rv-star:nth-child(11) {
+            top: 9%;
+            left: 48%;
+            animation-delay: -2s;
+        }
+
+        .rv-star:nth-child(12) {
+            top: 42%;
+            left: 97%;
+            animation-delay: -1s;
+        }
+
+        @keyframes starPulse {
+
+            0%,
+            100% {
+                opacity: 0.25;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: scale(1.5);
+            }
+        }
+
 
         /* =====================================================
            SHOOTING STARS
         ===================================================== */
 
-        .shooting-star {
+        .rv-shooting-star {
             position: absolute;
-            z-index: 2;
-            width: 95px;
+            pointer-events: none;
+        }
+
+        .rv-shooting-star span {
+            display: block;
+
+            width: 130px;
             height: 2px;
-            border-radius: 999px;
 
             background:
                 linear-gradient(
                     90deg,
-                    transparent,
-                    rgba(255,255,255,.25),
-                    #fff
+                    rgba(255, 255, 255, 0.95),
+                    rgba(255, 255, 255, 0)
                 );
 
-            transform: rotate(-35deg);
+            border-radius: 999px;
+
+            filter: drop-shadow(0 0 4px rgba(170, 210, 255, 0.9));
+
             opacity: 0;
 
-            filter: drop-shadow(0 0 5px #fff);
-
-            animation:
-                generationShootingStar
-                7s
-                linear
-                infinite;
+            animation: shootingStar 7s linear infinite;
         }
 
-        .shooting-star::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 50%;
-            width: 5px;
-            height: 5px;
-            transform: translateY(-50%);
-            border-radius: 50%;
-            background: #fff;
+        .rv-shooting-star-one {
+            top: 12%;
+            left: 62%;
 
-            box-shadow:
-                0 0 8px #fff,
-                0 0 15px #52aaff;
+            transform: rotate(35deg);
         }
 
-        .shooting-one {
-            top: 13%;
-            left: 15%;
+        .rv-shooting-star-one span {
+            animation-delay: 0.4s;
         }
 
-        .shooting-two {
-            top: 20%;
-            right: 20%;
-            animation-delay: 2.5s;
+        .rv-shooting-star-two {
+            top: 32%;
+            left: 12%;
+
+            transform: rotate(28deg);
         }
 
-        .shooting-three {
-            top: 55%;
-            right: 8%;
-            animation-delay: 5s;
+        .rv-shooting-star-two span {
+            width: 100px;
+
+            animation-duration: 8.5s;
+            animation-delay: 3.6s;
         }
 
-        @keyframes generationShootingStar {
+        .rv-shooting-star-three {
+            top: 68%;
+            left: 78%;
+
+            transform: rotate(40deg);
+        }
+
+        .rv-shooting-star-three span {
+            width: 90px;
+
+            animation-duration: 6s;
+            animation-delay: 6.2s;
+        }
+
+        .rv-shooting-star-four {
+            top: 6%;
+            left: 22%;
+
+            transform: rotate(30deg);
+        }
+
+        .rv-shooting-star-four span {
+            width: 110px;
+
+            animation-duration: 9s;
+            animation-delay: 2s;
+        }
+
+        @keyframes shootingStar {
+
             0% {
                 opacity: 0;
-                transform: translate(0, 0) rotate(-35deg);
+                transform: translateX(0);
             }
 
-            5% {
+            4% {
                 opacity: 1;
             }
 
             18% {
-                opacity: 1;
-                transform: translate(-170px, 110px) rotate(-35deg);
+                opacity: 0;
+                transform: translateX(-320px);
             }
 
-            20%, 100% {
+            100% {
                 opacity: 0;
-                transform: translate(-210px, 140px) rotate(-35deg);
+                transform: translateX(-320px);
             }
         }
 
@@ -260,46 +465,6 @@
         }
 
         /* =====================================================
-           HEADER
-        ===================================================== */
-
-        .header {
-            position: relative;
-            z-index: 10;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            flex-shrink: 0;
-            margin-bottom: 8px;
-        }
-
-        .logo {
-            color: #07142f;
-            font-size: 23px;
-            font-weight: 800;
-            letter-spacing: 3px;
-        }
-
-        .step {
-            padding: 7px 13px;
-            border-radius: 999px;
-
-            color: #17385e;
-            background: rgba(255,255,255,.58);
-            border: 1px solid rgba(255,255,255,.8);
-
-            box-shadow:
-                0 5px 18px rgba(0,45,120,.10),
-                inset 0 1px 0 rgba(255,255,255,.9);
-
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-        }
-
-        /* =====================================================
            APPLYING AI MAGIC — MOVED TO TOP
         ===================================================== */
 
@@ -314,21 +479,43 @@
         }
 
         .title-section h1 {
-            color: #07142f;
+            color: #ffffff;
 
-            font-size: clamp(28px, 3.2vw, 44px);
+            font-size: clamp(34px, 4.4vw, 56px);
             font-weight: 800;
 
             letter-spacing: .5px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
 
             text-shadow:
-                0 3px 18px rgba(255,255,255,.7);
+                0 0 12px rgba(255,255,255,.35),
+                0 0 30px rgba(30,140,255,.55),
+                0 0 60px rgba(20,110,255,.35);
+
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+
+            0%,
+            100% {
+                text-shadow:
+                    0 0 12px rgba(255,255,255,.35),
+                    0 0 30px rgba(30,140,255,.55),
+                    0 0 60px rgba(20,110,255,.35);
+            }
+
+            50% {
+                text-shadow:
+                    0 0 18px rgba(255,255,255,.55),
+                    0 0 45px rgba(30,140,255,.8),
+                    0 0 85px rgba(20,110,255,.5);
+            }
         }
 
         .title-section p {
-            color: rgba(7, 20, 47, .68);
-            font-size: 14px;
+            color: rgba(218,237,255,.85);
+            font-size: 16px;
         }
 
         /* =====================================================
@@ -410,7 +597,7 @@
         }
 
         .photo-title {
-            color: #17385e;
+            color: rgba(218,237,255,.9);
 
             font-size: 12px;
             font-weight: 700;
@@ -421,7 +608,7 @@
             margin-bottom: 8px;
 
             text-shadow:
-                0 1px 8px rgba(255,255,255,.8);
+                0 0 10px rgba(0,102,255,.35);
         }
 
         .photo-frame {
@@ -511,28 +698,57 @@
         ===================================================== */
 
         .loading-circle {
-            width: 52px;
-            height: 52px;
+            position: relative;
 
-            margin: 0 auto 14px;
+            width: 84px;
+            height: 84px;
+
+            margin: 0 auto 18px;
 
             border-radius: 50%;
 
             border:
-                4px solid
-                rgba(7,60,130,.15);
+                5px solid
+                rgba(80,160,255,.15);
 
-            border-top-color: #0877e8;
-            border-right-color: #51b9ff;
+            border-top-color: #3aa8ff;
+            border-right-color: #8fd0ff;
 
             animation:
                 spin
-                1s
+                1.1s
                 linear
+                infinite,
+                loadingPulse
+                2.2s
+                ease-in-out
                 infinite;
 
             box-shadow:
-                0 0 16px rgba(0,120,255,.22);
+                0 0 26px rgba(50,150,255,.45),
+                0 0 50px rgba(30,120,255,.25);
+        }
+
+        .loading-circle::after {
+            content: "";
+
+            position: absolute;
+            inset: 12px;
+
+            border-radius: 50%;
+
+            border:
+                3px solid
+                transparent;
+
+            border-bottom-color: #ffffff;
+            border-left-color: rgba(255,255,255,.5);
+
+            animation:
+                spinReverse
+                1.7s
+                linear
+                infinite;
         }
 
         @keyframes spin {
@@ -542,6 +758,32 @@
 
             to {
                 transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spinReverse {
+            from {
+                transform: rotate(360deg);
+            }
+
+            to {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes loadingPulse {
+
+            0%,
+            100% {
+                box-shadow:
+                    0 0 26px rgba(50,150,255,.45),
+                    0 0 50px rgba(30,120,255,.25);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 38px rgba(70,170,255,.7),
+                    0 0 75px rgba(40,140,255,.4);
             }
         }
 
@@ -600,7 +842,7 @@
             font-size: 11px;
             font-weight: 600;
 
-            color: rgba(7,20,47,.62);
+            color: rgba(218,237,255,.75);
         }
 
         /* =====================================================
@@ -644,16 +886,6 @@
 
         @media (max-width: 480px) {
 
-            .logo {
-                font-size: 19px;
-                letter-spacing: 2px;
-            }
-
-            .step {
-                font-size: 9px;
-                padding: 6px 10px;
-            }
-
             .title-section h1 {
                 font-size: 27px;
             }
@@ -695,8 +927,8 @@
             align-items: center !important;
             justify-content: center !important;
 
-            width: 115px !important;
-            height: 48px !important;
+            width: 150px !important;
+            height: 62px !important;
 
             padding: 0 !important;
 
@@ -722,7 +954,7 @@
                 inset 0 1px 0 rgba(255,255,255,0.75),
                 inset 0 -1px 0 rgba(0,50,130,0.25) !important;
 
-            font-size: 14px !important;
+            font-size: 17px !important;
             font-weight: 700 !important;
             letter-spacing: 0.5px !important;
 
@@ -790,40 +1022,54 @@
         .back-link:hover::before {
             left: 130%;
         }
-
-
-        /* =====================================================
-        RUPAVUE LOGO
-        ===================================================== */
-
-        .logo {
-            color: #ffffff !important;
-
-            text-shadow:
-                0 2px 8px rgba(0,20,70,0.7),
-                0 0 18px rgba(255,255,255,0.2) !important;
-        }
     </style>
 </head>
 
 <body>
 
-<div class="generate-page">
+    <!-- =====================================================
+         BACKGROUND
+    ===================================================== -->
 
-    <!-- =========================
-         BACKGROUND DECORATION
-    ========================== -->
+    <div class="rv-background">
 
-    <div class="generation-stars" aria-hidden="true">
-        @for ($i = 0; $i < 15; $i++)
-            <span class="generation-star"></span>
-        @endfor
+        <div class="rv-glow rv-glow-one"></div>
+        <div class="rv-glow rv-glow-two"></div>
+        <div class="rv-glow rv-glow-three"></div>
+        <div class="rv-glow rv-glow-four"></div>
+
+        <div class="rv-liquid rv-liquid-one"></div>
+        <div class="rv-liquid rv-liquid-two"></div>
+        <div class="rv-liquid rv-liquid-three"></div>
+
+        <div class="rv-stars">
+
+            @for ($i = 0; $i < 12; $i++)
+                <span class="rv-star"></span>
+            @endfor
+
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-one">
+            <span></span>
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-two">
+            <span></span>
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-three">
+            <span></span>
+        </div>
+
+        <div class="rv-shooting-star rv-shooting-star-four">
+            <span></span>
+        </div>
+
     </div>
 
-    <span class="shooting-star shooting-one" aria-hidden="true"></span>
-    <span class="shooting-star shooting-two" aria-hidden="true"></span>
-    <span class="shooting-star shooting-three" aria-hidden="true"></span>
 
+<div class="generate-page">
 
     <!-- =========================
          BACK
@@ -841,21 +1087,6 @@
     </div>
 
 
-    <!-- =========================
-         HEADER
-    ========================== -->
-
-    <header class="header">
-
-        <div class="logo">
-            RUPAVUE
-        </div>
-
-        <div class="step">
-            STEP 3 OF 3
-        </div>
-
-    </header>
 
 
     <!-- =========================
