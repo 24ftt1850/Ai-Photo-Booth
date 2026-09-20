@@ -208,7 +208,7 @@
 
             width: 310px;
 
-            aspect-ratio: 2 / 3;
+            aspect-ratio: 3 / 2;
 
             flex-shrink: 0;
 
@@ -1294,11 +1294,13 @@
         }
 
         .result-frame {
-            width: min(100%, 700px);
-            height: calc(100vh - 105px);
-            max-height: 920px;
-            min-height: 620px;
-            aspect-ratio: 2 / 3;
+            position: relative;
+
+            width: min(100%, 1200px);
+            height: auto;
+            max-height: 78vh;
+            min-height: 0;
+            aspect-ratio: 3 / 2;
 
             overflow: hidden;
             border: 2px solid rgba(255,255,255,.92);
@@ -1309,6 +1311,121 @@
                 0 24px 65px rgba(0,25,80,.38),
                 0 0 35px rgba(85,170,255,.28),
                 inset 0 1px 0 rgba(255,255,255,.98);
+        }
+
+        /* =====================================================
+           QR ICON BUTTON (on top of the photo)
+        ===================================================== */
+
+        .qr-icon-button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 15;
+
+            width: 46px;
+            height: 46px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid rgba(255,255,255,.75);
+            border-radius: 14px;
+
+            background: rgba(3, 25, 63, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+
+            color: #fff;
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 20px rgba(0,20,60,.35),
+                inset 0 1px 0 rgba(255,255,255,.25);
+
+            transition: transform .2s ease, background .2s ease;
+        }
+
+        .qr-icon-button:hover {
+            transform: scale(1.08);
+            background: rgba(8, 60, 150, 0.7);
+        }
+
+        .qr-icon-button svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* =====================================================
+           QR MODAL (pops up over the photo)
+        ===================================================== */
+
+        .qr-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(1, 6, 17, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .qr-modal-overlay[hidden] {
+            display: none;
+        }
+
+        .qr-modal {
+            position: relative;
+
+            width: min(94vw, 560px);
+
+            padding: 28px 25px 25px;
+
+            background: rgba(255,255,255,.96);
+            border: 1px solid rgba(255,255,255,.95);
+            border-radius: 24px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            box-shadow:
+                0 30px 80px rgba(0,15,60,.55),
+                0 0 40px rgba(85,170,255,.25);
+        }
+
+        .qr-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+
+            width: 32px;
+            height: 32px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: rgba(0,63,66,.08);
+            color: #003f42;
+
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            transition: background .2s ease;
+        }
+
+        .qr-modal-close:hover {
+            background: rgba(0,63,66,.18);
         }
 
         .result-frame img {
@@ -1344,7 +1461,6 @@
             min-height: 0;
         }
 
-        .qr-card,
         .feedback-card {
             width: 100%;
             background: rgba(255,255,255,.88);
@@ -1355,15 +1471,6 @@
                 inset 0 1px 0 rgba(255,255,255,.98);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-        }
-
-        .qr-card {
-            min-height: 390px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
 
         .qr-title {
@@ -1383,12 +1490,12 @@
         }
 
         .qr-container {
-            width: 225px;
-            height: 225px;
-            padding: 8px;
+            width: 420px;
+            height: 420px;
+            padding: 12px;
             background: #fff;
             border: 1px solid #cbdcf2;
-            border-radius: 14px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1397,13 +1504,13 @@
         }
 
         #qrCode {
-            width: 205px;
-            height: 205px;
+            width: 396px;
+            height: 396px;
         }
 
         #qrCode img {
-            width: 205px;
-            height: 205px;
+            width: 396px;
+            height: 396px;
         }
 
         .qr-status {
@@ -1413,15 +1520,19 @@
         }
 
         .print-button {
-            width: 100%;
-            max-width: 330px;
-            padding: 13px;
+            display: inline-block;
+            width: auto;
+            min-width: 240px;
+            max-width: 420px;
+            margin: 0;
+            padding: 15px 40px;
             border: 1.5px solid #1689ff;
             border-radius: 999px;
             background: rgba(255,255,255,.65);
             color: #073477;
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 800;
+            letter-spacing: .5px;
             cursor: pointer;
             box-shadow:
                 0 8px 20px rgba(20,110,220,.13),
@@ -1448,29 +1559,29 @@
 
         .feedback-title {
             color: #062d70;
-            font-size: 21px;
+            font-size: 28px;
             font-weight: 800;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .feedback-subtitle {
-            font-size: 11px;
+            font-size: 15px;
             color: #68809b;
-            margin-bottom: 13px;
+            margin-bottom: 16px;
         }
 
         .stars {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 13px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .star {
             border: none;
             background: transparent;
             color: #1689ff;
-            font-size: 30px;
+            font-size: 42px;
             cursor: pointer;
             padding: 0;
             transition: .15s ease;
@@ -1485,9 +1596,9 @@
         .quick-feedback {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 13px;
+            margin-bottom: 16px;
         }
 
         .feedback-option {
@@ -1495,8 +1606,8 @@
             background: rgba(255,255,255,.70);
             color: #073477;
             border-radius: 999px;
-            padding: 8px 14px;
-            font-size: 11px;
+            padding: 10px 18px;
+            font-size: 14px;
             cursor: pointer;
             transition: .2s ease;
         }
@@ -1512,42 +1623,14 @@
             border-color: #087fe8;
         }
 
-        .comment {
-            width: 100%;
-            height: 78px;
-            padding: 11px;
-            resize: none;
-            border: 1px solid #bfd3eb;
-            border-radius: 13px;
-            outline: none;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
-            color: #073477;
-            background: rgba(255,255,255,.72);
-        }
-
-        .comment:focus {
-            border-color: #1689ff;
-            box-shadow: 0 0 0 3px rgba(22,137,255,.10);
-        }
-
-        .comment::placeholder { color: #7890a9; }
-
-        .comment-count {
-            text-align: right;
-            font-size: 9px;
-            color: #7187a0;
-            margin-top: 3px;
-        }
-
         .submit-feedback {
-            margin: 9px auto 0;
-            padding: 10px 25px;
+            margin: 10px auto 0;
+            padding: 13px 32px;
             border: none;
             border-radius: 999px;
             background: linear-gradient(135deg,#063b9e,#087fe8);
             color: white;
-            font-size: 11px;
+            font-size: 15px;
             font-weight: 800;
             cursor: pointer;
             box-shadow: 0 8px 18px rgba(0,75,190,.22);
@@ -1558,21 +1641,33 @@
         .success-message {
             display: none;
             margin-top: 8px;
-            font-size: 11px;
+            font-size: 13px;
             color: #087fe8;
             font-weight: 700;
         }
 
-        /* Start new session below feedback */
-        .new-session {
+        /* Print + Start New Session, side by side and centered */
+        .bottom-actions {
             width: 100%;
+            margin: 12px auto 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .new-session {
+            width: auto;
             margin: 0;
         }
 
         .new-session-button {
             position: relative;
-            width: 100%;
-            padding: 15px;
+            width: auto;
+            min-width: 240px;
+            max-width: 420px;
+            padding: 15px 40px;
             border: 1px solid rgba(255,255,255,.55);
             border-radius: 999px;
             background:
@@ -1634,10 +1729,6 @@
                 min-height: 560px;
             }
 
-            .qr-card {
-                min-height: 350px;
-            }
-
             .feedback-card {
                 min-height: 350px;
             }
@@ -1647,6 +1738,7 @@
             .result-page {
                 padding: 16px;
                 overflow-y: auto;
+                scrollbar-gutter: stable both-edges;
             }
 
             .header {
@@ -1664,22 +1756,21 @@
             }
 
             .result-frame {
-                width: min(88vw, 500px);
+                width: min(94vw, 600px);
                 height: auto;
                 min-height: 0;
-                aspect-ratio: 2 / 3;
+                aspect-ratio: 3 / 2;
             }
 
             .result-sidebar {
                 min-height: auto;
             }
 
-            .qr-card,
             .feedback-card {
                 min-height: auto;
             }
 
-            .new-session {
+            .bottom-actions {
                 margin-top: 0;
             }
         }
@@ -1692,21 +1783,20 @@
                 border-radius: 20px;
             }
 
-            .qr-card,
             .feedback-card {
                 padding: 18px;
                 border-radius: 20px;
             }
 
             .qr-container {
-                width: 205px;
-                height: 205px;
+                width: 300px;
+                height: 300px;
             }
 
             #qrCode,
             #qrCode img {
-                width: 185px;
-                height: 185px;
+                width: 280px;
+                height: 280px;
             }
 
             .quick-feedback {
@@ -1721,6 +1811,9 @@
 
         /* =========================================================
    FINAL ONE-SCREEN RESULT PAGE
+
+   Landscape (3:2) generated photo across the top, with the
+   QR card and feedback card side by side underneath.
 ========================================================= */
 
 @media (min-width: 801px) {
@@ -1739,24 +1832,22 @@
         height: 100vh;
         min-height: 0 !important;
 
-        padding: 12px 3.5% 10px !important;
+        padding: 14px 3.5% 12px !important;
 
         overflow: hidden !important;
 
         display: grid !important;
 
-        grid-template-columns:
-            minmax(520px, 1.08fr)
-            minmax(440px, .72fr);
+        grid-template-columns: 1fr 1fr;
 
         grid-template-rows:
-            38px
-            344px
-            minmax(0, 1fr)
-            44px;
+            36px
+            minmax(260px, 1fr)
+            210px
+            76px;
 
-        column-gap: 28px;
-        row-gap: 8px;
+        column-gap: 24px;
+        row-gap: 12px;
     }
 
 
@@ -1774,7 +1865,7 @@
         grid-row: 1;
 
         width: 100%;
-        height: 38px;
+        height: 36px;
 
         margin: 0 !important;
 
@@ -1789,7 +1880,7 @@
 
     /* =====================================================
        PHOTO + QR WRAPPER
-       
+
        Make the children behave as if they are directly
        inside the page grid.
     ===================================================== */
@@ -1800,25 +1891,26 @@
 
 
     /* =====================================================
-       GENERATED PHOTO
+       GENERATED PHOTO — 3 : 2 landscape, full width on top
     ===================================================== */
 
     .result-frame {
-        grid-column: 1;
-        grid-row: 2 / 5;
+        grid-column: 1 / -1;
+        grid-row: 2;
 
         justify-self: center;
-        align-self: start;
+        align-self: center;
 
         width: auto !important;
 
-        height: calc(100vh - 64px) !important;
+        height: 100% !important;
 
-        max-height: calc(100vh - 64px) !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
 
         min-height: 0 !important;
 
-        aspect-ratio: 2 / 3;
+        aspect-ratio: 3 / 2 !important;
 
         border-radius: 24px !important;
 
@@ -1840,89 +1932,57 @@
 
 
     /* =====================================================
-       QR CARD
+       QR MODAL (no longer part of the grid — it pops up
+       over the photo instead)
     ===================================================== */
 
-    .qr-card {
-        grid-column: 2;
-        grid-row: 2;
-
-        width: 100% !important;
-        height: 100% !important;
-
-        min-height: 0 !important;
-
-        padding: 14px 20px !important;
-
-        border-radius: 22px !important;
-
-        display: flex;
-
-        flex-direction: column;
-
-        align-items: center;
-
-        justify-content: center;
-
-        overflow: hidden;
-    }
-
     .qr-title {
-        font-size: 20px !important;
+        font-size: 22px !important;
 
-        margin-bottom: 3px !important;
+        margin-bottom: 5px !important;
     }
 
     .qr-description {
-        font-size: 10px !important;
+        font-size: 12px !important;
 
-        line-height: 1.25 !important;
+        line-height: 1.4 !important;
 
         max-width: 330px !important;
 
-        margin-bottom: 7px !important;
+        margin-bottom: 14px !important;
     }
 
     .qr-container {
-        width: 214px !important;
-        height: 214px !important;
+        width: 420px !important;
+        height: 420px !important;
 
-        padding: 6px !important;
+        padding: 12px !important;
 
-        margin-bottom: 5px !important;
+        margin-bottom: 10px !important;
 
-        border-radius: 12px !important;
+        border-radius: 18px !important;
     }
 
     #qrCode,
     #qrCode img {
-        width: 200px !important;
-        height: 200px !important;
+        width: 396px !important;
+        height: 396px !important;
     }
 
     .qr-status {
-        font-size: 8px !important;
+        font-size: 10px !important;
 
-        margin-bottom: 6px !important;
-    }
-
-    .print-button {
-        width: 85% !important;
-
-        max-width: 300px !important;
-
-        padding: 9px !important;
-
-        font-size: 15px !important;
+        margin-bottom: 0 !important;
     }
 
 
     /* =====================================================
-       FEEDBACK CARD
+       FEEDBACK CARD — full width now that the QR card
+       is no longer beside it
     ===================================================== */
 
     .feedback-card {
-        grid-column: 2;
+        grid-column: 1 / -1;
         grid-row: 3;
 
         width: 100% !important;
@@ -1930,7 +1990,7 @@
 
         min-height: 0 !important;
 
-        padding: 12px 18px !important;
+        padding: 10px 20px !important;
 
         border-radius: 22px !important;
 
@@ -1944,330 +2004,276 @@
     }
 
     .feedback-title {
-        font-size: 18px !important;
+        font-size: 22px !important;
 
-        margin-bottom: 2px !important;
+        margin-bottom: 4px !important;
     }
 
     .feedback-subtitle {
-        font-size: 9px !important;
+        font-size: 13px !important;
 
-        margin-bottom: 5px !important;
+        margin-bottom: 6px !important;
     }
 
     .stars {
-        gap: 4px !important;
+        gap: 16px !important;
 
-        margin-bottom: 5px !important;
+        margin-bottom: 8px !important;
     }
 
     .star {
-        font-size: 23px !important;
+        font-size: 58px !important;
+
+        line-height: 1;
+
+        opacity: .5;
+
+        filter: grayscale(.6);
+
+        transition: transform .15s ease, opacity .15s ease, filter .15s ease;
+    }
+
+    .star:hover {
+        opacity: .85;
+
+        filter: none;
+    }
+
+    .star.selected {
+        opacity: 1;
+
+        filter: none;
+
+        transform: scale(1.3);
+
+        text-shadow: none !important;
+    }
+
+    /* Print / New Session locked until feedback is submitted */
+    .print-button.is-locked,
+    .new-session-button.is-locked {
+        opacity: .4 !important;
+
+        filter: grayscale(.7) !important;
+
+        cursor: not-allowed !important;
+
+        transform: none !important;
+
+        box-shadow: none !important;
+    }
+
+    /* "Rate your photo first" popup */
+    .rating-popup {
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 5000;
+
+        display: none;
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+
+        background: rgba(1, 8, 23, .65);
+
+        backdrop-filter: blur(6px);
+    }
+
+    .rating-popup.visible {
+        display: flex;
+
+        animation: ratingPopupFade .2s ease;
+    }
+
+    .rating-popup-card {
+        width: min(100%, 460px);
+
+        padding: 34px 32px 28px;
+
+        border-radius: 26px;
+
+        text-align: center;
+
+        color: #07142f;
+
+        background: rgba(255, 255, 255, .96);
+
+        border: 1px solid rgba(255, 255, 255, .95);
+
+        box-shadow:
+            0 25px 70px rgba(0, 20, 70, .55),
+            0 0 40px rgba(30, 140, 255, .3);
+    }
+
+    .rating-popup-icon {
+        font-size: 56px;
+
+        line-height: 1;
+
+        margin-bottom: 12px;
+    }
+
+    .rating-popup-title {
+        font-size: 26px;
+
+        color: #0871e9;
+
+        margin-bottom: 10px;
+    }
+
+    .rating-popup-message {
+        font-size: 17px;
+
+        line-height: 1.5;
+
+        color: #3d5673;
+
+        margin-bottom: 22px;
+    }
+
+    .rating-popup-close {
+        min-width: 160px;
+
+        padding: 13px 34px;
+
+        border: none;
+        border-radius: 999px;
+
+        font-size: 17px;
+        font-weight: 800;
+
+        color: #ffffff;
+
+        cursor: pointer;
+
+        background: linear-gradient(135deg, #1a8fff, #0052c7);
+
+        box-shadow: 0 10px 26px rgba(0, 80, 200, .4);
+    }
+
+    .rating-popup-close:hover {
+        filter: brightness(1.1);
+    }
+
+    @keyframes ratingPopupFade {
+
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Nudges the user to rate before print / new session */
+    .stars.needs-rating {
+        animation: needsRating .6s ease 2;
+    }
+
+    @keyframes needsRating {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-8px);
+        }
+
+        75% {
+            transform: translateX(8px);
+        }
     }
 
     .quick-feedback {
-        gap: 4px !important;
+        gap: 8px !important;
 
-        margin-bottom: 6px !important;
+        margin-bottom: 8px !important;
 
         flex-wrap: nowrap !important;
     }
 
     .feedback-option {
-        padding: 5px 8px !important;
+        padding: 7px 14px !important;
 
-        font-size: 8px !important;
+        font-size: 12px !important;
 
         white-space: nowrap;
     }
 
-    .comment {
-        height: 42px !important;
-
-        min-height: 42px !important;
-
-        padding: 8px !important;
-
-        font-size: 10px !important;
-
-        border-radius: 10px !important;
-    }
-
-    .comment-count {
-        font-size: 7px !important;
-
-        margin-top: 1px !important;
-    }
-
     .submit-feedback {
-        margin-top: 5px !important;
+        margin-top: 6px !important;
 
-        padding: 8px 20px !important;
+        padding: 13px 48px !important;
 
-        font-size: 9px !important;
+        font-size: 20px !important;
     }
 
     .success-message {
         margin-top: 4px !important;
 
-        font-size: 9px !important;
+        font-size: 12px !important;
     }
 
 
     /* =====================================================
-       START NEW SESSION
+       PRINT + START NEW SESSION — side by side, centered
     ===================================================== */
 
-    .new-session {
-        grid-column: 2;
+    .bottom-actions {
+        grid-column: 1 / -1;
         grid-row: 4;
 
         width: 100% !important;
-        height: 44px !important;
+        height: 76px !important;
 
         margin: 0 !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 20px !important;
     }
 
-    .new-session-button {
-        width: 100% !important;
+    .print-button {
+        width: auto !important;
+        min-width: 310px !important;
+        max-width: none !important;
 
-        height: 44px !important;
+        height: 66px !important;
 
-        padding: 8px !important;
+        padding: 10px 44px !important;
 
         border-radius: 999px !important;
 
-        font-size: 15px !important;
-    }
-}
-
-
-
-/* =========================================================
-   FINAL CLEAN DESKTOP LAYOUT — 1 SCREEN
-   ========================================================= */
-@media (min-width: 801px) {
-    html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        overflow: hidden !important;
-    }
-
-    .result-page {
-        width: 100%;
-        height: 100vh;
-        min-height: 0 !important;
-        padding: 10px 50px 10px !important;
-        overflow: hidden !important;
-
-        display: grid !important;
-        grid-template-columns: 560px 820px !important;
-        grid-template-rows: 32px 330px 280px 40px 40px !important;
-        column-gap: 24px !important;
-        row-gap: 8px !important;
-        justify-content: center !important;
-        align-content: start !important;
-    }
-
-    /* Hide logo completely */
-    .header .logo,
-    .header .logo-dot {
-        display: none !important;
-    }
-
-    .header {
-        grid-column: 1 / -1 !important;
-        grid-row: 1 !important;
-        width: 100% !important;
-        height: 32px !important;
-        margin: 0 !important;
-        display: flex !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
-        z-index: 20 !important;
-    }
-
-    /* Generated image */
-    .photo-qr-section {
-        display: contents !important;
-    }
-
-    .result-frame {
-        grid-column: 1 !important;
-        grid-row: 2 / 6 !important;
-        justify-self: start !important;
-        align-self: start !important;
-        width: 540px !important;
-        height: 810px !important;
-        min-height: 0 !important;
-        max-height: none !important;
-        aspect-ratio: 2 / 3 !important;
-        margin-left: -30px !important;
-        border-radius: 24px !important;
-        border: 2px solid rgba(255,255,255,.95) !important;
-        overflow: hidden !important;
-        z-index: 5 !important;
-        box-shadow:
-            0 22px 55px rgba(0,25,80,.42),
-            0 0 35px rgba(80,180,255,.28) !important;
-    }
-
-    .result-frame img {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-    }
-
-    /* QR */
-    .qr-card {
-        grid-column: 2 !important;
-        grid-row: 2 !important;
-        width: 460px !important;
-        max-width: 100% !important;
-        justify-self: center !important;
-        height: 330px !important;
-        min-height: 0 !important;
-        padding: 16px 22px !important;
-        border-radius: 22px !important;
-        overflow: hidden !important;
-        justify-content: center !important;
-        z-index: 5 !important;
-    }
-
-    .qr-title {
         font-size: 21px !important;
-        margin-bottom: 3px !important;
     }
 
-    .qr-description {
-        font-size: 10px !important;
-        line-height: 1.25 !important;
-        margin-bottom: 7px !important;
-        max-width: 360px !important;
-    }
-
-    .qr-container {
-        width: 232px !important;
-        height: 232px !important;
-        padding: 5px !important;
-        margin-bottom: 4px !important;
-        border-radius: 12px !important;
-    }
-
-    #qrCode,
-    #qrCode img {
-        width: 220px !important;
-        height: 220px !important;
-    }
-
-    .qr-status {
-        font-size: 8px !important;
-        margin-bottom: 5px !important;
-    }
-
-    /* Print button — its own row, below the feedback card */
-    .print-button {
-        grid-column: 2 !important;
-        grid-row: 4 !important;
-
-        width: 100% !important;
-        max-width: none !important;
-        height: 40px !important;
-        margin: 0 !important;
-
-        padding: 8px !important;
-        font-size: 15px !important;
-
-        z-index: 5 !important;
-    }
-
-    /* Feedback */
-    .feedback-card {
-        grid-column: 2 !important;
-        grid-row: 3 !important;
-        width: 100% !important;
-        height: 280px !important;
-        min-height: 0 !important;
-        padding: 14px 22px !important;
-        border-radius: 22px !important;
-        overflow: hidden !important;
-        justify-content: center !important;
-        z-index: 5 !important;
-    }
-
-    .feedback-title {
-        font-size: 19px !important;
-        margin-bottom: 2px !important;
-    }
-
-    .feedback-subtitle {
-        font-size: 9px !important;
-        margin-bottom: 5px !important;
-    }
-
-    .stars {
-        gap: 4px !important;
-        margin-bottom: 5px !important;
-    }
-
-    .star {
-        font-size: 24px !important;
-    }
-
-    .quick-feedback {
-        gap: 5px !important;
-        margin-bottom: 6px !important;
-        flex-wrap: nowrap !important;
-    }
-
-    .feedback-option {
-        padding: 5px 10px !important;
-        font-size: 9px !important;
-        white-space: nowrap !important;
-    }
-
-    .comment {
-        height: 48px !important;
-        min-height: 48px !important;
-        padding: 8px 10px !important;
-        font-size: 10px !important;
-        border-radius: 10px !important;
-    }
-
-    .comment-count {
-        font-size: 7px !important;
-        margin-top: 1px !important;
-    }
-
-    .submit-feedback {
-        margin-top: 5px !important;
-        padding: 8px 22px !important;
-        font-size: 9px !important;
-    }
-
-    .success-message {
-        margin-top: 3px !important;
-        font-size: 9px !important;
-    }
-
-    /* New session */
     .new-session {
-        grid-column: 2 !important;
-        grid-row: 5 !important;
-        width: 100% !important;
-        height: 40px !important;
+        width: auto !important;
+        height: 66px !important;
+
         margin: 0 !important;
-        z-index: 5 !important;
     }
 
     .new-session-button {
-        width: 100% !important;
-        height: 40px !important;
-        padding: 8px !important;
-        font-size: 15px !important;
-    }
+        width: auto !important;
+        min-width: 310px !important;
 
+        height: 66px !important;
+
+        padding: 10px 44px !important;
+
+        border-radius: 999px !important;
+
+        font-size: 21px !important;
+    }
 }
 
     </style>
@@ -2379,13 +2385,54 @@
 
             </div>
 
+
+            <!-- QR ICON — opens the QR popup over the photo -->
+
+            <button
+                type="button"
+                class="qr-icon-button"
+                id="qrIconButton"
+                aria-label="Show QR code to download this photo"
+            >
+
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <rect x="14" y="14" width="3" height="3" fill="currentColor"/>
+                    <rect x="18" y="14" width="3" height="3" fill="currentColor"/>
+                    <rect x="14" y="18" width="3" height="3" fill="currentColor"/>
+                    <rect x="18" y="18" width="3" height="3" fill="currentColor"/>
+                </svg>
+
+            </button>
+
         </div>
 
+    </section>
 
 
-        <!-- QR CODE -->
+    <!-- =====================================================
+         QR MODAL — pops up over the photo when the QR
+         icon is clicked
+    ====================================================== -->
 
-        <div class="qr-card">
+    <div
+        class="qr-modal-overlay"
+        id="qrModalOverlay"
+        hidden
+    >
+
+        <div class="qr-modal">
+
+            <button
+                type="button"
+                class="qr-modal-close"
+                id="qrModalClose"
+                aria-label="Close QR code"
+            >
+                ✕
+            </button>
 
             <h2 class="qr-title">
 
@@ -2421,7 +2468,7 @@
 
         </div>
 
-    </section>
+    </div>
 
 
 
@@ -2447,7 +2494,7 @@
 
 
 
-        <!-- STAR RATING -->
+        <!-- EMOJI RATING (1 = worst, 5 = best) -->
 
         <div
             class="stars"
@@ -2458,8 +2505,9 @@
                 type="button"
                 class="star"
                 data-rating="1"
+                aria-label="Very bad"
             >
-                ☆
+                😡
             </button>
 
 
@@ -2467,8 +2515,9 @@
                 type="button"
                 class="star"
                 data-rating="2"
+                aria-label="Bad"
             >
-                ☆
+                😕
             </button>
 
 
@@ -2476,8 +2525,9 @@
                 type="button"
                 class="star"
                 data-rating="3"
+                aria-label="Okay"
             >
-                ☆
+                😐
             </button>
 
 
@@ -2485,8 +2535,9 @@
                 type="button"
                 class="star"
                 data-rating="4"
+                aria-label="Good"
             >
-                ☆
+                😊
             </button>
 
 
@@ -2494,84 +2545,11 @@
                 type="button"
                 class="star"
                 data-rating="5"
+                aria-label="Love it"
             >
-                ☆
+                😍
             </button>
 
-        </div>
-
-
-
-        <!-- QUICK FEEDBACK -->
-
-        <div
-            class="quick-feedback"
-            id="quickFeedback"
-        >
-
-            <button
-                type="button"
-                class="feedback-option"
-                data-feedback="Amazing!"
-            >
-                😍 Amazing!
-            </button>
-
-
-            <button
-                type="button"
-                class="feedback-option"
-                data-feedback="Love it!"
-            >
-                ❤️ Love it!
-            </button>
-
-
-            <button
-                type="button"
-                class="feedback-option"
-                data-feedback="So cool!"
-            >
-                😎 So cool!
-            </button>
-
-
-            <button
-                type="button"
-                class="feedback-option"
-                data-feedback="Good"
-            >
-                👍 Good
-            </button>
-
-
-            <button
-                type="button"
-                class="feedback-option"
-                data-feedback="Not bad"
-            >
-                😐 Not bad
-            </button>
-
-        </div>
-
-
-
-        <!-- COMMENT -->
-
-        <textarea
-            class="comment"
-            id="comment"
-            maxlength="200"
-            placeholder="Write a comment (optional)..."
-        ></textarea>
-
-
-        <div
-            class="comment-count"
-            id="commentCount"
-        >
-            0/200
         </div>
 
 
@@ -2602,38 +2580,82 @@
 
 
     <!-- =====================================================
-         PRINT PHOTO
+         PRINT PHOTO + NEW SESSION
     ====================================================== -->
 
-    <button
-        type="button"
-        class="print-button"
-        id="printButton"
-    >
-
-        🖨️ Print Photo
-
-    </button>
-
-
-    <!-- =====================================================
-         NEW SESSION
-    ====================================================== -->
-
-    <div class="new-session">
+    <div class="bottom-actions">
 
         <button
             type="button"
-            class="new-session-button"
-            id="newSessionButton"
+            class="print-button"
+            id="printButton"
         >
 
-            ↻ Start New Session
+            🖨️ Print Photo
 
         </button>
 
+
+        <div class="new-session">
+
+            <button
+                type="button"
+                class="new-session-button"
+                id="newSessionButton"
+            >
+
+                ↻ Start New Session
+
+            </button>
+
+        </div>
+
     </div>
 
+
+</div>
+
+
+<!-- =====================================================
+     RATING REQUIRED POPUP
+====================================================== -->
+
+<div
+    class="rating-popup"
+    id="ratingPopup"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="ratingPopupTitle"
+    aria-describedby="ratingPopupMessage"
+>
+
+    <div class="rating-popup-card">
+
+        <div class="rating-popup-icon">
+            😊
+        </div>
+
+        <h3
+            class="rating-popup-title"
+            id="ratingPopupTitle"
+        >
+            Rate your photo first
+        </h3>
+
+        <p
+            class="rating-popup-message"
+            id="ratingPopupMessage"
+        ></p>
+
+        <button
+            type="button"
+            class="rating-popup-close"
+            id="ratingPopupClose"
+        >
+            OK
+        </button>
+
+    </div>
 
 </div>
 
@@ -2669,6 +2691,12 @@
         );
 
 
+    const publicPhotoUrl =
+        sessionStorage.getItem(
+            'rupavuePublicPhotoUrl'
+        );
+
+
     /*
     |--------------------------------------------------------------------------
     | ELEMENTS
@@ -2697,6 +2725,86 @@
         document.getElementById(
             'qrStatus'
         );
+
+
+    const qrIconButton =
+        document.getElementById(
+            'qrIconButton'
+        );
+
+
+    const qrModalOverlay =
+        document.getElementById(
+            'qrModalOverlay'
+        );
+
+
+    const qrModalClose =
+        document.getElementById(
+            'qrModalClose'
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | QR MODAL — POPS UP OVER THE PHOTO
+    |--------------------------------------------------------------------------
+    */
+
+    function openQrModal() {
+
+        qrModalOverlay.hidden =
+            false;
+
+    }
+
+
+    function closeQrModal() {
+
+        qrModalOverlay.hidden =
+            true;
+
+    }
+
+
+    qrIconButton.addEventListener(
+        'click',
+        openQrModal
+    );
+
+
+    qrModalClose.addEventListener(
+        'click',
+        closeQrModal
+    );
+
+
+    qrModalOverlay.addEventListener(
+        'click',
+        function (event) {
+
+            if (event.target === qrModalOverlay) {
+
+                closeQrModal();
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (event.key === 'Escape') {
+
+                closeQrModal();
+
+            }
+
+        }
+    );
 
 
     /*
@@ -2739,21 +2847,29 @@
         }
 
 
+        if (!publicPhotoUrl) {
+
+            qrStatus.textContent =
+                'Photo link is not available yet.';
+
+            return;
+
+        }
+
+
         try {
 
             qrCode.innerHTML = '';
 
 
             /*
-             * Convert relative image URL
-             * into a complete URL.
+             * Point the QR code at the public, Google Drive-backed
+             * photo page — scanning it opens and downloads only
+             * this guest's own photo.
              */
 
             const imageUrl =
-                new URL(
-                    generatedPhoto,
-                    window.location.origin
-                ).href;
+                publicPhotoUrl;
 
 
             new QRCode(
@@ -2762,9 +2878,9 @@
 
                     text: imageUrl,
 
-                    width: 220,
+                    width: 396,
 
-                    height: 220,
+                    height: 396,
 
                     colorDark: '#003f42',
 
@@ -2817,6 +2933,13 @@
         'click',
         function () {
 
+            if (!requireRating()) {
+
+                return;
+
+            }
+
+
             if (!generatedPhoto) {
 
                 alert(
@@ -2866,7 +2989,7 @@
             printStyle.textContent =
                 '@page { size: auto; margin: 0; }' +
                 'html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; display: flex; justify-content: center; align-items: center; }' +
-                'img { width: 2in; height: 3in; object-fit: cover; display: block; }';
+                'img { width: 3in; height: 2in; object-fit: cover; display: block; }';
 
             printDoc.head.appendChild(
                 printStyle
@@ -2951,21 +3074,15 @@
 
 
                             if (
-                                rating <=
+                                rating ===
                                 selectedRating
                             ) {
-
-                                item.textContent =
-                                    '★';
 
                                 item.classList.add(
                                     'selected'
                                 );
 
                             } else {
-
-                                item.textContent =
-                                    '☆';
 
                                 item.classList.remove(
                                     'selected'
@@ -3035,29 +3152,156 @@
 
     /*
     |--------------------------------------------------------------------------
-    | COMMENT COUNTER
+    | REQUIRE RATING BEFORE PRINT / NEW SESSION
     |--------------------------------------------------------------------------
+    | Print Photo and Start New Session stay blocked until the
+    | rating has been submitted. If there is no image id, feedback
+    | can't be saved at all, so don't lock the user out.
     */
 
-    const comment =
-        document.getElementById(
-            'comment'
+    let feedbackSubmitted = false;
+
+
+    function requireRating() {
+
+        if (
+            feedbackSubmitted ||
+            !generatedImageId
+        ) {
+
+            return true;
+
+        }
+
+
+        const starsBox =
+            document.getElementById(
+                'stars'
+            );
+
+        starsBox.classList.remove(
+            'needs-rating'
+        );
+
+        // Restart the highlight animation
+        void starsBox.offsetWidth;
+
+        starsBox.classList.add(
+            'needs-rating'
         );
 
 
-    const commentCount =
+        showRatingPopup(
+            selectedRating
+                ? 'You picked an emoji, but it isn\'t saved yet. Tap "Submit Feedback" to continue.'
+                : 'Please choose an emoji and tap "Submit Feedback" before printing or starting a new session.'
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Print / New Session look disabled until feedback is
+     * submitted. aria-disabled (not the disabled attribute) is
+     * used on purpose so a tap still reaches the click handler
+     * and can explain why the button is locked.
+     */
+    function setActionsLocked(locked) {
+
+        [
+            document.getElementById('printButton'),
+            document.getElementById('newSessionButton')
+        ].forEach(
+            function (button) {
+
+                button.classList.toggle(
+                    'is-locked',
+                    locked
+                );
+
+                button.setAttribute(
+                    'aria-disabled',
+                    locked ? 'true' : 'false'
+                );
+
+            }
+        );
+
+    }
+
+    setActionsLocked(
+        !!generatedImageId
+    );
+
+
+    const ratingPopup =
         document.getElementById(
-            'commentCount'
+            'ratingPopup'
+        );
+
+    const ratingPopupMessage =
+        document.getElementById(
+            'ratingPopupMessage'
+        );
+
+    const ratingPopupClose =
+        document.getElementById(
+            'ratingPopupClose'
         );
 
 
-    comment.addEventListener(
-        'input',
-        function () {
+    function showRatingPopup(message) {
 
-            commentCount.textContent =
-                this.value.length +
-                '/200';
+        ratingPopupMessage.textContent =
+            message;
+
+        ratingPopup.classList.add(
+            'visible'
+        );
+
+        ratingPopupClose.focus();
+
+    }
+
+
+    function hideRatingPopup() {
+
+        ratingPopup.classList.remove(
+            'visible'
+        );
+
+    }
+
+
+    ratingPopupClose.addEventListener(
+        'click',
+        hideRatingPopup
+    );
+
+    ratingPopup.addEventListener(
+        'click',
+        function (event) {
+
+            if (event.target === ratingPopup) {
+
+                hideRatingPopup();
+
+            }
+
+        }
+    );
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (event.key === 'Escape') {
+
+                hideRatingPopup();
+
+            }
 
         }
     );
@@ -3089,7 +3333,7 @@
             if (!selectedRating) {
 
                 alert(
-                    'Please select a star rating first.'
+                    'Please select how you feel first.'
                 );
 
                 return;
@@ -3150,9 +3394,6 @@
                                     feedback:
                                         selectedFeedback,
 
-                                    comment:
-                                        comment.value,
-
                                     theme:
                                         selectedTheme
 
@@ -3169,6 +3410,14 @@
                     );
 
                 }
+
+
+                feedbackSubmitted =
+                    true;
+
+                setActionsLocked(
+                    false
+                );
 
 
                 submitFeedback.style.display =
@@ -3222,6 +3471,13 @@
         'click',
         function () {
 
+            if (!requireRating()) {
+
+                return;
+
+            }
+
+
             sessionStorage.removeItem(
                 'rupavueCapturedPhoto'
             );
@@ -3249,6 +3505,11 @@
 
             sessionStorage.removeItem(
                 'rupavueThemeName'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavuePublicPhotoUrl'
             );
 
 

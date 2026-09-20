@@ -453,7 +453,7 @@
         }
 
         .title-section h1 {
-            font-size: clamp(32px, 4.2vw, 50px);
+            font-size: clamp(40px, 5.2vw, 64px);
 
             font-weight: 800;
 
@@ -490,7 +490,7 @@
         }
 
         .title-section p {
-            font-size: 17px;
+            font-size: 22px;
 
             color: rgba(255, 255, 255, 0.75);
         }
@@ -510,7 +510,7 @@
         .selected-theme span {
             display: inline-block;
 
-            padding: 8px 18px;
+            padding: 10px 24px;
 
             border: 1px solid rgba(255, 255, 255, 0.25);
 
@@ -518,7 +518,7 @@
 
             background: rgba(255, 255, 255, 0.08);
 
-            font-size: 13px;
+            font-size: 17px;
 
             letter-spacing: 1px;
         }
@@ -716,13 +716,13 @@
         ========================= */
 
         .camera-status {
-            margin-top: 8px;
+            margin-top: 10px;
 
-            font-size: 14px;
+            font-size: 20px;
 
-            color: rgba(255, 255, 255, 0.65);
+            color: rgba(255, 255, 255, 0.75);
 
-            min-height: 20px;
+            min-height: 28px;
 
             text-align: center;
         }
@@ -1002,7 +1002,7 @@
 
             text-align: center;
 
-            font-size: 13px;
+            font-size: 17px;
 
             line-height: 1.5;
         }
@@ -1022,7 +1022,7 @@
             }
 
             .title-section h1 {
-                font-size: 34px;
+                font-size: 40px;
             }
 
             .camera-frame {
@@ -1082,7 +1082,7 @@
         @media (max-width: 480px) {
 
             .title-section p {
-                font-size: 13px;
+                font-size: 16px;
             }
 
             .camera-frame {
@@ -1100,6 +1100,132 @@
         .back-button {
             position: relative;
             z-index: 2;
+        }
+
+        /* =====================================================
+           GLOBAL BACK BUTTON
+        ===================================================== */
+
+        .top-nav {
+            position: fixed;
+
+            left: 35px;
+            bottom: 28px;
+
+            z-index: 999;
+        }
+
+        .top-nav .back-link {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 150px;
+            height: 62px;
+
+            padding: 0;
+
+            border-radius: 999px;
+
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.24),
+                    rgba(80,170,255,0.12)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.65);
+
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+
+            box-shadow:
+                0 10px 30px rgba(0,25,80,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.75),
+                inset 0 -1px 0 rgba(0,50,130,0.25);
+
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+
+            text-decoration: none;
+
+            overflow: hidden;
+
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease,
+                background 0.3s ease;
+        }
+
+        .top-nav .back-link::before {
+            content: "";
+
+            position: absolute;
+
+            top: -80%;
+            left: -50%;
+
+            width: 70%;
+            height: 250%;
+
+            background:
+                linear-gradient(
+                    115deg,
+                    transparent 25%,
+                    rgba(255,255,255,0.45) 50%,
+                    transparent 75%
+                );
+
+            transform: rotate(18deg);
+
+            transition:
+                left 0.6s ease;
+
+            pointer-events: none;
+        }
+
+        .top-nav .back-link:hover {
+            color: #ffffff;
+
+            transform:
+                translateY(-4px);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.32),
+                    rgba(50,155,255,0.25)
+                );
+
+            box-shadow:
+                0 12px 35px rgba(0,80,220,0.5),
+                0 0 25px rgba(80,190,255,0.35),
+                inset 0 1px 0 rgba(255,255,255,0.85);
+        }
+
+        .top-nav .back-link:hover::before {
+            left: 130%;
+        }
+
+        @media (max-width: 800px) {
+
+            .top-nav {
+                left: 18px;
+                bottom: 18px;
+            }
+
+            .top-nav .back-link {
+                width: 120px;
+                height: 52px;
+
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -1144,6 +1270,22 @@
         <div class="rv-shooting-star rv-shooting-star-four">
             <span></span>
         </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BACK
+    ===================================================== -->
+
+    <div class="top-nav">
+
+        <a
+            href="{{ route('photobooth.scene') }}"
+            class="back-link"
+        >
+            ← Back
+        </a>
 
     </div>
 

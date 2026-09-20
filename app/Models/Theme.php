@@ -25,6 +25,32 @@ class Theme extends Model
         'is_active' => 'boolean',
     ];
 
+    /**
+     * Browser-loadable URL for the theme thumbnail.
+     *
+     * thumbnail_path may be a local storage path, a plain image URL,
+     * or a Google Drive share link (which is an HTML page, not an image).
+     */
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        $path = $this->thumbnail_path;
+
+        if (!$path) {
+            return null;
+        }
+
+        if (preg_match('#^https?://#i', $path)) {
+            if (preg_match('#drive\.google\.com/file/d/([\w-]+)#', $path, $m)
+                || preg_match('#drive\.google\.com/(?:open|uc)\?(?:.*&)?id=([\w-]+)#', $path, $m)) {
+                return 'https://drive.google.com/thumbnail?id=' . $m[1] . '&sz=w1000';
+            }
+
+            return $path;
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
+    }
+
     public function generatedImages()
     {
         return $this->hasMany(GeneratedImage::class, 'theme_id');

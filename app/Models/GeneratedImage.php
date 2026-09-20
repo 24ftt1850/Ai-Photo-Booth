@@ -19,12 +19,21 @@ class GeneratedImage extends Model
         'photo_session_id',
         'theme_id',
         'model_id',
+        'public_token',
         'final_prompt_used',
         'resolution',
         'generated_photo_path',
+        'applied_frame_path',
         'generation_status',
         'satisfaction_rating',
         'feedback_comment',
+
+        // Google Drive
+        'image_uid',
+        'google_drive_file_id',
+        'google_drive_url',
+        'google_drive_status',
+
     ];
 
     protected $casts = [

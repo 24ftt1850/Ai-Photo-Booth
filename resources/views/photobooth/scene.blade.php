@@ -77,7 +77,7 @@
             overflow: hidden;
 
             padding:
-                42px
+                4px
                 5vw
                 35px;
 
@@ -105,6 +105,52 @@
                     rgba(0, 76, 190, 0.10),
                     transparent 55%
                 );
+        }
+
+
+        /* Selected theme image (two layers so it can crossfade) */
+
+        .rv-theme-bg {
+            position: absolute;
+            inset: 0;
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            opacity: 0;
+            transform: scale(1.04);
+
+            transition:
+                opacity .8s ease,
+                transform 6s ease;
+        }
+
+        .rv-theme-bg.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Keeps text readable over any theme image */
+
+        .rv-theme-scrim {
+            position: absolute;
+            inset: 0;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(1, 6, 17, .55) 0%,
+                    rgba(1, 6, 17, .25) 35%,
+                    rgba(1, 6, 17, .70) 100%
+                );
+
+            opacity: 0;
+            transition: opacity .8s ease;
+        }
+
+        .rv-theme-scrim.active {
+            opacity: 1;
         }
 
 
@@ -506,7 +552,7 @@
 
             text-align: center;
 
-            margin-bottom: 30px;
+            margin-bottom: 36px;
 
         }
 
@@ -537,7 +583,7 @@
 
             color: rgba(218,237,255,.85);
 
-            font-size: 15px;
+            font-size: 18px;
 
         }
 
@@ -665,7 +711,7 @@
                 );
 
             min-width: 0;
-            height: clamp(280px, 42vh, 420px);
+            height: clamp(300px, 48vh, 560px);
             border-radius: 22px;
             overflow: hidden;
             cursor: pointer;
@@ -761,7 +807,7 @@
 
             object-fit: cover;
 
-            opacity: .72;
+            opacity: 1;
 
             transition:
                 transform .5s ease,
@@ -776,7 +822,7 @@
             transform:
                 scale(1.06);
 
-            opacity: .85;
+            opacity: 1;
 
         }
 
@@ -791,10 +837,9 @@
 
                 linear-gradient(
                     to top,
-                    rgba(2,14,43,.98) 0%,
-                    rgba(2,20,60,.65) 45%,
-                    rgba(0,40,100,.08) 75%,
-                    transparent 100%
+                    rgba(2,14,43,.92) 0%,
+                    rgba(2,20,60,.45) 32%,
+                    transparent 60%
                 );
 
         }
@@ -1005,11 +1050,11 @@
 
             align-items: center;
 
-            gap: 24px;
+            gap: 48px;
 
             margin-top: auto;
             padding-top: 0;
-            padding-bottom: 4px;
+            padding-bottom: 88px;
         }
 
 
@@ -1048,7 +1093,7 @@
                 blur(10px);
 
             /* Move only the selected white container upward */
-            transform: translateY(-18px);
+            transform: translateY(10px);
         }
 
 
@@ -1335,7 +1380,7 @@
 
                 flex-basis: 100%;
 
-                height: clamp(260px, 44vh, 380px);
+                height: clamp(320px, 54vh, 500px);
 
             }
 
@@ -1388,6 +1433,134 @@
 
         }
 
+
+        /* =====================================================
+           BACK BUTTON
+        ===================================================== */
+
+        .top-nav {
+            position: fixed;
+
+            left: 35px;
+            bottom: 28px;
+
+            z-index: 999;
+        }
+
+        .back-link {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 150px;
+            height: 62px;
+
+            padding: 0;
+
+            border-radius: 999px;
+
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.24),
+                    rgba(80,170,255,0.12)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.65);
+
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+
+            box-shadow:
+                0 10px 30px rgba(0,25,80,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.75),
+                inset 0 -1px 0 rgba(0,50,130,0.25);
+
+            font-family: "Arial Black", Arial, sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+
+            text-decoration: none;
+
+            overflow: hidden;
+
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease,
+                background 0.3s ease;
+        }
+
+        .back-link::before {
+            content: "";
+
+            position: absolute;
+
+            top: -80%;
+            left: -50%;
+
+            width: 70%;
+            height: 250%;
+
+            background:
+                linear-gradient(
+                    115deg,
+                    transparent 25%,
+                    rgba(255,255,255,0.45) 50%,
+                    transparent 75%
+                );
+
+            transform: rotate(18deg);
+
+            transition:
+                left 0.6s ease;
+
+            pointer-events: none;
+        }
+
+        .back-link:hover {
+            color: #ffffff;
+
+            transform:
+                translateY(-4px);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.32),
+                    rgba(50,155,255,0.25)
+                );
+
+            box-shadow:
+                0 12px 35px rgba(0,80,220,0.5),
+                0 0 25px rgba(80,190,255,0.35),
+                inset 0 1px 0 rgba(255,255,255,0.85);
+        }
+
+        .back-link:hover::before {
+            left: 130%;
+        }
+
+        @media (max-width: 800px) {
+
+            .top-nav {
+                left: 18px;
+                bottom: 18px;
+            }
+
+            .back-link {
+                width: 120px;
+                height: 52px;
+
+                font-size: 14px;
+            }
+        }
+
     </style>
 </head>
 
@@ -1399,6 +1572,10 @@
     ===================================================== -->
 
     <div class="rv-background">
+
+        <div class="rv-theme-bg" id="themeBgA"></div>
+        <div class="rv-theme-bg" id="themeBgB"></div>
+        <div class="rv-theme-scrim" id="themeBgScrim"></div>
 
         <div class="rv-glow rv-glow-one"></div>
         <div class="rv-glow rv-glow-two"></div>
@@ -1432,6 +1609,22 @@
         <div class="rv-shooting-star rv-shooting-star-four">
             <span></span>
         </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BACK
+    ===================================================== -->
+
+    <div class="top-nav">
+
+        <a
+            href="{{ route('home') }}"
+            class="back-link"
+        >
+            ← Back
+        </a>
 
     </div>
 
@@ -1490,7 +1683,7 @@
                 @forelse ($themes as $theme)
 
                     @php
-                        $themeImage = $theme->thumbnail_path ?? null;
+                        $themeImage = $theme->thumbnail_url;
 
                         $themePrompt = trim(
                             ($theme->prompt_prefix ?? '') . ' ' .
@@ -1505,6 +1698,7 @@
                         data-theme-name="{{ $theme->theme_name }}"
                         data-theme-description="{{ $theme->description ?? 'Create a unique AI-powered photo experience.' }}"
                         data-theme-prompt="{{ $themePrompt }}"
+                        data-theme-image="{{ $themeImage }}"
                     >
 
 
@@ -1513,6 +1707,7 @@
                             <img
                                 src="{{ $themeImage }}"
                                 alt="{{ $theme->theme_name }}"
+                                referrerpolicy="no-referrer"
                                 class="theme-image"
                             >
 
@@ -1646,7 +1841,7 @@
                 disabled
             >
                 <span>
-                    NEXT: CAPTURE PHOTO
+                    CAPTURE PHOTO
                 </span>
 
                 <span class="next-button-arrow">
@@ -1733,6 +1928,90 @@
 
 
     /* =====================================================
+       PAGE BACKGROUND = SELECTED THEME IMAGE
+    ===================================================== */
+
+    const themeBgLayers = [
+        document.getElementById('themeBgA'),
+        document.getElementById('themeBgB')
+    ];
+
+    const themeBgScrim =
+        document.getElementById('themeBgScrim');
+
+    let themeBgActive = -1;
+    let themeBgUrl = '';
+
+    function setThemeBackground(url) {
+
+        url = url || '';
+
+        if (url === themeBgUrl) {
+            return;
+        }
+
+        themeBgUrl = url;
+
+
+        /*
+         * No image for this theme: fade back to the
+         * default background.
+         */
+
+        if (!url) {
+
+            themeBgLayers.forEach(function (layer) {
+                layer.classList.remove('active');
+            });
+
+            themeBgScrim.classList.remove('active');
+
+            themeBgActive = -1;
+
+            return;
+        }
+
+
+        /*
+         * Load first, then crossfade, so the page never
+         * flashes an empty background.
+         */
+
+        const loader = new Image();
+
+        loader.referrerPolicy = 'no-referrer';
+
+        loader.onload = function () {
+
+            if (url !== themeBgUrl) {
+                return;
+            }
+
+            const next =
+                themeBgActive === 0 ? 1 : 0;
+
+            themeBgLayers[next].style.backgroundImage =
+                'url("' + url + '")';
+
+            themeBgLayers[next].classList.add('active');
+
+            if (themeBgActive !== -1) {
+                themeBgLayers[themeBgActive]
+                    .classList.remove('active');
+            }
+
+            themeBgActive = next;
+
+            themeBgScrim.classList.add('active');
+
+        };
+
+        loader.src = url;
+
+    }
+
+
+    /* =====================================================
        SELECT THEME
     ===================================================== */
 
@@ -1791,6 +2070,11 @@
 
         selectedThemeDescription.textContent =
             themeDescription;
+
+
+        setThemeBackground(
+            selectedCard.dataset.themeImage
+        );
 
 
         /*

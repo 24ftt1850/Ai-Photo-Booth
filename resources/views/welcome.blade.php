@@ -588,7 +588,7 @@
         .rv-hero h1 {
             font-family: "Arial Black", Arial, sans-serif;
 
-            font-size: clamp(32px, 4.3vw, 65px);
+            font-size: clamp(28px, 3.6vw, 54px);
 
             line-height: 1.04;
 
@@ -1431,7 +1431,7 @@
             }
 
             .rv-hero h1 {
-                font-size: 29px;
+                font-size: 25px;
             }
 
             .rv-hero p {
@@ -1569,7 +1569,7 @@
             }
 
             .rv-hero h1 {
-                font-size: 25px;
+                font-size: 22px;
             }
 
             .rv-start-button {

@@ -50,7 +50,7 @@
             height: 100dvh;
             overflow: hidden;
 
-            padding: 18px 5% 20px;
+            padding: 48px 2.5% 16px;
 
             display: flex;
             flex-direction: column;
@@ -475,17 +475,17 @@
             text-align: center;
             flex-shrink: 0;
 
-            margin: 4px auto 8px;
+            margin: 2px auto 4px;
         }
 
         .title-section h1 {
             color: #ffffff;
 
-            font-size: clamp(34px, 4.4vw, 56px);
+            font-size: clamp(34px, 4.6vw, 58px);
             font-weight: 800;
 
             letter-spacing: .5px;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
 
             text-shadow:
                 0 0 12px rgba(255,255,255,.35),
@@ -515,7 +515,7 @@
 
         .title-section p {
             color: rgba(218,237,255,.85);
-            font-size: 16px;
+            font-size: 20px;
         }
 
         /* =====================================================
@@ -529,13 +529,14 @@
             text-align: center;
             flex-shrink: 0;
 
-            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-bottom: 6px;
         }
 
         .theme-label span {
             display: inline-block;
 
-            padding: 7px 17px;
+            padding: 9px 22px;
 
             border: 1px solid rgba(255,255,255,.9);
             border-radius: 50px;
@@ -550,7 +551,7 @@
 
             backdrop-filter: blur(10px);
 
-            font-size: 12px;
+            font-size: 17px;
             letter-spacing: .8px;
         }
 
@@ -567,12 +568,12 @@
             z-index: 10;
 
             width: 100%;
-            max-width: 1020px;
+            max-width: 1900px;
 
             margin: 0 auto;
 
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1fr);
 
             align-items: center;
 
@@ -599,7 +600,7 @@
         .photo-title {
             color: rgba(218,237,255,.9);
 
-            font-size: 12px;
+            font-size: 17px;
             font-weight: 700;
 
             letter-spacing: 1.8px;
@@ -612,9 +613,11 @@
         }
 
         .photo-frame {
-            width: min(100%, 310px);
+            width: min(100%, 900px);
 
-            aspect-ratio: 2 / 3;
+            aspect-ratio: 3 / 2;
+
+            max-height: 56vh;
 
             border-radius: 20px;
 
@@ -672,7 +675,7 @@
         }
 
         .photo-placeholder p {
-            font-size: 12px;
+            font-size: 18px;
         }
 
         /* =====================================================
@@ -787,6 +790,26 @@
             }
         }
 
+        .retry-button {
+            margin-top: 14px;
+            padding: 10px 26px;
+
+            border: 1px solid rgba(255,255,255,.65);
+            border-radius: 999px;
+
+            background: rgba(8,119,232,.85);
+            color: #ffffff;
+
+            font-size: 18px;
+            font-weight: 700;
+
+            cursor: pointer;
+        }
+
+        .retry-button:hover {
+            background: rgba(8,119,232,1);
+        }
+
         /* =====================================================
            PROGRESS
         ===================================================== */
@@ -799,7 +822,7 @@
 
             flex-shrink: 0;
 
-            margin: 7px auto 0;
+            margin: 4px auto 0;
         }
 
         .progress-bar {
@@ -839,7 +862,7 @@
 
             margin-top: 6px;
 
-            font-size: 11px;
+            font-size: 16px;
             font-weight: 600;
 
             color: rgba(218,237,255,.75);
@@ -876,26 +899,27 @@
             }
 
             .photo-frame {
-                width: min(70vw, 300px);
+                width: min(88vw, 560px);
+                max-height: none;
             }
 
             .title-section h1 {
-                font-size: 30px;
+                font-size: 38px;
             }
         }
 
         @media (max-width: 480px) {
 
             .title-section h1 {
-                font-size: 27px;
+                font-size: 32px;
             }
 
             .title-section p {
-                font-size: 12px;
+                font-size: 16px;
             }
 
             .photo-frame {
-                width: min(72vw, 270px);
+                width: min(90vw, 420px);
             }
         }
 
@@ -1185,11 +1209,21 @@
 
                 <div class="photo-placeholder">
 
-                    <div class="loading-circle"></div>
+                    <div class="loading-circle" id="loadingCircle"></div>
 
-                    <p>
+                    <p id="loadingText">
                         AI is creating...
                     </p>
+
+                    <button
+                        type="button"
+                        id="retryButton"
+                        class="retry-button"
+                        style="display: none;"
+                        onclick="window.location.reload()"
+                    >
+                        Try Again
+                    </button>
 
                 </div>
 
@@ -1290,11 +1324,6 @@
         photoPlaceholder.style.display =
             'none';
 
-    } else {
-
-        statusText.textContent =
-            'No captured photo found.';
-
     }
 
 
@@ -1320,6 +1349,47 @@
 
         if (topStatusText) {
             topStatusText.textContent = message;
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show Error (visible to the guest, stops the spinner)
+    |--------------------------------------------------------------------------
+    */
+
+    function showError(message) {
+
+        statusText.textContent = message;
+
+        if (topStatusText) {
+            topStatusText.textContent = message;
+        }
+
+        progressText.textContent = 'Error';
+        progressFill.style.width = '0%';
+
+        const loadingCircle =
+            document.getElementById('loadingCircle');
+
+        const loadingText =
+            document.getElementById('loadingText');
+
+        const retryButton =
+            document.getElementById('retryButton');
+
+        if (loadingCircle) {
+            loadingCircle.style.display = 'none';
+        }
+
+        if (loadingText) {
+            loadingText.textContent = 'Generation failed';
+        }
+
+        if (retryButton) {
+            retryButton.style.display = 'inline-block';
         }
 
     }
@@ -1354,8 +1424,9 @@
 
         if (!capturedPhoto) {
 
-            statusText.textContent =
-                'No photo was captured.';
+            showError(
+                'No photo was captured. Please go back and take a photo.'
+            );
 
             return;
 
@@ -1364,8 +1435,9 @@
 
         if (!themeId) {
 
-            statusText.textContent =
-                'No theme was selected.';
+            showError(
+                'No theme was selected. Please go back and choose a theme.'
+            );
 
             return;
 
@@ -1433,8 +1505,25 @@
             );
 
 
-            const data =
-                await response.json();
+            let data = null;
+
+            try {
+
+                data = await response.json();
+
+            } catch (parseError) {
+
+                console.error(
+                    'Non-JSON response:',
+                    response.status
+                );
+
+                throw new Error(
+                    'The server returned an unexpected response (' +
+                    response.status + '). Please try again.'
+                );
+
+            }
 
 
             /*
@@ -1491,6 +1580,12 @@
             );
 
 
+            sessionStorage.setItem(
+                'rupavuePublicPhotoUrl',
+                data.public_photo_url || ''
+            );
+
+
             await wait(700);
 
 
@@ -1518,17 +1613,10 @@
             );
 
 
-            statusText.textContent =
+            showError(
                 error.message ||
-                'Something went wrong while creating your photo.';
-
-
-            progressText.textContent =
-                'Error';
-
-
-            progressFill.style.width =
-                '0%';
+                'Something went wrong while creating your photo.'
+            );
 
         }
 
