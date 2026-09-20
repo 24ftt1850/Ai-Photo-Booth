@@ -788,22 +788,43 @@ class GeminiController extends Controller
                     $imageUid . '.png'
                 );
 
-
             $googleDriveFileId =
                 $driveResult['id']
                 ?? null;
-
-            // Make ONLY this generated photo publicly viewable
-            if ($googleDriveFileId) {
-                $googleDrive->makeFilePublic($googleDriveFileId);
-            }
 
             $googleDriveUrl =
                 $driveResult['url']
                 ?? null;
 
-            $googleDriveStatus =
-                'uploaded';
+            // Make ONLY this generated photo publicly viewable
+            if ($googleDriveFileId) {
+                try {
+
+                    $googleDrive->makeFilePublic(
+                        $googleDriveFileId
+                    );
+
+                    $googleDriveStatus = 'public';
+
+                } catch (\Throwable $e) {
+
+                    // The image was uploaded, but public sharing failed.
+                    $googleDriveStatus = 'uploaded';
+
+                    Log::warning(
+                        'RUPAVUE Google Drive public sharing failed.',
+                        [
+                            'image_uid' => $imageUid,
+                            'google_drive_file_id' => $googleDriveFileId,
+                            'error' => $e->getMessage(),
+                        ]
+                    );
+                }
+
+            } else {
+
+                $googleDriveStatus = 'uploaded';
+            }
 
         } catch (\Throwable $e) {
 

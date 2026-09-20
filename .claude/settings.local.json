@@ -5,5 +5,8 @@
       "Bash(cd *)",
       "Bash(curl *)"
     ]
-  }
+  },
+  "disabledMcpjsonServers": [
+    "laravel-boost"
+  ]
 }
