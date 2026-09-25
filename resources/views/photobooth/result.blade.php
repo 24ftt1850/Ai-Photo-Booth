@@ -647,41 +647,6 @@
         }
 
 
-        /* =====================================================
-           SUBMIT
-        ====================================================== */
-
-        .submit-feedback {
-
-            margin-top: 8px;
-
-            padding:
-                9px 22px;
-
-            border: none;
-
-            border-radius: 30px;
-
-            background: #003f42;
-
-            color: white;
-
-            font-size: 11px;
-
-            font-weight: 700;
-
-            cursor: pointer;
-
-        }
-
-
-        .submit-feedback:hover {
-
-            opacity: 0.9;
-
-        }
-
-
         .success-message {
 
             display: none;
@@ -1314,79 +1279,16 @@
         }
 
         /* =====================================================
-           QR ICON BUTTON (on top of the photo)
+           QR PANEL (beside the photo)
         ===================================================== */
 
-        .qr-icon-button {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            z-index: 15;
+        .qr-panel {
+            width: 100%;
+            max-width: 350px;
 
-            width: 46px;
-            height: 46px;
+            padding: 22px 20px 16px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border: 1px solid rgba(255,255,255,.75);
-            border-radius: 14px;
-
-            background: rgba(3, 25, 63, 0.55);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-
-            color: #fff;
-            cursor: pointer;
-
-            box-shadow:
-                0 8px 20px rgba(0,20,60,.35),
-                inset 0 1px 0 rgba(255,255,255,.25);
-
-            transition: transform .2s ease, background .2s ease;
-        }
-
-        .qr-icon-button:hover {
-            transform: scale(1.08);
-            background: rgba(8, 60, 150, 0.7);
-        }
-
-        .qr-icon-button svg {
-            width: 22px;
-            height: 22px;
-        }
-
-        /* =====================================================
-           QR MODAL (pops up over the photo)
-        ===================================================== */
-
-        .qr-modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 200;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: rgba(1, 6, 17, 0.72);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-        }
-
-        .qr-modal-overlay[hidden] {
-            display: none;
-        }
-
-        .qr-modal {
-            position: relative;
-
-            width: min(94vw, 560px);
-
-            padding: 28px 25px 25px;
-
-            background: rgba(255,255,255,.96);
+            background: rgba(255,255,255,.92);
             border: 1px solid rgba(255,255,255,.95);
             border-radius: 24px;
 
@@ -1394,38 +1296,11 @@
             flex-direction: column;
             align-items: center;
 
+            color: #07142f;
+
             box-shadow:
-                0 30px 80px rgba(0,15,60,.55),
-                0 0 40px rgba(85,170,255,.25);
-        }
-
-        .qr-modal-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-
-            width: 32px;
-            height: 32px;
-
-            border: none;
-            border-radius: 50%;
-
-            background: rgba(0,63,66,.08);
-            color: #003f42;
-
-            font-size: 16px;
-            line-height: 1;
-            cursor: pointer;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            transition: background .2s ease;
-        }
-
-        .qr-modal-close:hover {
-            background: rgba(0,63,66,.18);
+                0 20px 50px rgba(0,25,80,.30),
+                0 0 30px rgba(85,170,255,.22);
         }
 
         .result-frame img {
@@ -1623,21 +1498,6 @@
             border-color: #087fe8;
         }
 
-        .submit-feedback {
-            margin: 10px auto 0;
-            padding: 13px 32px;
-            border: none;
-            border-radius: 999px;
-            background: linear-gradient(135deg,#063b9e,#087fe8);
-            color: white;
-            font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 8px 18px rgba(0,75,190,.22);
-        }
-
-        .submit-feedback:hover { transform: translateY(-1px); }
-
         .success-message {
             display: none;
             margin-top: 8px;
@@ -1756,10 +1616,15 @@
             }
 
             .result-frame {
-                width: min(94vw, 600px);
+                width: min(94vw, 600px, (100vh - 100px) * 1.5);
                 height: auto;
                 min-height: 0;
+                max-height: none;
                 aspect-ratio: 3 / 2;
+            }
+
+            .result-frame img {
+                object-fit: contain;
             }
 
             .result-sidebar {
@@ -1779,7 +1644,7 @@
             .logo { font-size: 20px; }
 
             .result-frame {
-                width: min(90vw, 400px);
+                width: min(90vw, 400px, (100vh - 100px) * 1.5);
                 border-radius: 20px;
             }
 
@@ -1789,14 +1654,14 @@
             }
 
             .qr-container {
-                width: 300px;
-                height: 300px;
+                width: min(84vw, 340px);
+                height: min(84vw, 340px);
             }
 
             #qrCode,
             #qrCode img {
-                width: 280px;
-                height: 280px;
+                width: 100%;
+                height: 100%;
             }
 
             .quick-feedback {
@@ -1807,6 +1672,23 @@
                 padding: 7px 10px;
                 font-size: 10px;
             }
+        }
+
+        /* QR panel with the feedback stacked underneath it */
+        .qr-feedback-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Feedback content sits directly on the page — no card box */
+        .feedback-card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         /* =========================================================
@@ -1841,10 +1723,8 @@
         grid-template-columns: 1fr 1fr;
 
         grid-template-rows:
-            36px
-            minmax(260px, 1fr)
-            210px
-            76px;
+            0
+            minmax(260px, 1fr);
 
         column-gap: 24px;
         row-gap: 12px;
@@ -1865,7 +1745,7 @@
         grid-row: 1;
 
         width: 100%;
-        height: 36px;
+        height: 0;
 
         margin: 0 !important;
 
@@ -1879,33 +1759,50 @@
 
 
     /* =====================================================
-       PHOTO + QR WRAPPER
-
-       Make the children behave as if they are directly
-       inside the page grid.
+       PHOTO + QR WRAPPER — photo top-left, QR beside it
     ===================================================== */
 
     .photo-qr-section {
-        display: contents !important;
+        grid-column: 1 / -1;
+        grid-row: 2;
+
+        width: 100% !important;
+        max-width: none !important;
+        height: 100%;
+        min-height: 0;
+
+        margin: 0 !important;
+
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        gap: 24px !important;
+
+        container-type: size;
     }
 
 
     /* =====================================================
-       GENERATED PHOTO — 3 : 2 landscape, full width on top
+       GENERATED PHOTO — 3 : 2 landscape
     ===================================================== */
 
+    /* Width is the smaller of "85% of the row height at 3:2" and
+       "whatever the QR column leaves free", and the height follows
+       from the aspect ratio — so the frame never loses its 3:2
+       shape when the page is zoomed and space runs out */
     .result-frame {
-        grid-column: 1 / -1;
-        grid-row: 2;
+        flex: 0 0 auto;
 
-        justify-self: center;
-        align-self: center;
+        width: min(
+            85cqh * 1.5,
+            100cqw - max(min(100cqh - 494px, 400px) + 34px, 480px) - 24px
+        ) !important;
 
-        width: auto !important;
+        height: auto !important;
 
-        height: 100% !important;
+        align-self: center !important;
 
-        max-width: 100% !important;
+        max-width: none !important;
         max-height: 100% !important;
 
         min-height: 0 !important;
@@ -1927,36 +1824,61 @@
         width: 100% !important;
         height: 100% !important;
 
-        object-fit: cover !important;
+        object-fit: contain !important;
     }
 
 
     /* =====================================================
-       QR MODAL (no longer part of the grid — it pops up
-       over the photo instead)
+       RIGHT COLUMN — QR panel with feedback underneath
     ===================================================== */
 
+    .qr-feedback-column {
+        flex: 0 0 auto;
+
+        height: 100%;
+        min-height: 0;
+
+        margin-left: auto;
+        margin-right: 0;
+
+        padding-top: 28px;
+
+        justify-content: flex-start;
+    }
+
+
+    /* =====================================================
+       QR PANEL — beside the photo, QR scales to fit
+    ===================================================== */
+
+    .qr-panel {
+        flex: 0 0 auto;
+
+        width: auto !important;
+        min-width: 260px;
+        max-width: 500px !important;
+        max-height: 100%;
+
+        padding: 16px 16px 12px !important;
+    }
+
     .qr-title {
-        font-size: 22px !important;
+        font-size: 26px !important;
 
-        margin-bottom: 5px !important;
+        margin-bottom: 12px !important;
     }
 
-    .qr-description {
-        font-size: 12px !important;
-
-        line-height: 1.4 !important;
-
-        max-width: 330px !important;
-
-        margin-bottom: 14px !important;
-    }
-
+    /* Square, sized from the photo row's height (minus the
+       title/text/status), so the card hugs its content */
     .qr-container {
-        width: 420px !important;
-        height: 420px !important;
+        flex: 0 0 auto;
 
-        padding: 12px !important;
+        width: min(100cqh - 494px, 400px) !important;
+        height: min(100cqh - 494px, 400px) !important;
+
+        aspect-ratio: 1 / 1;
+
+        padding: 8px !important;
 
         margin-bottom: 10px !important;
 
@@ -1964,33 +1886,34 @@
     }
 
     #qrCode,
-    #qrCode img {
-        width: 396px !important;
-        height: 396px !important;
+    #qrCode img,
+    #qrCode canvas {
+        width: 100% !important;
+        height: 100% !important;
     }
 
     .qr-status {
-        font-size: 10px !important;
+        font-size: 12px !important;
 
         margin-bottom: 0 !important;
     }
 
 
     /* =====================================================
-       FEEDBACK CARD — full width now that the QR card
-       is no longer beside it
+       FEEDBACK — stacked underneath the QR panel
     ===================================================== */
 
     .feedback-card {
-        grid-column: 1 / -1;
-        grid-row: 3;
+        flex: 0 0 auto;
 
         width: 100% !important;
-        height: 100% !important;
+        height: auto !important;
 
         min-height: 0 !important;
 
-        padding: 10px 20px !important;
+        margin-top: 18px !important;
+
+        padding: 0 !important;
 
         border-radius: 22px !important;
 
@@ -1998,31 +1921,31 @@
 
         flex-direction: column;
 
-        justify-content: center;
+        justify-content: flex-start;
 
-        overflow: hidden;
+        overflow: visible;
     }
 
     .feedback-title {
-        font-size: 22px !important;
+        font-size: 30px !important;
 
         margin-bottom: 4px !important;
     }
 
     .feedback-subtitle {
-        font-size: 13px !important;
+        font-size: 18px !important;
 
-        margin-bottom: 6px !important;
+        margin-bottom: 14px !important;
     }
 
     .stars {
-        gap: 16px !important;
+        gap: 14px !important;
 
         margin-bottom: 8px !important;
     }
 
     .star {
-        font-size: 58px !important;
+        font-size: 64px !important;
 
         line-height: 1;
 
@@ -2044,7 +1967,7 @@
 
         filter: none;
 
-        transform: scale(1.3);
+        transform: scale(1.2);
 
         text-shadow: none !important;
     }
@@ -2207,72 +2130,140 @@
         white-space: nowrap;
     }
 
-    .submit-feedback {
-        margin-top: 6px !important;
-
-        padding: 13px 48px !important;
-
-        font-size: 20px !important;
-    }
 
     .success-message {
         margin-top: 4px !important;
 
-        font-size: 12px !important;
+        font-size: 15px !important;
     }
 
 
     /* =====================================================
-       PRINT + START NEW SESSION — side by side, centered
+       PRINT + START NEW SESSION — stacked, print on top
     ===================================================== */
 
     .bottom-actions {
-        grid-column: 1 / -1;
-        grid-row: 4;
+        flex: 0 0 auto;
 
         width: 100% !important;
-        height: 76px !important;
+        height: auto !important;
 
-        margin: 0 !important;
+        margin: 18px 0 0 !important;
 
         display: flex !important;
+        flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 20px !important;
+        gap: 10px !important;
     }
 
     .print-button {
-        width: auto !important;
-        min-width: 310px !important;
+        flex: 0 0 auto;
+
+        width: min(100%, 420px) !important;
+        min-width: 0 !important;
         max-width: none !important;
 
-        height: 66px !important;
+        height: 60px !important;
 
-        padding: 10px 44px !important;
+        padding: 10px 20px !important;
 
         border-radius: 999px !important;
 
-        font-size: 21px !important;
+        font-size: 20px !important;
+
+        white-space: nowrap;
     }
 
     .new-session {
-        width: auto !important;
-        height: 66px !important;
+        flex: 0 0 auto;
+
+        width: min(100%, 420px) !important;
+        height: 60px !important;
 
         margin: 0 !important;
     }
 
     .new-session-button {
-        width: auto !important;
-        min-width: 310px !important;
+        width: 100% !important;
+        min-width: 0 !important;
 
-        height: 66px !important;
+        height: 60px !important;
 
-        padding: 10px 44px !important;
+        padding: 10px 20px !important;
 
         border-radius: 999px !important;
 
-        font-size: 21px !important;
+        font-size: 20px !important;
+
+        white-space: nowrap;
+    }
+}
+
+
+/* =========================================================
+   ENTRANCE ANIMATION — arriving from the generate page.
+   The photo is revealed first, then the QR panel, feedback
+   and buttons slide in from the right one after another.
+========================================================= */
+
+.result-frame {
+    animation: resultPhotoReveal .9s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.qr-panel,
+.feedback-card,
+.bottom-actions {
+    animation: resultSlideIn .7s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.qr-panel {
+    animation-delay: .35s;
+}
+
+.feedback-card {
+    animation-delay: .5s;
+}
+
+.bottom-actions {
+    animation-delay: .65s;
+}
+
+@keyframes resultPhotoReveal {
+
+    from {
+        opacity: 0;
+        transform: scale(.9);
+        filter: blur(14px) brightness(1.6);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+        filter: none;
+    }
+}
+
+@keyframes resultSlideIn {
+
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .result-frame,
+    .qr-panel,
+    .feedback-card,
+    .bottom-actions {
+        animation: none;
     }
 }
 
@@ -2385,232 +2376,170 @@
 
             </div>
 
-
-            <!-- QR ICON — opens the QR popup over the photo -->
-
-            <button
-                type="button"
-                class="qr-icon-button"
-                id="qrIconButton"
-                aria-label="Show QR code to download this photo"
-            >
-
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-                    <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-                    <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
-                    <rect x="14" y="14" width="3" height="3" fill="currentColor"/>
-                    <rect x="18" y="14" width="3" height="3" fill="currentColor"/>
-                    <rect x="14" y="18" width="3" height="3" fill="currentColor"/>
-                    <rect x="18" y="18" width="3" height="3" fill="currentColor"/>
-                </svg>
-
-            </button>
-
         </div>
 
-    </section>
+
+        <!-- QR CODE + FEEDBACK — right-hand column beside the photo -->
+
+        <div class="qr-feedback-column">
+
+            <div class="qr-panel">
+
+                <h2 class="qr-title">
+
+                    Scan to Download
+
+                </h2>
 
 
-    <!-- =====================================================
-         QR MODAL — pops up over the photo when the QR
-         icon is clicked
-    ====================================================== -->
+                <div class="qr-container">
 
-    <div
-        class="qr-modal-overlay"
-        id="qrModalOverlay"
-        hidden
-    >
+                    <div id="qrCode"></div>
 
-        <div class="qr-modal">
-
-            <button
-                type="button"
-                class="qr-modal-close"
-                id="qrModalClose"
-                aria-label="Close QR code"
-            >
-                ✕
-            </button>
-
-            <h2 class="qr-title">
-
-                Scan to Download
-
-            </h2>
+                </div>
 
 
-            <p class="qr-description">
+                <div
+                    class="qr-status"
+                    id="qrStatus"
+                >
 
-                Point your phone camera at
-                the QR code to save your
-                high-resolution photo.
+                    Preparing QR code...
 
-            </p>
-
-
-            <div class="qr-container">
-
-                <div id="qrCode"></div>
+                </div>
 
             </div>
 
 
-            <div
-                class="qr-status"
-                id="qrStatus"
-            >
+            <!-- =====================================================
+                 FEEDBACK
+            ====================================================== -->
 
-                Preparing QR code...
+            <section class="feedback-card">
+
+
+                <h2 class="feedback-title">
+
+                    Share your thoughts
+
+                </h2>
+
+
+                <p class="feedback-subtitle">
+
+                    We'd love to hear what you think!
+
+                </p>
+
+
+
+                <!-- EMOJI RATING (1 = worst, 5 = best) -->
+
+                <div
+                    class="stars"
+                    id="stars"
+                >
+
+                    <button
+                        type="button"
+                        class="star"
+                        data-rating="1"
+                        aria-label="Very bad"
+                    >
+                        😡
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="star"
+                        data-rating="2"
+                        aria-label="Bad"
+                    >
+                        😕
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="star"
+                        data-rating="3"
+                        aria-label="Okay"
+                    >
+                        😐
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="star"
+                        data-rating="4"
+                        aria-label="Good"
+                    >
+                        😊
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="star"
+                        data-rating="5"
+                        aria-label="Love it"
+                    >
+                        😍
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="success-message"
+                    id="successMessage"
+                >
+
+                    Thank you for your feedback! ❤️
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================================
+                 PRINT PHOTO + NEW SESSION
+            ====================================================== -->
+
+            <div class="bottom-actions">
+
+                <button
+                    type="button"
+                    class="print-button"
+                    id="printButton"
+                >
+
+                    🖨️ Print Photo
+
+                </button>
+
+
+                <div class="new-session">
+
+                    <button
+                        type="button"
+                        class="new-session-button"
+                        id="newSessionButton"
+                    >
+
+                        ↻ Start New Session
+
+                    </button>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
-
-
-
-    <!-- =====================================================
-         FEEDBACK
-    ====================================================== -->
-
-    <section class="feedback-card">
-
-
-        <h2 class="feedback-title">
-
-            Share your thoughts
-
-        </h2>
-
-
-        <p class="feedback-subtitle">
-
-            We'd love to hear what you think!
-
-        </p>
-
-
-
-        <!-- EMOJI RATING (1 = worst, 5 = best) -->
-
-        <div
-            class="stars"
-            id="stars"
-        >
-
-            <button
-                type="button"
-                class="star"
-                data-rating="1"
-                aria-label="Very bad"
-            >
-                😡
-            </button>
-
-
-            <button
-                type="button"
-                class="star"
-                data-rating="2"
-                aria-label="Bad"
-            >
-                😕
-            </button>
-
-
-            <button
-                type="button"
-                class="star"
-                data-rating="3"
-                aria-label="Okay"
-            >
-                😐
-            </button>
-
-
-            <button
-                type="button"
-                class="star"
-                data-rating="4"
-                aria-label="Good"
-            >
-                😊
-            </button>
-
-
-            <button
-                type="button"
-                class="star"
-                data-rating="5"
-                aria-label="Love it"
-            >
-                😍
-            </button>
-
-        </div>
-
-
-
-        <!-- SUBMIT -->
-
-        <button
-            type="button"
-            class="submit-feedback"
-            id="submitFeedback"
-        >
-
-            Submit Feedback
-
-        </button>
-
-
-        <div
-            class="success-message"
-            id="successMessage"
-        >
-
-            Thank you for your feedback! ❤️
-
-        </div>
-
     </section>
-
-
-    <!-- =====================================================
-         PRINT PHOTO + NEW SESSION
-    ====================================================== -->
-
-    <div class="bottom-actions">
-
-        <button
-            type="button"
-            class="print-button"
-            id="printButton"
-        >
-
-            🖨️ Print Photo
-
-        </button>
-
-
-        <div class="new-session">
-
-            <button
-                type="button"
-                class="new-session-button"
-                id="newSessionButton"
-            >
-
-                ↻ Start New Session
-
-            </button>
-
-        </div>
-
-    </div>
 
 
 </div>
@@ -2727,86 +2656,6 @@
         );
 
 
-    const qrIconButton =
-        document.getElementById(
-            'qrIconButton'
-        );
-
-
-    const qrModalOverlay =
-        document.getElementById(
-            'qrModalOverlay'
-        );
-
-
-    const qrModalClose =
-        document.getElementById(
-            'qrModalClose'
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | QR MODAL — POPS UP OVER THE PHOTO
-    |--------------------------------------------------------------------------
-    */
-
-    function openQrModal() {
-
-        qrModalOverlay.hidden =
-            false;
-
-    }
-
-
-    function closeQrModal() {
-
-        qrModalOverlay.hidden =
-            true;
-
-    }
-
-
-    qrIconButton.addEventListener(
-        'click',
-        openQrModal
-    );
-
-
-    qrModalClose.addEventListener(
-        'click',
-        closeQrModal
-    );
-
-
-    qrModalOverlay.addEventListener(
-        'click',
-        function (event) {
-
-            if (event.target === qrModalOverlay) {
-
-                closeQrModal();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (event.key === 'Escape') {
-
-                closeQrModal();
-
-            }
-
-        }
-    );
-
-
     /*
     |--------------------------------------------------------------------------
     | DISPLAY GENERATED PHOTO
@@ -2878,9 +2727,9 @@
 
                     text: imageUrl,
 
-                    width: 396,
+                    width: 512,
 
-                    height: 396,
+                    height: 512,
 
                     colorDark: '#003f42',
 
@@ -3058,6 +2907,16 @@
                 'click',
                 function () {
 
+                    if (
+                        feedbackSubmitted ||
+                        feedbackSubmitting
+                    ) {
+
+                        return;
+
+                    }
+
+
                     selectedRating =
                         Number(
                             this.dataset.rating
@@ -3092,6 +2951,9 @@
 
                         }
                     );
+
+
+                    submitRating();
 
                 }
             );
@@ -3161,6 +3023,8 @@
 
     let feedbackSubmitted = false;
 
+    let feedbackSubmitting = false;
+
 
     function requireRating() {
 
@@ -3192,9 +3056,9 @@
 
 
         showRatingPopup(
-            selectedRating
-                ? 'You picked an emoji, but it isn\'t saved yet. Tap "Submit Feedback" to continue.'
-                : 'Please choose an emoji and tap "Submit Feedback" before printing or starting a new session.'
+            feedbackSubmitting
+                ? 'Saving your feedback, please wait a moment.'
+                : 'Please tap an emoji to rate your photo before printing or starting a new session.'
         );
 
         return false;
@@ -3314,144 +3178,169 @@
     |--------------------------------------------------------------------------
     */
 
-    const submitFeedback =
-        document.getElementById(
-            'submitFeedback'
-        );
-
-
     const successMessage =
         document.getElementById(
             'successMessage'
         );
 
 
-    submitFeedback.addEventListener(
-        'click',
-        async function () {
+    const starsContainer =
+        document.getElementById(
+            'stars'
+        );
 
-            if (!selectedRating) {
 
-                alert(
-                    'Please select how you feel first.'
+    /*
+     * Tapping an emoji submits the rating straight away.
+     */
+    async function submitRating() {
+
+        if (
+            !selectedRating ||
+            feedbackSubmitted ||
+            feedbackSubmitting
+        ) {
+
+            return;
+
+        }
+
+
+        if (!generatedImageId) {
+
+            alert(
+                'Feedback is not available for this photo.'
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            feedbackSubmitting =
+                true;
+
+
+            starsContainer.setAttribute(
+                'aria-busy',
+                'true'
+            );
+
+
+            const response =
+                await fetch(
+                    "{{ route('photobooth.feedback.store') }}",
+                    {
+
+                        method: 'POST',
+
+                        headers: {
+
+                            'Content-Type':
+                                'application/json',
+
+                            'X-CSRF-TOKEN':
+                                '{{ csrf_token() }}',
+
+                            'Accept':
+                                'application/json'
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                generated_image_id:
+                                    Number(generatedImageId),
+
+                                rating:
+                                    selectedRating,
+
+                                feedback:
+                                    selectedFeedback,
+
+                                theme:
+                                    selectedTheme
+
+                            })
+
+                    }
                 );
 
-                return;
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'Failed to submit feedback.'
+                );
 
             }
 
 
-            if (!generatedImageId) {
+            feedbackSubmitted =
+                true;
 
-                alert(
-                    'Feedback is not available for this photo.'
-                );
-
-                return;
-
-            }
+            setActionsLocked(
+                false
+            );
 
 
-            try {
+            stars.forEach(
+                function (item) {
 
-                submitFeedback.disabled =
-                    true;
+                    item.disabled =
+                        true;
 
-
-                submitFeedback.textContent =
-                    'Submitting...';
-
-
-                const response =
-                    await fetch(
-                        "{{ route('photobooth.feedback.store') }}",
-                        {
-
-                            method: 'POST',
-
-                            headers: {
-
-                                'Content-Type':
-                                    'application/json',
-
-                                'X-CSRF-TOKEN':
-                                    '{{ csrf_token() }}',
-
-                                'Accept':
-                                    'application/json'
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    generated_image_id:
-                                        Number(generatedImageId),
-
-                                    rating:
-                                        selectedRating,
-
-                                    feedback:
-                                        selectedFeedback,
-
-                                    theme:
-                                        selectedTheme
-
-                                })
-
-                        }
-                    );
+                }
+            );
 
 
-                if (!response.ok) {
+            successMessage.style.display =
+                'block';
 
-                    throw new Error(
-                        'Failed to submit feedback.'
+
+        } catch (error) {
+
+            console.error(
+                'Feedback error:',
+                error
+            );
+
+
+            selectedRating =
+                0;
+
+
+            stars.forEach(
+                function (item) {
+
+                    item.classList.remove(
+                        'selected'
                     );
 
                 }
+            );
 
 
-                feedbackSubmitted =
-                    true;
+            alert(
+                'Unable to submit feedback. Please tap an emoji to try again.'
+            );
 
-                setActionsLocked(
-                    false
-                );
+        } finally {
 
-
-                submitFeedback.style.display =
-                    'none';
+            feedbackSubmitting =
+                false;
 
 
-                successMessage.style.display =
-                    'block';
-
-
-            } catch (error) {
-
-                console.error(
-                    'Feedback error:',
-                    error
-                );
-
-
-                submitFeedback.disabled =
-                    false;
-
-
-                submitFeedback.textContent =
-                    'Submit Feedback';
-
-
-                alert(
-                    'Unable to submit feedback. Please try again.'
-                );
-
-            }
+            starsContainer.removeAttribute(
+                'aria-busy'
+            );
 
         }
-    );
+
+    }
 
 
 

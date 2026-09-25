@@ -10,10 +10,9 @@ use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
 
 class GeminiController extends Controller
 {
@@ -30,7 +29,6 @@ class GeminiController extends Controller
         set_time_limit(180);
         ini_set('memory_limit', '512M');
 
-
         /*
         |--------------------------------------------------------------------------
         | Validate Request
@@ -41,7 +39,6 @@ class GeminiController extends Controller
             'image' => 'required|string',
             'theme_id' => 'required|exists:photoshoot_themes,id',
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -55,7 +52,6 @@ class GeminiController extends Controller
             $request->input('theme_id')
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | Active Occasion
@@ -67,15 +63,13 @@ class GeminiController extends Controller
             ->orderByDesc('id')
             ->first();
 
-        if (!$occasion) {
+        if (! $occasion) {
 
             return response()->json([
                 'success' => false,
-                'message' =>
-                    'No active occasion is configured for the photobooth.'
+                'message' => 'No active occasion is configured for the photobooth.',
             ], 500);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -92,7 +86,6 @@ class GeminiController extends Controller
             )[1];
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Decode Image
@@ -107,10 +100,9 @@ class GeminiController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid image data.'
+                'message' => 'Invalid image data.',
             ], 422);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -119,17 +111,16 @@ class GeminiController extends Controller
         */
 
         $fileName =
-            'original_' .
-            time() .
-            '_' .
-            uniqid() .
+            'original_'.
+            time().
+            '_'.
+            uniqid().
             '.jpg';
 
         Storage::disk('public')->put(
-            'photobooth/' . $fileName,
+            'photobooth/'.$fileName,
             $imageBinary
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -138,8 +129,8 @@ class GeminiController extends Controller
         */
 
         $prompt = trim(
-            ($theme->prompt_prefix ?? '') .
-            ' ' .
+            ($theme->prompt_prefix ?? '').
+            ' '.
             ($theme->prompt_suffix ?? '')
         );
 
@@ -147,11 +138,9 @@ class GeminiController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' =>
-                    'This theme has no prompt configured.'
+                'message' => 'This theme has no prompt configured.',
             ], 422);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -161,15 +150,13 @@ class GeminiController extends Controller
 
         $apiKey = env('GEMINI_API_KEY');
 
-        if (!$apiKey) {
+        if (! $apiKey) {
 
             return response()->json([
                 'success' => false,
-                'message' =>
-                    'Gemini API key is not configured.'
+                'message' => 'Gemini API key is not configured.',
             ], 500);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -181,7 +168,6 @@ class GeminiController extends Controller
             'services.gemini.model',
             'gemini-3-pro-image-preview'
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -195,9 +181,9 @@ class GeminiController extends Controller
             ])
             ->post(
                 'https://generativelanguage.googleapis.com/v1beta/models/'
-                . $model
-                . ':generateContent?key='
-                . $apiKey,
+                .$model
+                .':generateContent?key='
+                .$apiKey,
 
                 [
                     'contents' => [
@@ -205,7 +191,7 @@ class GeminiController extends Controller
                             'parts' => [
 
                                 [
-                                    'text' => $prompt
+                                    'text' => $prompt,
                                 ],
 
                                 [
@@ -223,7 +209,7 @@ class GeminiController extends Controller
 
                         'responseModalities' => [
                             'TEXT',
-                            'IMAGE'
+                            'IMAGE',
                         ],
 
                         'imageConfig' => [
@@ -235,14 +221,13 @@ class GeminiController extends Controller
                 ]
             );
 
-
         /*
         |--------------------------------------------------------------------------
         | Check Gemini Response
         |--------------------------------------------------------------------------
         */
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
 
             Log::error(
                 'RUPAVUE Gemini image generation failed.',
@@ -254,12 +239,9 @@ class GeminiController extends Controller
             );
 
             $userMessage = match ($response->status()) {
-                429 =>
-                    'The AI service is out of quota or too busy right now. Please try again shortly or ask a staff member for help.',
-                400, 401, 403 =>
-                    'The AI service rejected the request. Please ask a staff member for help.',
-                default =>
-                    'Gemini image generation failed. Please try again.',
+                429 => 'The AI service is out of quota or too busy right now. Please try again shortly or ask a staff member for help.',
+                400, 401, 403 => 'The AI service rejected the request. Please ask a staff member for help.',
+                default => 'Gemini image generation failed. Please try again.',
             };
 
             return response()->json([
@@ -268,7 +250,6 @@ class GeminiController extends Controller
                 'error' => $response->json(),
             ], 500);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -298,7 +279,6 @@ class GeminiController extends Controller
                 break;
             }
 
-
             if (
                 isset($part['inline_data']['data'])
             ) {
@@ -310,23 +290,20 @@ class GeminiController extends Controller
             }
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | No Image
         |--------------------------------------------------------------------------
         */
 
-        if (!$generatedImage) {
+        if (! $generatedImage) {
 
             return response()->json([
                 'success' => false,
-                'message' =>
-                    'Gemini did not return an image.',
+                'message' => 'Gemini did not return an image.',
                 'response' => $responseData,
             ], 500);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -342,30 +319,25 @@ class GeminiController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' =>
-                    'Unable to decode Gemini generated image.'
+                'message' => 'Unable to decode Gemini generated image.',
             ], 500);
         }
 
-
         $generatedFileName =
-            'generated_' .
-            time() .
-            '_' .
-            uniqid() .
+            'generated_'.
+            time().
+            '_'.
+            uniqid().
             '.png';
 
-
         $generatedRelativePath =
-            'photobooth/' .
+            'photobooth/'.
             $generatedFileName;
-
 
         Storage::disk('public')->put(
             $generatedRelativePath,
             $generatedBinary
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -380,7 +352,6 @@ class GeminiController extends Controller
             ->latest('id')
             ->first();
 
-
         /*
         |--------------------------------------------------------------------------
         | Default
@@ -390,7 +361,6 @@ class GeminiController extends Controller
         $finalFileName = $generatedFileName;
 
         $appliedFramePath = null;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -408,15 +378,15 @@ class GeminiController extends Controller
                     ->path($generatedRelativePath);
 
             $temporaryFrameName =
-                'frame_' .
-                time() .
-                '_' .
-                uniqid() .
+                'frame_'.
+                time().
+                '_'.
+                uniqid().
                 '.png';
 
             $temporaryFramePath =
                 storage_path(
-                    'app/temp/' .
+                    'app/temp/'.
                     $temporaryFrameName
                 );
 
@@ -433,7 +403,6 @@ class GeminiController extends Controller
                     $temporaryFramePath
                 );
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | Make Sure Files Exist
@@ -441,14 +410,13 @@ class GeminiController extends Controller
                 */
 
                 if (
-                    !file_exists($generatedFullPath) ||
-                    !file_exists($temporaryFramePath)
+                    ! file_exists($generatedFullPath) ||
+                    ! file_exists($temporaryFramePath)
                 ) {
                     throw new \Exception(
                         'Generated image or Google Drive frame file does not exist.'
                     );
                 }
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -463,7 +431,6 @@ class GeminiController extends Controller
                         )
                     );
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | Load Google Drive Frame
@@ -477,16 +444,14 @@ class GeminiController extends Controller
                         )
                     );
 
-
                 if (
-                    !$generatedImageResource ||
-                    !$frameImageResource
+                    ! $generatedImageResource ||
+                    ! $frameImageResource
                 ) {
                     throw new \Exception(
                         'Unable to load generated image or photo frame.'
                     );
                 }
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -504,7 +469,6 @@ class GeminiController extends Controller
                         $frameImageResource
                     );
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | Create Final Canvas
@@ -516,7 +480,6 @@ class GeminiController extends Controller
                         $finalWidth,
                         $finalHeight
                     );
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -550,7 +513,6 @@ class GeminiController extends Controller
                     $transparent
                 );
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | Resize AI Image To Frame Size
@@ -573,7 +535,6 @@ class GeminiController extends Controller
                         $generatedImageResource
                     )
                 );
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -602,7 +563,6 @@ class GeminiController extends Controller
                     $finalHeight
                 );
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | Final File Name
@@ -610,14 +570,14 @@ class GeminiController extends Controller
                 */
 
                 $finalFileName =
-                    'final_' .
-                    time() .
-                    '_' .
-                    uniqid() .
+                    'final_'.
+                    time().
+                    '_'.
+                    uniqid().
                     '.png';
 
                 $finalRelativePath =
-                    'photobooth/' .
+                    'photobooth/'.
                     $finalFileName;
 
                 $finalFullPath =
@@ -625,7 +585,6 @@ class GeminiController extends Controller
                         ->path(
                             $finalRelativePath
                         );
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -638,7 +597,6 @@ class GeminiController extends Controller
                     $finalFullPath,
                     6
                 );
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -658,7 +616,6 @@ class GeminiController extends Controller
                     $resizedImage
                 );
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | Save Applied Frame
@@ -668,20 +625,16 @@ class GeminiController extends Controller
                 $appliedFramePath =
                     $activeFrame->frame_path;
 
-
             } catch (\Throwable $e) {
 
                 Log::error(
                     'RUPAVUE Google Drive photo frame failed.',
                     [
-                        'frame_id' =>
-                            $activeFrame->id,
+                        'frame_id' => $activeFrame->id,
 
-                        'google_drive_file_id' =>
-                            $activeFrame->google_drive_file_id,
+                        'google_drive_file_id' => $activeFrame->google_drive_file_id,
 
-                        'error' =>
-                            $e->getMessage(),
+                        'error' => $e->getMessage(),
                     ]
                 );
 
@@ -695,7 +648,6 @@ class GeminiController extends Controller
                     $generatedFileName;
 
             }
-
 
             /*
             |--------------------------------------------------------------------------
@@ -712,7 +664,6 @@ class GeminiController extends Controller
             }
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Final Image Full Path
@@ -724,13 +675,12 @@ class GeminiController extends Controller
         */
 
         $finalRelativePath =
-            'photobooth/' .
+            'photobooth/'.
             $finalFileName;
 
         $finalFullPath =
             Storage::disk('public')
                 ->path($finalRelativePath);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -739,13 +689,12 @@ class GeminiController extends Controller
         */
 
         $imageUid =
-            'RV-' .
-            now()->format('Ymd') .
-            '-' .
+            'RV-'.
+            now()->format('Ymd').
+            '-'.
             strtoupper(
                 Str::random(6)
             );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -759,7 +708,6 @@ class GeminiController extends Controller
 
         $googleDriveStatus = 'pending';
 
-
         try {
 
             /*
@@ -768,13 +716,12 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if (!file_exists($finalFullPath)) {
+            if (! file_exists($finalFullPath)) {
 
                 throw new \Exception(
                     'Final image file does not exist.'
                 );
             }
-
 
             /*
             |--------------------------------------------------------------------------
@@ -785,7 +732,7 @@ class GeminiController extends Controller
             $driveResult =
                 $googleDrive->uploadImage(
                     $finalFullPath,
-                    $imageUid . '.png'
+                    $imageUid.'.png'
                 );
 
             $googleDriveFileId =
@@ -840,15 +787,12 @@ class GeminiController extends Controller
             Log::error(
                 'RUPAVUE Google Drive upload failed.',
                 [
-                    'image_uid' =>
-                        $imageUid,
+                    'image_uid' => $imageUid,
 
-                    'error' =>
-                        $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]
             );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -859,28 +803,22 @@ class GeminiController extends Controller
         $photoSession =
             PhotoSession::create([
 
-                'session_code' =>
-                    'PS-' .
-                    now()->format('ymdHis') .
-                    '-' .
+                'session_code' => 'PS-'.
+                    now()->format('ymdHis').
+                    '-'.
                     strtoupper(
                         Str::random(4)
                     ),
 
-                'raw_photo_path' =>
-                    'photobooth/' .
+                'raw_photo_path' => 'photobooth/'.
                     $fileName,
 
-                'consent_given' =>
-                    true,
+                'consent_given' => true,
 
-                'occasion_id' =>
-                    $occasion->id,
+                'occasion_id' => $occasion->id,
 
-                'status' =>
-                    'completed',
+                'status' => 'completed',
             ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -891,29 +829,22 @@ class GeminiController extends Controller
         $generatedRecord =
             GeneratedImage::create([
 
-                'photo_session_id' =>
-                    $photoSession->id,
+                'photo_session_id' => $photoSession->id,
 
-                'theme_id' =>
-                    $theme->id,
+                'theme_id' => $theme->id,
 
-                'model_id' =>
-                    1,
+                'model_id' => 1,
 
                 'public_token' => bin2hex(random_bytes(32)),
 
-                'final_prompt_used' =>
-                    $prompt,
+                'final_prompt_used' => $prompt,
 
-                'generated_photo_path' =>
-                    'photobooth/' .
+                'generated_photo_path' => 'photobooth/'.
                     $finalFileName,
 
-                'applied_frame_path' =>
-                    $appliedFramePath,
+                'applied_frame_path' => $appliedFramePath,
 
-                'generation_status' =>
-                    'success',
+                'generation_status' => 'success',
 
                 /*
                 |--------------------------------------------------------------------------
@@ -921,8 +852,7 @@ class GeminiController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                'image_uid' =>
-                    $imageUid,
+                'image_uid' => $imageUid,
 
                 /*
                 |--------------------------------------------------------------------------
@@ -930,16 +860,12 @@ class GeminiController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                'google_drive_file_id' =>
-                    $googleDriveFileId,
+                'google_drive_file_id' => $googleDriveFileId,
 
-                'google_drive_url' =>
-                    $googleDriveUrl,
+                'google_drive_url' => $googleDriveUrl,
 
-                'google_drive_status' =>
-                    $googleDriveStatus,
+                'google_drive_status' => $googleDriveStatus,
             ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -949,11 +875,9 @@ class GeminiController extends Controller
 
         return response()->json([
 
-            'success' =>
-                true,
+            'success' => true,
 
-            'theme' =>
-                $theme->theme_name,
+            'theme' => $theme->theme_name,
 
             /*
             |--------------------------------------------------------------------------
@@ -961,8 +885,7 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'generated_image_id' =>
-                $generatedRecord->id,
+            'generated_image_id' => $generatedRecord->id,
 
             /*
             |--------------------------------------------------------------------------
@@ -970,8 +893,7 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'image_uid' =>
-                $generatedRecord->image_uid,
+            'image_uid' => $generatedRecord->image_uid,
 
             /*
             |--------------------------------------------------------------------------
@@ -979,11 +901,10 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'original_image' =>
-                Storage::url(
-                    'photobooth/' .
-                    $fileName
-                ),
+            'original_image' => Storage::url(
+                'photobooth/'.
+                $fileName
+            ),
 
             /*
             |--------------------------------------------------------------------------
@@ -991,11 +912,10 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'generated_image' =>
-                Storage::url(
-                    'photobooth/' .
-                    $finalFileName
-                ),
+            'generated_image' => Storage::url(
+                'photobooth/'.
+                $finalFileName
+            ),
 
             /*
             |--------------------------------------------------------------------------
@@ -1003,8 +923,7 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'frame_applied' =>
-                $activeFrame !== null,
+            'frame_applied' => $activeFrame !== null,
 
             /*
             |--------------------------------------------------------------------------
@@ -1012,17 +931,14 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'google_drive_status' =>
-                $generatedRecord
-                    ->google_drive_status,
+            'google_drive_status' => $generatedRecord
+                ->google_drive_status,
 
-            'google_drive_file_id' =>
-                $generatedRecord
-                    ->google_drive_file_id,
+            'google_drive_file_id' => $generatedRecord
+                ->google_drive_file_id,
 
-            'google_drive_url' =>
-                $generatedRecord
-                    ->google_drive_url,
+            'google_drive_url' => $generatedRecord
+                ->google_drive_url,
 
             /*
             |--------------------------------------------------------------------------
@@ -1030,15 +946,10 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'public_token' =>
-                $generatedRecord
-                    ->public_token,
+            'public_token' => $generatedRecord
+                ->public_token,
 
-            'public_photo_url' =>
-                route(
-                    'public.photo.show',
-                    $generatedRecord->public_token
-                ),
+            'public_photo_url' => $generatedRecord->google_drive_url,
         ]);
     }
 }

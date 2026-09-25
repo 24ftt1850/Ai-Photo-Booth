@@ -1046,6 +1046,28 @@
         .back-link:hover::before {
             left: 130%;
         }
+
+
+        /* Exit animation before moving on to the result page */
+        .generate-page.is-leaving {
+            animation: generatePageLeave .6s cubic-bezier(.4, 0, .2, 1) forwards;
+        }
+
+        @keyframes generatePageLeave {
+
+            to {
+                opacity: 0;
+                transform: scale(1.06);
+                filter: blur(10px);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .generate-page.is-leaving {
+                animation-duration: .01s;
+            }
+        }
     </style>
 </head>
 
@@ -1601,6 +1623,23 @@
             /*
             * Go to result
             */
+
+            document
+                .querySelector('.generate-page')
+                .classList
+                .add('is-leaving');
+
+            await wait(600);
+
+            // Undo the fade if the browser restores this page via Back
+            window.addEventListener('pageshow', event => {
+                if (event.persisted) {
+                    document
+                        .querySelector('.generate-page')
+                        .classList
+                        .remove('is-leaving');
+                }
+            }, { once: true });
 
             window.location.href =
                 "{{ route('photobooth.result') }}";
