@@ -689,6 +689,12 @@
 
             scrollbar-width: none;
 
+            /* Let our swipe handler own horizontal gestures */
+            touch-action: pan-y;
+
+            user-select: none;
+            -webkit-user-select: none;
+
         }
 
         .theme-track::-webkit-scrollbar {
@@ -983,6 +989,56 @@
 
 
         /* =====================================================
+           NEW BADGE
+        ===================================================== */
+
+        .theme-new-badge {
+
+            position: absolute;
+
+            z-index: 5;
+
+            top: 16px;
+            right: 16px;
+
+            padding: 7px 14px;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffcf3f,
+                    #ff8a1f
+                );
+
+            color: #3a1a00;
+
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .12em;
+
+            box-shadow:
+                0 4px 14px
+                rgba(255,140,30,.55);
+
+            transition:
+                right .25s ease;
+
+        }
+
+
+        /* Slide left so it doesn't sit under the ✓ */
+
+        .theme-card.selected
+        .theme-new-badge {
+
+            right: 68px;
+
+        }
+
+
+        /* =====================================================
            CAROUSEL DOTS
         ===================================================== */
 
@@ -1061,7 +1117,7 @@
         .action-bar {
             width: 100%;
 
-            min-height: 64px;
+            min-height: 84px;
 
             display: flex;
 
@@ -1070,9 +1126,9 @@
             justify-content: flex-start;
 
             padding:
-                14px 24px;
+                20px 32px;
 
-            border-radius: 18px;
+            border-radius: 22px;
 
             background:
                 rgba(255,255,255,.90);
@@ -1105,13 +1161,13 @@
 
             align-items: center;
 
-            gap: 14px;
+            gap: 16px;
 
             min-width: 0;
 
             color: #55718f;
 
-            font-size: 14px;
+            font-size: 20px;
 
             white-space: nowrap;
 
@@ -1123,7 +1179,7 @@
             color:
                 #0871e9;
 
-            font-size: 16px;
+            font-size: 24px;
 
             flex-shrink: 0;
 
@@ -1144,7 +1200,7 @@
 
             color: #55718f;
 
-            font-size: 13px;
+            font-size: 19px;
 
             padding-left: 14px;
 
@@ -1738,6 +1794,17 @@
                         </div>
 
 
+                        @if ($theme->isNew())
+
+                            <!-- Recently added -->
+
+                            <div class="theme-new-badge">
+                                NEW
+                            </div>
+
+                        @endif
+
+
                         <!-- Card content -->
 
                         <div class="theme-content">
@@ -2145,6 +2212,127 @@
 
                 }
             );
+
+        }
+    );
+
+
+    /* =====================================================
+       SWIPE / DRAG
+       Swipe left = next theme, swipe right = previous.
+       Works with touch, pen and mouse drag.
+    ===================================================== */
+
+    const swipeThreshold = 40;
+
+    let swipeStartX = null;
+    let swipeStartY = 0;
+    let lastSwipeAt = 0;
+
+
+    themeTrack.addEventListener(
+        'pointerdown',
+        function (event) {
+
+            if (event.pointerType === 'mouse' && event.button !== 0) {
+                return;
+            }
+
+            swipeStartX = event.clientX;
+            swipeStartY = event.clientY;
+
+        }
+    );
+
+
+    themeTrack.addEventListener(
+        'pointerup',
+        function (event) {
+
+            if (swipeStartX === null || !themeCards.length) {
+                swipeStartX = null;
+                return;
+            }
+
+            const deltaX = event.clientX - swipeStartX;
+            const deltaY = event.clientY - swipeStartY;
+
+            swipeStartX = null;
+
+
+            if (
+                Math.abs(deltaX) < swipeThreshold
+                || Math.abs(deltaX) < Math.abs(deltaY)
+            ) {
+                return;
+            }
+
+
+            /*
+             * Stop at the first/last theme instead of
+             * wrapping around, which feels odd on a swipe.
+             */
+
+            const currentIndex =
+                selectedIndex === -1 ? 0 : selectedIndex;
+
+            const targetIndex = Math.min(
+                themeCards.length - 1,
+                Math.max(
+                    0,
+                    deltaX < 0
+                        ? currentIndex + 1
+                        : currentIndex - 1
+                )
+            );
+
+            lastSwipeAt = Date.now();
+
+            selectTheme(targetIndex);
+
+        }
+    );
+
+
+    themeTrack.addEventListener(
+        'pointercancel',
+        function () {
+
+            swipeStartX = null;
+
+        }
+    );
+
+
+    /*
+     * A drag ends with a click on whichever card the
+     * pointer was released over; swallow it so the swipe
+     * result isn't overridden.
+     */
+
+    themeTrack.addEventListener(
+        'click',
+        function (event) {
+
+            if (Date.now() - lastSwipeAt < 400) {
+
+                event.stopPropagation();
+                event.preventDefault();
+
+            }
+
+        },
+        true
+    );
+
+
+    /* Stop the browser dragging the card images */
+
+    themeTrack.addEventListener(
+        'dragstart',
+        function (event) {
+
+            event.preventDefault();
 
         }
     );

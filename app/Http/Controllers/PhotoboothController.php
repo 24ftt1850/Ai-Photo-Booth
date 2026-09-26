@@ -12,7 +12,7 @@ class PhotoboothController extends Controller
     {
         $themeId = $request->query('theme_id');
 
-        if (!$themeId) {
+        if (! $themeId) {
             return redirect()
                 ->route('photobooth.scene')
                 ->with('error', 'Please select a theme first.');
@@ -22,7 +22,7 @@ class PhotoboothController extends Controller
             ->where('is_active', true)
             ->first();
 
-        if (!$theme) {
+        if (! $theme) {
             return redirect()
                 ->route('photobooth.scene')
                 ->with('error', 'The selected theme is no longer available.');
@@ -36,7 +36,8 @@ class PhotoboothController extends Controller
     public function scene()
     {
         $themes = Theme::where('is_active', true)
-            ->orderBy('theme_name')
+            ->orderBy('created_at')
+            ->orderBy('id')
             ->get();
 
         $photoFrames = PhotoFrame::where('is_active', true)->get();

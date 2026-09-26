@@ -166,7 +166,7 @@ class GeminiController extends Controller
 
         $model = config(
             'services.gemini.model',
-            'gemini-3-pro-image-preview'
+            'gemini-3.1-flash-image-preview'
         );
 
         /*
@@ -213,7 +213,7 @@ class GeminiController extends Controller
                         ],
 
                         'imageConfig' => [
-                            'imageSize' => '2K',
+                            'imageSize' => '2k',
                             'aspectRatio' => '3:2',
                         ],
 

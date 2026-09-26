@@ -1083,22 +1083,24 @@
             flex-direction: column;
             align-items: center;
 
+            margin-top: 40px;
+
             animation:
                 fadeUp 1s ease 0.45s both;
         }
 
         .rv-start-button {
-            min-width: 380px;
+            min-width: 620px;
 
-            min-height: 76px;
+            min-height: 124px;
 
-            padding: 18px 36px;
+            padding: 30px 64px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            gap: 17px;
+            gap: 28px;
 
             border-radius: 999px;
 
@@ -1113,7 +1115,7 @@
 
             color: #ffffff;
 
-            font-size: 18px;
+            font-size: 30px;
 
             letter-spacing: 0.08em;
 
@@ -1153,24 +1155,24 @@
         }
 
         .rv-camera-icon {
-            width: 32px;
-            height: 32px;
+            width: 56px;
+            height: 56px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 8px;
+            border-radius: 12px;
 
             background: rgba(255, 255, 255, 0.08);
 
             border: 1px solid rgba(145, 211, 255, 0.35);
 
-            font-size: 17px;
+            font-size: 29px;
         }
 
         .rv-arrow {
-            font-size: 28px;
+            font-size: 44px;
 
             line-height: 1;
 
@@ -1195,7 +1197,7 @@
            ========================================================= */
 
         .rv-footer {
-            margin-top: 32px;
+            margin-top: 56px;
 
             display: flex;
             align-items: center;
@@ -1520,17 +1522,17 @@
             }
 
             .rv-start-button {
-                min-width: 300px;
+                min-width: 380px;
 
-                min-height: 65px;
+                min-height: 92px;
 
-                padding: 15px 25px;
+                padding: 22px 36px;
 
-                font-size: 14px;
+                font-size: 21px;
             }
 
             .rv-footer {
-                margin-top: 26px;
+                margin-top: 44px;
 
                 font-size: 8px;
 
@@ -1573,9 +1575,9 @@
             }
 
             .rv-start-button {
-                min-width: 270px;
+                min-width: 300px;
 
-                font-size: 12px;
+                font-size: 17px;
             }
 
             .rv-cta-note {
@@ -1907,10 +1909,6 @@
                     </span>
 
                 </a>
-
-                <div class="rv-cta-note">
-                    What are you waiting for?
-                </div>
 
             </section>
 

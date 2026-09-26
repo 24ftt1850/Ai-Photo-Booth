@@ -600,13 +600,16 @@
         .photo-title {
             color: rgba(218,237,255,.9);
 
-            font-size: 17px;
+            font-size: 22px;
             font-weight: 700;
 
             letter-spacing: 1.8px;
             text-transform: uppercase;
 
             margin-bottom: 8px;
+
+            /* Lift the label without moving the photo frame */
+            transform: translateY(-8px);
 
             text-shadow:
                 0 0 10px rgba(0,102,255,.35);
@@ -1068,10 +1071,192 @@
                 animation-duration: .01s;
             }
         }
+
+
+        /* =====================================================
+           WHITE FLASH TRANSITION
+           Plays once the photo is ready: a white bloom fills
+           the screen like a camera flash, light rings burst
+           out and the RUPAVUE logo shines in. The result page
+           picks up from this exact frame and reveals itself.
+        ===================================================== */
+
+        .rv-flash {
+            position: fixed;
+            inset: 0;
+
+            z-index: 9999;
+
+            display: grid;
+            place-items: center;
+
+            overflow: hidden;
+
+            pointer-events: none;
+
+            visibility: hidden;
+        }
+
+        .rv-flash.active {
+            visibility: visible;
+        }
+
+        .rv-flash-bloom {
+            position: absolute;
+
+            left: 50%;
+            top: 50%;
+
+            width: 160vmax;
+            height: 160vmax;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #ffffff 0%,
+                    #ffffff 42%,
+                    #eaf5ff 56%,
+                    rgba(190,225,255,.6) 64%,
+                    rgba(120,190,255,0) 70%
+                );
+
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        .rv-flash.active .rv-flash-bloom {
+            animation: rvFlashBloom 1s cubic-bezier(.7, 0, .25, 1) forwards;
+        }
+
+        .rv-flash-ring {
+            position: absolute;
+
+            left: 50%;
+            top: 50%;
+
+            width: 40vmin;
+            height: 40vmin;
+
+            border-radius: 50%;
+
+            border: 2px solid rgba(255,255,255,.95);
+
+            box-shadow:
+                0 0 30px rgba(120,200,255,.9),
+                inset 0 0 30px rgba(120,200,255,.6);
+
+            opacity: 0;
+
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        .rv-flash.active .rv-flash-ring {
+            animation: rvFlashRing .9s cubic-bezier(.2, .7, .2, 1) forwards;
+        }
+
+        .rv-flash.active .rv-flash-ring.is-late {
+            animation-delay: .18s;
+        }
+
+        .rv-flash-word {
+            position: relative;
+
+            font-family: "Arial Black", Arial, sans-serif;
+            font-size: clamp(38px, 8vw, 110px);
+
+            letter-spacing: .06em;
+
+            color: transparent;
+
+            background:
+                linear-gradient(
+                    110deg,
+                    #0a58d6 0%,
+                    #0a58d6 40%,
+                    #a8dcff 50%,
+                    #0a58d6 60%,
+                    #0a58d6 100%
+                );
+            background-size: 250% 100%;
+            background-position: 100% 0;
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            filter: drop-shadow(0 0 18px rgba(0,110,255,.35));
+
+            opacity: 0;
+
+            transform: scale(.85);
+        }
+
+        .rv-flash.active .rv-flash-word {
+            animation:
+                rvFlashWordIn .6s .45s cubic-bezier(.2, .8, .2, 1) forwards,
+                rvFlashShine 1.2s .6s ease-in-out forwards;
+        }
+
+        @keyframes rvFlashBloom {
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes rvFlashRing {
+
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(3.2);
+            }
+        }
+
+        @keyframes rvFlashWordIn {
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+                letter-spacing: .12em;
+            }
+        }
+
+        @keyframes rvFlashShine {
+
+            to {
+                background-position: 0% 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .rv-flash.active .rv-flash-bloom,
+            .rv-flash.active .rv-flash-ring,
+            .rv-flash.active .rv-flash-word {
+                animation-duration: .01s;
+                animation-delay: 0s;
+            }
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- =====================================================
+         WHITE FLASH TRANSITION
+    ===================================================== -->
+
+    <div class="rv-flash" id="rvFlash" aria-hidden="true">
+        <div class="rv-flash-bloom"></div>
+        <div class="rv-flash-ring"></div>
+        <div class="rv-flash-ring is-late"></div>
+        <div class="rv-flash-word">RUPAVUE</div>
+    </div>
 
     <!-- =====================================================
          BACKGROUND
@@ -1624,16 +1809,31 @@
             * Go to result
             */
 
+            const flash =
+                document.getElementById('rvFlash');
+
+            flash.classList.add('active');
+
             document
                 .querySelector('.generate-page')
                 .classList
                 .add('is-leaving');
 
+            // Tell the result page to continue the flash on arrival
+            try {
+                sessionStorage.setItem('rupavueFlashIn', '1');
+            } catch (e) {}
+
             await wait(600);
+
+            // Let the logo shine before switching pages
+            await wait(700);
 
             // Undo the fade if the browser restores this page via Back
             window.addEventListener('pageshow', event => {
                 if (event.persisted) {
+                    flash.classList.remove('active');
+
                     document
                         .querySelector('.generate-page')
                         .classList

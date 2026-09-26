@@ -42,3 +42,35 @@ test('generate page fades out before going to the result page, which animates in
         ->assertSee('animation: resultPhotoReveal', false)
         ->assertSee('animation: resultSlideIn', false);
 });
+
+test('generate page flashes white into the result page, which reveals itself from the flash', function () {
+    $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()])
+        ->assertSee('id="rvFlash"', false)
+        ->assertSee('class="rv-flash-bloom"', false)
+        ->assertSeeInOrder([
+            "flash.classList.add('active')",
+            "sessionStorage.setItem('rupavueFlashIn', '1')",
+            'await wait(600)',
+            'window.location.href',
+        ], false);
+
+    $this->view('photobooth.result', ['photoFrames' => collect()])
+        ->assertSee('html:not(.rv-flash-in) .rv-flash', false)
+        ->assertSee('animation: rvFlashBloomOut', false)
+        ->assertSee('html.rv-flash-in .result-frame', false)
+        ->assertSeeInOrder([
+            "sessionStorage.getItem('rupavueFlashIn')",
+            "sessionStorage.removeItem('rupavueFlashIn')",
+            "classList.add('rv-flash-in')",
+            '</head>',
+            'id="rvFlash"',
+        ], false);
+});
+
+test('generate page shows bigger, raised your photo and ai result labels', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/\.photo-title \{[^}]*font-size: 22px;[^}]*transform: translateY\(-8px\);/')
+        ->toContain('Your Photo')
+        ->toContain('AI Result');
+});

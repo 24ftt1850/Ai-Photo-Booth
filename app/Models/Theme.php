@@ -35,20 +35,29 @@ class Theme extends Model
     {
         $path = $this->thumbnail_path;
 
-        if (!$path) {
+        if (! $path) {
             return null;
         }
 
         if (preg_match('#^https?://#i', $path)) {
             if (preg_match('#drive\.google\.com/file/d/([\w-]+)#', $path, $m)
                 || preg_match('#drive\.google\.com/(?:open|uc)\?(?:.*&)?id=([\w-]+)#', $path, $m)) {
-                return 'https://drive.google.com/thumbnail?id=' . $m[1] . '&sz=w1000';
+                return 'https://drive.google.com/thumbnail?id='.$m[1].'&sz=w1000';
             }
 
             return $path;
         }
 
-        return asset('storage/' . ltrim($path, '/'));
+        return asset('storage/'.ltrim($path, '/'));
+    }
+
+    /**
+     * Whether the theme was added within the last 7 days.
+     */
+    public function isNew(): bool
+    {
+        return $this->created_at !== null
+            && $this->created_at->greaterThanOrEqualTo(now()->subDays(7));
     }
 
     public function generatedImages()

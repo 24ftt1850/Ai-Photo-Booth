@@ -502,6 +502,7 @@
         .selected-theme {
             text-align: center;
 
+            margin-top: 18px;
             margin-bottom: 10px;
 
             flex-shrink: 0;
@@ -800,7 +801,7 @@
 
             gap: 12px;
 
-            width: 200px;
+            width: 260px;
 
             flex-shrink: 0;
         }
@@ -844,25 +845,26 @@
             position: absolute;
 
             left: 50%;
-            bottom: 22px;
+            bottom: 24px;
             transform: translateX(-50%);
 
             z-index: 6;
 
-            width: 68px;
-            height: 68px;
+            width: 96px;
+            height: 96px;
 
             min-width: 0;
-            padding: 0;
+            /* Bottom padding nudges the 📷 up inside the circle */
+            padding: 0 0 6px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            font-size: 26px;
+            font-size: 40px;
 
             border-radius: 50%;
-            border: 4px solid rgba(255, 255, 255, 0.85);
+            border: 5px solid rgba(255, 255, 255, 0.85);
 
             background: rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(4px);
@@ -893,6 +895,17 @@
             opacity: 0.4;
 
             cursor: not-allowed;
+        }
+
+        /* Bigger than the other side buttons: these are the main next step */
+
+        .retake-button,
+        .continue-button {
+            padding: 34px 18px;
+
+            border-radius: 20px;
+
+            font-size: 21px;
         }
 
         .retake-button {

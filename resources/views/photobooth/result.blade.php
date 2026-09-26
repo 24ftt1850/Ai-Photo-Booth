@@ -2267,12 +2267,182 @@
     }
 }
 
+
+/* =========================================================
+   WHITE FLASH REVEAL
+   Continues the generate page's flash: the screen starts
+   fully white with the RUPAVUE logo, then the logo lifts
+   away, a light ring bursts and the white fades out to
+   reveal the photo. Only runs when arriving from generate.
+========================================================= */
+
+.rv-flash {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9999;
+
+    display: grid;
+    place-items: center;
+
+    overflow: hidden;
+
+    pointer-events: none;
+}
+
+html:not(.rv-flash-in) .rv-flash {
+    display: none;
+}
+
+.rv-flash-bloom {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 160vmax;
+    height: 160vmax;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #ffffff 0%,
+            #ffffff 42%,
+            #eaf5ff 56%,
+            rgba(190,225,255,.6) 64%,
+            rgba(120,190,255,0) 70%
+        );
+
+    transform: translate(-50%, -50%) scale(1);
+
+    animation: rvFlashBloomOut .9s .35s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+
+.rv-flash-ring {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 40vmin;
+    height: 40vmin;
+
+    border-radius: 50%;
+
+    border: 2px solid rgba(255,255,255,.95);
+
+    box-shadow:
+        0 0 30px rgba(120,200,255,.9),
+        inset 0 0 30px rgba(120,200,255,.6);
+
+    opacity: 0;
+
+    transform: translate(-50%, -50%) scale(0);
+
+    animation: rvFlashRing 1s .3s cubic-bezier(.2, .7, .2, 1) forwards;
+}
+
+.rv-flash-word {
+    position: relative;
+
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: clamp(38px, 8vw, 110px);
+
+    letter-spacing: .12em;
+
+    color: #0a58d6;
+
+    filter: drop-shadow(0 0 18px rgba(0,110,255,.35));
+
+    animation: rvFlashWordOut .7s .15s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+
+@keyframes rvFlashBloomOut {
+
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.25);
+    }
+}
+
+@keyframes rvFlashRing {
+
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(3.2);
+    }
+}
+
+@keyframes rvFlashWordOut {
+
+    to {
+        opacity: 0;
+        transform: scale(1.18) translateY(-12px);
+        letter-spacing: .2em;
+    }
+}
+
+/* Hold the page's own entrance until the white starts to clear */
+
+html.rv-flash-in .result-frame {
+    animation-delay: .45s;
+}
+
+html.rv-flash-in .qr-panel {
+    animation-delay: .8s;
+}
+
+html.rv-flash-in .feedback-card {
+    animation-delay: .95s;
+}
+
+html.rv-flash-in .bottom-actions {
+    animation-delay: 1.1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .rv-flash-bloom,
+    .rv-flash-ring,
+    .rv-flash-word {
+        animation-duration: .01s;
+        animation-delay: 0s;
+    }
+}
+
     </style>
+
+    <script>
+        /* Set before first paint so the white frame never flickers */
+        try {
+            if (sessionStorage.getItem('rupavueFlashIn')) {
+                sessionStorage.removeItem('rupavueFlashIn');
+                document.documentElement.classList.add('rv-flash-in');
+            }
+        } catch (e) {}
+    </script>
 
 </head>
 
 
 <body>
+
+    <!-- =====================================================
+         WHITE FLASH REVEAL
+    ===================================================== -->
+
+    <div class="rv-flash" id="rvFlash" aria-hidden="true">
+        <div class="rv-flash-bloom"></div>
+        <div class="rv-flash-ring"></div>
+        <div class="rv-flash-word">RUPAVUE</div>
+    </div>
 
 
     <!-- =====================================================
