@@ -9,6 +9,18 @@ test('result page submits feedback by tapping an emoji without a submit button',
         ->assertDontSee('Submit Feedback');
 });
 
+test('result page lets the guest change their rating after submitting it', function () {
+    $html = (string) $this->view('photobooth.result', ['photoFrames' => collect()]);
+
+    expect($html)->toContain('Thank you for your feedback! ❤️')
+        ->not->toContain('Tap another emoji to change it.')
+        ->toContain('let savedRating = 0;')
+        ->toContain('ratingChangedWhileSaving')
+        ->toMatch('/if \(selectedRating === savedRating\) \{\s*return;/')
+        ->not->toMatch('/item\.disabled\s*=\s*true;/')
+        ->not->toMatch('/if \(\s*!selectedRating \|\|\s*feedbackSubmitted/');
+});
+
 test('result page shows the qr code beside the photo instead of in a popup', function () {
     $view = $this->view('photobooth.result', ['photoFrames' => collect()]);
 
@@ -70,7 +82,41 @@ test('generate page flashes white into the result page, which reveals itself fro
 test('generate page shows bigger, raised your photo and ai result labels', function () {
     $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
 
-    expect($html)->toMatch('/\.photo-title \{[^}]*font-size: 22px;[^}]*transform: translateY\(-8px\);/')
+    expect($html)->toMatch('/\.photo-title \{[^}]*color: #ffffff;[^}]*font-size: 30px;[^}]*transform: translateY\(-16px\);/')
         ->toContain('Your Photo')
         ->toContain('AI Result');
+});
+
+test('generate page shows rupa in the middle between both photo frames', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/Your Photo.*<div class="rupa-character">.*<img\s+src="[^"]*images\/rupa-waiting\.png".*AI Result/s')
+        ->toMatch('/\.generation-container \{[^}]*grid-template-columns: minmax\(0, 1fr\) clamp\(140px, 13vw, 240px\) minmax\(0, 1fr\);/')
+        ->not->toContain('<div class="arrow">');
+});
+
+test('generate page shows an ai magic animation instead of a loading circle', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/AI Result.*<div class="photo-placeholder ai-magic-placeholder">\s*<!-- AI "creating" animation -->\s*<div class="ai-magic" id="aiMagic"/s')
+        ->toContain('class="ai-magic-scan"')
+        ->toContain('class="ai-magic-orb"')
+        ->toMatch('/\.ai-magic-placeholder \{[^}]*animation: aiAurora /')
+        ->toMatch('/\.ai-magic-scan \{[^}]*animation: aiScan /')
+        ->toContain("aiMagic.style.display = 'none';")
+        ->not->toContain('loading-circle')
+        ->not->toContain('loadingCircle');
+});
+
+test('generate page shows the loading bar as rupa talking in a speech bubble', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/<div class="rupa-character">\s*<!-- Rupa "talks" the progress -->\s*<div class="rupa-speech" id="rupaSpeech"[^>]*>.*id="rupaSpeechText".*id="progressFill".*id="progressText".*<\/div>\s*<img\s+src="[^"]*rupa-waiting\.png"/s')
+        ->toContain('async function rupaSay(message)')
+        ->toMatch('/function updateProgress\([^)]*\)\s*\{.*?rupaSay\(message\);/s')
+        ->toContain("rupaSay('Oh no! ' + message);")
+        ->toMatch('/\.rupa-character \{[^}]*z-index: 5;/')
+        ->toMatch('/\.rupa-speech \{[^}]*width: clamp\(260px, 22vw, 380px\);[^}]*padding: 18px 22px;/')
+        ->toMatch('/\.rupa-speech-message \{[^}]*font-size: 20px;/')
+        ->and(substr_count($html, 'id="progressFill"'))->toBe(1);
 });

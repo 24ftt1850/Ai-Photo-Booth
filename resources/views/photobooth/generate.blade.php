@@ -573,7 +573,7 @@
             margin: 0 auto;
 
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1fr) clamp(140px, 13vw, 240px) minmax(0, 1fr);
 
             align-items: center;
 
@@ -598,21 +598,21 @@
         }
 
         .photo-title {
-            color: rgba(218,237,255,.9);
+            color: #ffffff;
 
-            font-size: 22px;
+            font-size: 30px;
             font-weight: 700;
 
-            letter-spacing: 1.8px;
+            letter-spacing: 2px;
             text-transform: uppercase;
 
             margin-bottom: 8px;
 
             /* Lift the label without moving the photo frame */
-            transform: translateY(-8px);
+            transform: translateY(-16px);
 
             text-shadow:
-                0 0 10px rgba(0,102,255,.35);
+                0 0 12px rgba(0,102,255,.55);
         }
 
         .photo-frame {
@@ -682,114 +682,412 @@
         }
 
         /* =====================================================
-           ARROW
+           RUPA (between the two photo frames)
         ===================================================== */
 
-        .arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .rupa-character {
+            position: relative;
 
-            font-size: 38px;
-            font-weight: 300;
+            /* Keeps the speech bubble above both photo frames */
+            z-index: 5;
 
-            color: #086fd2;
+            width: 100%;
 
-            text-shadow:
-                0 0 14px rgba(0,125,255,.45);
+            pointer-events: none;
+            line-height: 0;
+        }
+
+        .rupa-character::before {
+            content: "";
+
+            position: absolute;
+
+            left: 5%;
+            right: 5%;
+            top: 10%;
+            bottom: 5%;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    rgba(0, 120, 255, 0.35),
+                    transparent 65%
+                );
+        }
+
+        .rupa-character img {
+            position: relative;
+
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+
+            will-change: translate;
+
+            animation: rupaFloat 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        }
+
+        @keyframes rupaFloat {
+            0%,
+            100% {
+                translate: 0 0;
+            }
+
+            50% {
+                translate: 0 -12px;
+            }
+        }
+
+        /*
+         * Speech bubble above Rupa's head holding the
+         * progress message and bar. It is wider than
+         * the middle column, so it may overlap the inner
+         * edges of the photo frames.
+         */
+
+        .rupa-speech {
+            position: absolute;
+
+            z-index: 2;
+
+            bottom: calc(100% + 6px);
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            width: clamp(260px, 22vw, 380px);
+
+            padding: 18px 22px;
+
+            border-radius: 24px;
+
+            border: 1px solid rgba(90, 170, 255, 0.65);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(10, 45, 115, 0.95),
+                    rgba(4, 20, 58, 0.95)
+                );
+
+            box-shadow:
+                0 0 22px rgba(0, 120, 255, 0.45),
+                inset 0 0 12px rgba(80, 160, 255, 0.15);
+
+            color: #ffffff;
+
+            line-height: 1.3;
+            text-align: center;
+
+            transform-origin: 50% 100%;
+
+            animation: rupaSpeechPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+        }
+
+        /* Tail pointing down at Rupa's head */
+
+        .rupa-speech::after {
+            content: "";
+
+            position: absolute;
+
+            left: 50%;
+            bottom: -9px;
+
+            width: 16px;
+            height: 16px;
+
+            margin-left: -8px;
+
+            background: rgba(6, 28, 75, 0.95);
+
+            border-right: 1px solid rgba(90, 170, 255, 0.65);
+            border-bottom: 1px solid rgba(90, 170, 255, 0.65);
+
+            rotate: 45deg;
+        }
+
+        .rupa-speech-message {
+            min-height: 2.6em;
+
+            margin: 0;
+
+            font-size: 20px;
+            letter-spacing: 0.02em;
+        }
+
+        .rupa-speech-caret {
+            display: inline-block;
+
+            width: 2px;
+            height: 1em;
+
+            margin-left: 3px;
+
+            vertical-align: -2px;
+
+            background: #8fd0ff;
+
+            animation: rupaCaretBlink 0.8s steps(1) infinite;
+        }
+
+        @keyframes rupaCaretBlink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes rupaSpeechPop {
+            from {
+                opacity: 0;
+                scale: 0.6;
+                translate: 0 10px;
+            }
+
+            to {
+                opacity: 1;
+                scale: 1;
+                translate: 0 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .rupa-character img,
+            .rupa-speech,
+            .rupa-speech-caret {
+                animation: none;
+            }
         }
 
         /* =====================================================
            AI RESULT LOADING
         ===================================================== */
 
-        .loading-circle {
+        /*
+         * Dark "aurora" backdrop that slowly shifts
+         * while the AI works on the photo.
+         */
+
+        .ai-magic-placeholder {
             position: relative;
 
-            width: 84px;
-            height: 84px;
+            overflow: hidden;
 
-            margin: 0 auto 18px;
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    120deg,
+                    #041433,
+                    #0a3a8c,
+                    #2a1a7a,
+                    #0877e8,
+                    #041433
+                );
+
+            background-size: 300% 300%;
+
+            animation: aiAurora 8s ease-in-out infinite;
+        }
+
+        .ai-magic-placeholder p {
+            position: relative;
+            z-index: 2;
+
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+
+            text-shadow: 0 0 12px rgba(80, 170, 255, 0.8);
+        }
+
+        /* Glowing beam sweeping down the frame, like a scanner */
+
+        .ai-magic-scan {
+            position: absolute;
+
+            left: 0;
+            right: 0;
+            top: -90px;
+
+            height: 90px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    transparent,
+                    rgba(84, 196, 255, 0.28) 70%,
+                    rgba(200, 240, 255, 0.95) 98%,
+                    transparent
+                );
+
+            animation: aiScan 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        }
+
+        /* Twinkling sparkles scattered over the frame */
+
+        .ai-magic-sparkle {
+            position: absolute;
+
+            width: 8px;
+            height: 8px;
 
             border-radius: 50%;
 
-            border:
-                5px solid
-                rgba(80,160,255,.15);
-
-            border-top-color: #3aa8ff;
-            border-right-color: #8fd0ff;
-
-            animation:
-                spin
-                1.1s
-                linear
-                infinite,
-                loadingPulse
-                2.2s
-                ease-in-out
-                infinite;
+            background: #ffffff;
 
             box-shadow:
-                0 0 26px rgba(50,150,255,.45),
-                0 0 50px rgba(30,120,255,.25);
+                0 0 10px #ffffff,
+                0 0 20px #54c4ff;
+
+            opacity: 0;
+
+            animation: aiTwinkle 2.4s ease-in-out infinite;
         }
 
-        .loading-circle::after {
-            content: "";
+        .ai-magic-sparkle:nth-child(2) { left: 14%; top: 22%; animation-delay: 0s; }
+        .ai-magic-sparkle:nth-child(3) { left: 80%; top: 18%; animation-delay: 0.4s; }
+        .ai-magic-sparkle:nth-child(4) { left: 24%; top: 76%; animation-delay: 0.8s; }
+        .ai-magic-sparkle:nth-child(5) { left: 70%; top: 70%; animation-delay: 1.2s; }
+        .ai-magic-sparkle:nth-child(6) { left: 46%; top: 12%; animation-delay: 1.6s; }
+        .ai-magic-sparkle:nth-child(7) { left: 90%; top: 48%; animation-delay: 2s; }
 
+        /* Glowing orb with two counter-rotating rings */
+
+        .ai-magic-orb {
+            position: relative;
+            z-index: 2;
+
+            width: 110px;
+            height: 110px;
+
+            margin: 0 auto 18px;
+        }
+
+        .ai-magic-ring {
             position: absolute;
-            inset: 12px;
+
+            inset: 0;
 
             border-radius: 50%;
 
-            border:
-                3px solid
-                transparent;
+            background:
+                conic-gradient(
+                    from 0deg,
+                    transparent,
+                    #54c4ff,
+                    #ffffff,
+                    #a57bff,
+                    transparent 70%
+                );
 
-            border-bottom-color: #ffffff;
-            border-left-color: rgba(255,255,255,.5);
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
 
-            animation:
-                spinReverse
-                1.7s
-                linear
-                infinite;
+            animation: aiSpin 1.4s linear infinite;
         }
 
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
+        .ai-magic-ring-inner {
+            inset: 16px;
 
-            to {
-                transform: rotate(360deg);
-            }
+            animation: aiSpin 2s linear infinite reverse;
         }
 
-        @keyframes spinReverse {
-            from {
-                transform: rotate(360deg);
-            }
+        .ai-magic-core {
+            position: absolute;
 
-            to {
-                transform: rotate(0deg);
-            }
+            inset: 30px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            font-size: 26px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.95),
+                    rgba(84, 196, 255, 0.6) 55%,
+                    transparent 75%
+                );
+
+            animation: aiCorePulse 1.6s ease-in-out infinite;
         }
 
-        @keyframes loadingPulse {
-
+        @keyframes aiAurora {
             0%,
             100% {
-                box-shadow:
-                    0 0 26px rgba(50,150,255,.45),
-                    0 0 50px rgba(30,120,255,.25);
+                background-position: 0% 50%;
             }
 
             50% {
-                box-shadow:
-                    0 0 38px rgba(70,170,255,.7),
-                    0 0 75px rgba(40,140,255,.4);
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes aiScan {
+            from {
+                top: -90px;
+            }
+
+            to {
+                top: 100%;
+            }
+        }
+
+        @keyframes aiTwinkle {
+            0%,
+            100% {
+                opacity: 0;
+                scale: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+                scale: 1.2;
+            }
+        }
+
+        @keyframes aiSpin {
+            to {
+                rotate: 360deg;
+            }
+        }
+
+        @keyframes aiCorePulse {
+            0%,
+            100% {
+                scale: 0.9;
+                box-shadow: 0 0 20px rgba(84, 196, 255, 0.6);
+            }
+
+            50% {
+                scale: 1.1;
+                box-shadow: 0 0 40px rgba(165, 123, 255, 0.9);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ai-magic-placeholder,
+            .ai-magic-scan,
+            .ai-magic-sparkle,
+            .ai-magic-ring,
+            .ai-magic-core {
+                animation: none;
+            }
+
+            .ai-magic-sparkle {
+                opacity: 0.8;
+            }
+
+            .ai-magic-scan {
+                display: none;
             }
         }
 
@@ -817,25 +1115,22 @@
            PROGRESS
         ===================================================== */
 
+        /* Sits inside Rupa's speech bubble */
+
         .progress-container {
-            position: relative;
-            z-index: 10;
+            width: 100%;
 
-            width: min(90%, 450px);
-
-            flex-shrink: 0;
-
-            margin: 4px auto 0;
+            margin-top: 14px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 5px;
+            height: 12px;
 
             border-radius: 10px;
             overflow: hidden;
 
-            background: rgba(255,255,255,.55);
+            background: rgba(255,255,255,.2);
 
             box-shadow:
                 inset 0 1px 3px rgba(0,50,120,.12);
@@ -863,12 +1158,12 @@
         .progress-text {
             text-align: center;
 
-            margin-top: 6px;
+            margin-top: 8px;
 
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
 
-            color: rgba(218,237,255,.75);
+            color: #8fd0ff;
         }
 
         /* =====================================================
@@ -896,9 +1191,23 @@
                 gap: 10px;
             }
 
-            .arrow {
-                transform: rotate(90deg);
-                font-size: 30px;
+            .rupa-character {
+                width: 120px;
+                margin: 0 auto;
+            }
+
+            /*
+             * Frames are stacked on mobile, so the bubble
+             * sits in the flow above Rupa instead of
+             * floating over the photo above it.
+             */
+            .rupa-speech {
+                position: relative;
+                bottom: auto;
+
+                width: min(88vw, 360px);
+
+                margin-bottom: 14px;
             }
 
             .photo-frame {
@@ -1397,10 +1706,45 @@
         </div>
 
 
-        <!-- ARROW -->
+        <!-- RUPA -->
 
-        <div class="arrow">
-            →
+        <div class="rupa-character">
+
+            <!-- Rupa "talks" the progress -->
+
+            <div class="rupa-speech" id="rupaSpeech" role="status" aria-live="polite">
+
+                <p class="rupa-speech-message">
+                    <span id="rupaSpeechText"></span><span class="rupa-speech-caret" aria-hidden="true"></span>
+                </p>
+
+                <div class="progress-container">
+
+                    <div class="progress-bar">
+
+                        <div
+                            class="progress-fill"
+                            id="progressFill"
+                        ></div>
+
+                    </div>
+
+                    <div
+                        class="progress-text"
+                        id="progressText"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+            </div>
+
+            <img
+                src="{{ asset('images/rupa-waiting.png') }}"
+                alt=""
+                aria-hidden="true"
+            >
         </div>
 
 
@@ -1414,9 +1758,26 @@
 
             <div class="photo-frame">
 
-                <div class="photo-placeholder">
+                <div class="photo-placeholder ai-magic-placeholder">
 
-                    <div class="loading-circle" id="loadingCircle"></div>
+                    <!-- AI "creating" animation -->
+
+                    <div class="ai-magic" id="aiMagic" aria-hidden="true">
+                        <span class="ai-magic-scan"></span>
+
+                        <span class="ai-magic-sparkle"></span>
+                        <span class="ai-magic-sparkle"></span>
+                        <span class="ai-magic-sparkle"></span>
+                        <span class="ai-magic-sparkle"></span>
+                        <span class="ai-magic-sparkle"></span>
+                        <span class="ai-magic-sparkle"></span>
+
+                        <div class="ai-magic-orb">
+                            <span class="ai-magic-ring"></span>
+                            <span class="ai-magic-ring ai-magic-ring-inner"></span>
+                            <span class="ai-magic-core">✨</span>
+                        </div>
+                    </div>
 
                     <p id="loadingText">
                         AI is creating...
@@ -1441,32 +1802,7 @@
     </div>
 
 
-    <!-- Status is displayed at the top above the photo comparison. -->
-
-
-    <!-- =========================
-         PROGRESS
-    ========================== -->
-
-    <div class="progress-container">
-
-        <div class="progress-bar">
-
-            <div
-                class="progress-fill"
-                id="progressFill"
-            ></div>
-
-        </div>
-
-        <div
-            class="progress-text"
-            id="progressText"
-        >
-            0%
-        </div>
-
-    </div>
+    <!-- Status is displayed at the top and in Rupa's speech bubble. -->
 
 </div>
 
@@ -1496,6 +1832,53 @@
 
     const progressText =
         document.getElementById('progressText');
+
+    const rupaSpeechText =
+        document.getElementById('rupaSpeechText');
+
+    const prefersReducedMotion =
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+    /*
+     * =========================
+     * RUPA TALKING
+     * =========================
+     *
+     * Rupa "types" each progress message in its
+     * speech bubble. A newer message cancels one
+     * that is still being typed.
+     */
+
+    let rupaTypingId = 0;
+
+    async function rupaSay(message) {
+
+        const typingId =
+            ++rupaTypingId;
+
+        if (prefersReducedMotion) {
+            rupaSpeechText.textContent = message;
+
+            return;
+        }
+
+        rupaSpeechText.textContent = '';
+
+        for (const character of message) {
+
+            if (typingId !== rupaTypingId) {
+                return;
+            }
+
+            rupaSpeechText.textContent += character;
+
+            await new Promise(
+                (resolve) => setTimeout(resolve, 40)
+            );
+        }
+
+    }
 
 
     /*
@@ -1558,6 +1941,8 @@
             topStatusText.textContent = message;
         }
 
+        rupaSay(message);
+
     }
 
 
@@ -1578,8 +1963,10 @@
         progressText.textContent = 'Error';
         progressFill.style.width = '0%';
 
-        const loadingCircle =
-            document.getElementById('loadingCircle');
+        rupaSay('Oh no! ' + message);
+
+        const aiMagic =
+            document.getElementById('aiMagic');
 
         const loadingText =
             document.getElementById('loadingText');
@@ -1587,8 +1974,8 @@
         const retryButton =
             document.getElementById('retryButton');
 
-        if (loadingCircle) {
-            loadingCircle.style.display = 'none';
+        if (aiMagic) {
+            aiMagic.style.display = 'none';
         }
 
         if (loadingText) {

@@ -3063,6 +3063,12 @@ html.rv-flash-in .bottom-actions {
 
     let selectedRating = 0;
 
+    /*
+     * The last rating the server confirmed, so a failed
+     * change can fall back to it instead of clearing it.
+     */
+    let savedRating = 0;
+
 
     const stars =
         document.querySelectorAll(
@@ -3070,6 +3076,26 @@ html.rv-flash-in .bottom-actions {
         );
 
 
+    function highlightRating(selected) {
+
+        stars.forEach(
+            function (item) {
+
+                item.classList.toggle(
+                    'selected',
+                    Number(item.dataset.rating) === selected
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+     * The rating can be changed any time: tapping another
+     * emoji highlights it and saves it again.
+     */
     stars.forEach(
         function (star) {
 
@@ -3077,49 +3103,14 @@ html.rv-flash-in .bottom-actions {
                 'click',
                 function () {
 
-                    if (
-                        feedbackSubmitted ||
-                        feedbackSubmitting
-                    ) {
-
-                        return;
-
-                    }
-
-
                     selectedRating =
                         Number(
                             this.dataset.rating
                         );
 
 
-                    stars.forEach(
-                        function (item) {
-
-                            const rating =
-                                Number(
-                                    item.dataset.rating
-                                );
-
-
-                            if (
-                                rating ===
-                                selectedRating
-                            ) {
-
-                                item.classList.add(
-                                    'selected'
-                                );
-
-                            } else {
-
-                                item.classList.remove(
-                                    'selected'
-                                );
-
-                            }
-
-                        }
+                    highlightRating(
+                        selectedRating
                     );
 
 
@@ -3361,15 +3352,36 @@ html.rv-flash-in .bottom-actions {
 
 
     /*
+     * Set when the guest picks another emoji while a save is
+     * still running, so the newest choice is saved right after.
+     */
+    let ratingChangedWhileSaving = false;
+
+
+    /*
      * Tapping an emoji submits the rating straight away.
+     * Tapping a different one later saves the new rating.
      */
     async function submitRating() {
 
-        if (
-            !selectedRating ||
-            feedbackSubmitted ||
-            feedbackSubmitting
-        ) {
+        if (!selectedRating) {
+
+            return;
+
+        }
+
+
+        if (feedbackSubmitting) {
+
+            ratingChangedWhileSaving =
+                true;
+
+            return;
+
+        }
+
+
+        if (selectedRating === savedRating) {
 
             return;
 
@@ -3385,6 +3397,10 @@ html.rv-flash-in .bottom-actions {
             return;
 
         }
+
+
+        const ratingBeingSaved =
+            selectedRating;
 
 
         try {
@@ -3426,7 +3442,7 @@ html.rv-flash-in .bottom-actions {
                                     Number(generatedImageId),
 
                                 rating:
-                                    selectedRating,
+                                    ratingBeingSaved,
 
                                 feedback:
                                     selectedFeedback,
@@ -3452,18 +3468,11 @@ html.rv-flash-in .bottom-actions {
             feedbackSubmitted =
                 true;
 
+            savedRating =
+                ratingBeingSaved;
+
             setActionsLocked(
                 false
-            );
-
-
-            stars.forEach(
-                function (item) {
-
-                    item.disabled =
-                        true;
-
-                }
             );
 
 
@@ -3479,19 +3488,20 @@ html.rv-flash-in .bottom-actions {
             );
 
 
-            selectedRating =
-                0;
+            /*
+             * Go back to the last saved rating (or none),
+             * unless the guest already picked another one.
+             */
+            if (!ratingChangedWhileSaving) {
 
+                selectedRating =
+                    savedRating;
 
-            stars.forEach(
-                function (item) {
+                highlightRating(
+                    savedRating
+                );
 
-                    item.classList.remove(
-                        'selected'
-                    );
-
-                }
-            );
+            }
 
 
             alert(
@@ -3507,6 +3517,16 @@ html.rv-flash-in .bottom-actions {
             starsContainer.removeAttribute(
                 'aria-busy'
             );
+
+        }
+
+
+        if (ratingChangedWhileSaving) {
+
+            ratingChangedWhileSaving =
+                false;
+
+            submitRating();
 
         }
 
@@ -3572,14 +3592,17 @@ html.rv-flash-in .bottom-actions {
             );
 
 
-            window.location.href =
-                "{{ route('home') }}";
+            window.rupavueClickSound.goTo(
+                "{{ route('home') }}"
+            );
 
         }
     );
 
 </script>
 
+
+@include('partials.click-sound')
 
 </body>
 

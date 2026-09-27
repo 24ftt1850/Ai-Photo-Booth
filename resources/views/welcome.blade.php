@@ -772,8 +772,11 @@
 
             display: flex;
             align-items: center;
+            justify-content: center;
 
             gap: 10px;
+
+            text-align: center;
         }
 
         .rv-theme-icon {
@@ -1083,7 +1086,7 @@
             flex-direction: column;
             align-items: center;
 
-            margin-top: 40px;
+            margin-top: 80px;
 
             animation:
                 fadeUp 1s ease 0.45s both;
@@ -1102,18 +1105,22 @@
 
             gap: 28px;
 
+            position: relative;
+
+            isolation: isolate;
+
             border-radius: 999px;
 
-            border: 2px solid #2d9cff;
+            border: 2px solid #ffffff;
 
             background:
                 linear-gradient(
-                    135deg,
-                    rgba(0, 78, 190, 0.38),
-                    rgba(0, 30, 82, 0.75)
+                    180deg,
+                    #ffffff 0%,
+                    #eaf4ff 100%
                 );
 
-            color: #ffffff;
+            color: #06255e;
 
             font-size: 30px;
 
@@ -1124,9 +1131,8 @@
             cursor: pointer;
 
             box-shadow:
-                0 0 16px rgba(0, 120, 255, 0.65),
-                0 0 45px rgba(0, 100, 255, 0.25),
-                inset 0 0 18px rgba(0, 110, 255, 0.12);
+                0 0 14px rgba(0, 120, 255, 0.45),
+                inset 0 -4px 10px rgba(0, 110, 255, 0.12);
 
             transition:
                 transform 0.3s ease,
@@ -1134,20 +1140,83 @@
                 background 0.3s ease;
         }
 
+        /*
+         * Blinking blue glow around the white button.
+         * The glow sits on its own layers and only their
+         * opacity is animated, so the blink stays smooth.
+         */
+
+        .rv-start-button::before,
+        .rv-start-button::after {
+            content: "";
+
+            position: absolute;
+
+            inset: -2px;
+
+            z-index: -1;
+
+            border-radius: inherit;
+
+            pointer-events: none;
+
+            will-change: opacity;
+        }
+
+        .rv-start-button::before {
+            box-shadow:
+                0 0 22px 4px rgba(0, 140, 255, 0.95),
+                0 0 60px 14px rgba(0, 100, 255, 0.6),
+                0 0 110px 30px rgba(0, 80, 255, 0.3);
+
+            animation: rvStartGlowBlink 1.4s ease-in-out infinite;
+        }
+
+        /* Blue ring that flashes on the button edge */
+
+        .rv-start-button::after {
+            inset: -6px;
+
+            border: 4px solid #1e90ff;
+
+            animation: rvStartRingBlink 1.4s ease-in-out infinite;
+        }
+
+        @keyframes rvStartGlowBlink {
+            0%,
+            100% {
+                opacity: 0.25;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes rvStartRingBlink {
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
         .rv-start-button:hover {
             transform: translateY(-4px);
 
             background:
                 linear-gradient(
-                    135deg,
-                    rgba(0, 104, 235, 0.55),
-                    rgba(0, 42, 110, 0.82)
+                    180deg,
+                    #ffffff 0%,
+                    #d6ebff 100%
                 );
 
             box-shadow:
-                0 0 22px rgba(0, 145, 255, 0.85),
-                0 0 65px rgba(0, 105, 255, 0.40),
-                inset 0 0 25px rgba(0, 130, 255, 0.16);
+                0 0 22px rgba(0, 140, 255, 0.7),
+                inset 0 -4px 12px rgba(0, 110, 255, 0.18);
         }
 
         .rv-start-button:active {
@@ -1164,9 +1233,9 @@
 
             border-radius: 12px;
 
-            background: rgba(255, 255, 255, 0.08);
+            background: #dcecff;
 
-            border: 1px solid rgba(145, 211, 255, 0.35);
+            border: 1px solid rgba(0, 110, 255, 0.35);
 
             font-size: 29px;
         }
@@ -1177,6 +1246,8 @@
             line-height: 1;
 
             margin-left: 3px;
+
+            color: #0a6cff;
         }
 
         .rv-cta-note {
@@ -1192,53 +1263,346 @@
         }
 
 
+
+
         /* =========================================================
-           FOOTER
+           RUPA CHARACTER VIDEO
            ========================================================= */
 
-        .rv-footer {
-            margin-top: 56px;
+        .rupa-character {
+            position: fixed;
+            left: 70px;
+            bottom: 40px;
+            width: 290px;
+            z-index: 100;
+            pointer-events: none;
+            line-height: 0;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transform-origin: 50% 100%;
 
-            gap: 20px;
+            /*
+             * Walks in from the left once, then keeps
+             * floating, swaying and "breathing" in place.
+             *
+             * Only transform/opacity are animated and each
+             * layer is promoted with will-change, so the GPU
+             * moves it without repainting every frame.
+             */
+            will-change: translate, rotate, opacity;
 
-            color: #ffffff;
-
-            font-size: 11px;
-
-            letter-spacing: 0.32em;
-
-            text-transform: uppercase;
-
-            opacity: 0.9;
+            animation:
+                rupaEnter 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both,
+                rupaSway 6s cubic-bezier(0.45, 0, 0.55, 1) 1.8s infinite;
         }
 
-        .rv-footer-line {
-            width: 75px;
+        .rupa-character img {
+            position: relative;
 
-            height: 2px;
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+
+            transform-origin: 50% 100%;
+
+            will-change: translate, scale;
+
+            backface-visibility: hidden;
+
+            animation: rupaFloat 3.6s cubic-bezier(0.45, 0, 0.55, 1) 1.8s infinite;
+        }
+
+        /*
+         * Static blue glow behind Rupa. Replaces a
+         * drop-shadow filter, which had to be re-blurred
+         * on every animation frame and caused the lag.
+         */
+
+        .rupa-character::before {
+            content: "";
+
+            position: absolute;
+
+            left: 5%;
+            right: 5%;
+            top: 10%;
+            bottom: 5%;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    rgba(0, 120, 255, 0.35),
+                    transparent 65%
+                );
+        }
+
+        /* Soft glow on the floor that shrinks as Rupa rises */
+
+        .rupa-character::after {
+            content: "";
+
+            position: absolute;
+
+            left: 20%;
+            right: 20%;
+            bottom: 4px;
+
+            height: 18px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    rgba(0, 140, 255, 0.55),
+                    transparent 70%
+                );
+
+            will-change: scale, opacity;
+
+            animation: rupaShadow 3.6s cubic-bezier(0.45, 0, 0.55, 1) 1.8s infinite;
+        }
+
+        /*
+         * Speech bubble: Rupa "talks" from above-right of its
+         * head, with the tail pointing down to it.
+         *
+         * Where it sits and how wide it can grow depends on
+         * how close the page content is, which changes with
+         * the screen size. fitRupaSpeech() in the script below
+         * measures the free space and sets these variables;
+         * the values here are only the fallback.
+         */
+
+        .rupa-speech {
+            --rupa-speech-left: 42%;
+            --rupa-speech-bottom: 101%;
+            --rupa-speech-max: 260px;
+            --rupa-tail-left: 22px;
+
+            position: absolute;
+
+            z-index: 2;
+
+            bottom: var(--rupa-speech-bottom);
+            left: var(--rupa-speech-left);
+
+            width: max-content;
+            max-width: var(--rupa-speech-max);
+            min-height: 52px;
+
+            padding: 12px 18px;
+
+            border-radius: 22px;
+
+            border: 1px solid rgba(90, 170, 255, 0.65);
 
             background:
                 linear-gradient(
-                    90deg,
-                    transparent,
-                    #238fff
+                    135deg,
+                    rgba(10, 45, 115, 0.95),
+                    rgba(4, 20, 58, 0.95)
                 );
 
             box-shadow:
-                0 0 8px rgba(0, 125, 255, 0.7);
+                0 0 22px rgba(0, 120, 255, 0.45),
+                inset 0 0 12px rgba(80, 160, 255, 0.15);
+
+            color: #ffffff;
+
+            font-size: 20px;
+            line-height: 1.3;
+            letter-spacing: 0.03em;
+
+            transform-origin: var(--rupa-tail-left) 100%;
+
+            opacity: 0;
+            scale: 0.6;
+            translate: 0 10px;
+
+            transition:
+                opacity 0.3s ease,
+                scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                translate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .rv-footer-line:last-child {
-            background:
-                linear-gradient(
-                    90deg,
-                    #238fff,
-                    transparent
-                );
+        .rupa-speech.visible {
+            opacity: 1;
+            scale: 1;
+            translate: 0 0;
+        }
+
+        /* Tail pointing down at Rupa's head */
+
+        .rupa-speech::after {
+            content: "";
+
+            position: absolute;
+
+            left: var(--rupa-tail-left);
+            bottom: -9px;
+
+            width: 16px;
+            height: 16px;
+
+            margin-left: -8px;
+
+            background: rgba(6, 28, 75, 0.95);
+
+            border-right: 1px solid rgba(90, 170, 255, 0.65);
+            border-bottom: 1px solid rgba(90, 170, 255, 0.65);
+
+            rotate: 45deg;
+        }
+
+        .rupa-speech-highlight {
+            color: #5fb4ff;
+
+            text-shadow: 0 0 10px rgba(40, 150, 255, 0.9);
+        }
+
+        .rupa-speech-caret {
+            display: inline-block;
+
+            width: 2px;
+            height: 1em;
+
+            margin-left: 3px;
+
+            vertical-align: -2px;
+
+            background: #8fd0ff;
+
+            animation: rupaCaretBlink 0.8s steps(1) infinite;
+        }
+
+        @keyframes rupaCaretBlink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 1449px) {
+            .rupa-speech {
+                min-height: 40px;
+
+                padding: 9px 13px;
+
+                border-radius: 18px;
+
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .rupa-speech {
+                padding: 9px 11px;
+
+                font-size: 13px;
+            }
+        }
+
+        @keyframes rupaEnter {
+            from {
+                opacity: 0;
+                translate: -110% 0;
+                rotate: -8deg;
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 1;
+                translate: 0 0;
+                rotate: 0deg;
+            }
+        }
+
+        @keyframes rupaSway {
+            0%,
+            100% {
+                rotate: 0deg;
+            }
+
+            25% {
+                rotate: 1.5deg;
+            }
+
+            75% {
+                rotate: -1.5deg;
+            }
+        }
+
+        @keyframes rupaFloat {
+            0%,
+            100% {
+                translate: 0 0;
+                scale: 1 1;
+            }
+
+            50% {
+                translate: 0 -12px;
+                scale: 0.99 1.01;
+            }
+        }
+
+        @keyframes rupaShadow {
+            0%,
+            100% {
+                opacity: 1;
+                scale: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+                scale: 0.75;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .rupa-character,
+            .rupa-character img,
+            .rupa-character::after {
+                animation: none;
+            }
+        }
+
+        /* Smaller laptops: stay clear of the START button */
+
+        @media (max-width: 1449px) {
+            .rupa-character {
+                left: 20px;
+                bottom: 20px;
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .rupa-character {
+                left: 10px;
+                width: 150px;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .rupa-character {
+                left: 24px;
+                bottom: 20px;
+                width: 185px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .rupa-character {
+                left: 16px;
+                bottom: 12px;
+                width: 150px;
+            }
         }
 
 
@@ -1246,7 +1610,22 @@
            PAGE TRANSITION
            ========================================================= */
 
+        /*
+         * "Warp jump" out of the welcome page:
+         * the page zooms towards the viewer while light
+         * streaks and rings burst from the START button,
+         * a dark iris spreads from the same point and the
+         * RUPAVUE logo locks into place. The theme page
+         * picks up from that exact frame (see scene page).
+         *
+         * --rv-x / --rv-y hold the button centre and are
+         * set from JavaScript on click.
+         */
+
         .rv-page-transition {
+            --rv-x: 50%;
+            --rv-y: 50%;
+
             position: fixed;
 
             inset: 0;
@@ -1255,34 +1634,143 @@
 
             pointer-events: none;
 
+            overflow: hidden;
+
+            visibility: hidden;
+        }
+
+        .rv-page-transition.active {
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        body.rv-leaving .rv-main,
+        body.rv-leaving .rupa-character {
+            animation: rvWarpZoom 0.9s cubic-bezier(0.6, 0, 0.9, 0.4) forwards;
+        }
+
+        /* Burst of light from the button */
+
+        .rv-warp-flash {
+            position: absolute;
+            inset: 0;
+
             opacity: 0;
 
             background:
                 radial-gradient(
-                    circle at center,
+                    circle at var(--rv-x) var(--rv-y),
+                    rgba(255, 255, 255, 0.95) 0%,
+                    rgba(80, 170, 255, 0.55) 12%,
+                    transparent 40%
+                );
+        }
+
+        .rv-page-transition.active .rv-warp-flash {
+            animation: rvWarpFlash 0.55s ease-out forwards;
+        }
+
+        /* Hyperspace light streaks */
+
+        .rv-warp-streaks {
+            position: absolute;
+
+            left: var(--rv-x);
+            top: var(--rv-y);
+
+            width: 0;
+            height: 0;
+        }
+
+        .rv-warp-streaks span {
+            position: absolute;
+
+            left: 0;
+            top: -1px;
+
+            width: 38vmax;
+            height: 2px;
+
+            border-radius: 2px;
+
+            transform-origin: 0 50%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(90, 175, 255, 0.8) 55%,
+                    #ffffff
+                );
+
+            box-shadow: 0 0 8px rgba(80, 170, 255, 0.9);
+
+            opacity: 0;
+
+            animation: rvWarpStreak 0.8s cubic-bezier(0.5, 0, 0.9, 0.5) var(--delay) forwards;
+        }
+
+        /* Expanding shock rings */
+
+        .rv-warp-ring {
+            position: absolute;
+
+            left: var(--rv-x);
+            top: var(--rv-y);
+
+            width: 60px;
+            height: 60px;
+
+            margin: -30px 0 0 -30px;
+
+            border-radius: 50%;
+
+            border: 2px solid rgba(160, 215, 255, 0.9);
+
+            box-shadow:
+                0 0 20px rgba(40, 140, 255, 0.9),
+                inset 0 0 20px rgba(40, 140, 255, 0.6);
+
+            opacity: 0;
+        }
+
+        .rv-page-transition.active .rv-warp-ring {
+            animation: rvWarpRing 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+        }
+
+        .rv-page-transition.active .rv-warp-ring-two {
+            animation-delay: 0.15s;
+        }
+
+        /* Dark iris spreading from the button */
+
+        .rv-warp-iris {
+            position: absolute;
+            inset: 0;
+
+            background:
+                radial-gradient(
+                    circle at 50% 50%,
                     rgba(0, 105, 255, 0.35),
                     #010611 72%
                 );
 
-            transition:
-                opacity 0.5s ease;
+            clip-path: circle(0% at var(--rv-x) var(--rv-y));
         }
 
-        .rv-page-transition.active {
-            opacity: 1;
+        .rv-page-transition.active .rv-warp-iris {
+            animation: rvWarpIris 0.65s cubic-bezier(0.7, 0, 0.3, 1) 0.35s forwards;
         }
 
-        .rv-page-transition::after {
-            content: "RUPAVUE";
+        /* Logo that the theme page continues from */
 
+        .rv-warp-logo {
             position: absolute;
 
             top: 50%;
             left: 50%;
 
-            transform:
-                translate(-50%, -50%)
-                scale(0.9);
+            transform: translate(-50%, -50%);
 
             font-family:
                 "Arial Black",
@@ -1293,6 +1781,8 @@
 
             letter-spacing: 0.05em;
 
+            white-space: nowrap;
+
             color: #ffffff;
 
             text-shadow:
@@ -1301,18 +1791,89 @@
                 0 0 60px #0066ff;
 
             opacity: 0;
-
-            transition:
-                opacity 0.4s ease,
-                transform 0.5s ease;
         }
 
-        .rv-page-transition.active::after {
-            opacity: 1;
+        .rv-page-transition.active .rv-warp-logo {
+            animation: rvWarpLogo 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s forwards;
+        }
 
-            transform:
-                translate(-50%, -50%)
-                scale(1);
+        @keyframes rvWarpZoom {
+            to {
+                scale: 1.6;
+                opacity: 0;
+                filter: blur(10px);
+            }
+        }
+
+        @keyframes rvWarpFlash {
+            30% {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes rvWarpStreak {
+            from {
+                opacity: 0;
+                transform: rotate(var(--angle)) translateX(20px) scaleX(0.05);
+            }
+
+            35% {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                transform: rotate(var(--angle)) translateX(110vmax) scaleX(1);
+            }
+        }
+
+        @keyframes rvWarpRing {
+            from {
+                opacity: 1;
+                transform: scale(0.2);
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(40);
+            }
+        }
+
+        @keyframes rvWarpIris {
+            to {
+                clip-path: circle(150% at var(--rv-x) var(--rv-y));
+            }
+        }
+
+        @keyframes rvWarpLogo {
+            from {
+                opacity: 0;
+                letter-spacing: 0.6em;
+                filter: blur(12px);
+            }
+
+            to {
+                opacity: 1;
+                letter-spacing: 0.05em;
+                filter: blur(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            body.rv-leaving .rv-main,
+            body.rv-leaving .rupa-character {
+                animation: none;
+            }
+
+            .rv-warp-streaks,
+            .rv-warp-ring {
+                display: none;
+            }
         }
 
 
@@ -1531,20 +2092,6 @@
                 font-size: 21px;
             }
 
-            .rv-footer {
-                margin-top: 44px;
-
-                font-size: 8px;
-
-                letter-spacing: 0.2em;
-
-                gap: 10px;
-            }
-
-            .rv-footer-line {
-                width: 40px;
-            }
-
             .rv-liquid-one {
                 left: -280px;
             }
@@ -1658,6 +2205,22 @@
 
 
     <!-- =========================================================
+         RUPA CHARACTER VIDEO
+         ========================================================= -->
+
+    <div class="rupa-character" aria-hidden="true">
+        <div class="rupa-speech" id="rupaSpeech">
+            <span id="rupaSpeechText"></span><span class="rupa-speech-caret"></span>
+        </div>
+
+        <img
+            src="{{ asset('images/rupa-character.png') }}"
+            alt="Rupa Character"
+        >
+    </div>
+
+
+    <!-- =========================================================
          PAGE
          ========================================================= -->
 
@@ -1703,10 +2266,6 @@
                     UNFORGETTABLE AI ART
                 </h1>
 
-                <p>
-                    YOUR PROFESSIONAL STUDIO IN THE PALM OF YOUR HAND.
-                </p>
-
             </section>
 
 
@@ -1724,19 +2283,16 @@
                 <div class="rv-theme-card rv-left-theme">
 
                     <img
-                        src="{{ asset('images/themes/retro.jpg') }}"
-                        alt="Retro Theme"
+                        src="{{ asset('images/themes/left-theme.png') }}"
+                        alt="High Council"
                         class="rv-theme-image"
                     >
 
                     <div class="rv-theme-info">
 
-                        <div class="rv-theme-icon">
-                            ✦
-                        </div>
 
                         <div class="rv-theme-name">
-                            RETRO
+                            High Council
                         </div>
 
                     </div>
@@ -1758,7 +2314,7 @@
                         <div class="rv-before">
 
                             <img
-                                src="{{ asset('images/showcase/before.jpg') }}"
+                                src="{{ asset('images/showcase/before.png') }}"
                                 alt="Original Photo"
                             >
 
@@ -1774,7 +2330,7 @@
                         <div class="rv-after">
 
                             <img
-                                src="{{ asset('images/showcase/after.jpg') }}"
+                                src="{{ asset('images/showcase/after.png') }}"
                                 alt="AI Generated Photo"
                             >
 
@@ -1807,19 +2363,15 @@
                 <div class="rv-theme-card rv-right-theme">
 
                     <img
-                        src="{{ asset('images/themes/mafia.jpg') }}"
-                        alt="Mafia Theme"
+                        src="{{ asset('images/themes/right-theme.png') }}"
+                        alt="Street Racer"
                         class="rv-theme-image"
                     >
 
                     <div class="rv-theme-info">
 
-                        <div class="rv-theme-icon">
-                            ◆
-                        </div>
-
                         <div class="rv-theme-name">
-                            MAFIA
+                            Street Racer
                         </div>
 
                     </div>
@@ -1913,23 +2465,6 @@
             </section>
 
 
-            <!-- =================================================
-                 FOOTER
-                 ================================================= -->
-
-            <footer class="rv-footer">
-
-                <span class="rv-footer-line"></span>
-
-                <span>
-                    AI POWERED PHOTO BOOTH
-                </span>
-
-                <span class="rv-footer-line"></span>
-
-            </footer>
-
-
         </main>
 
     </div>
@@ -1942,7 +2477,15 @@
     <div
         id="rvPageTransition"
         class="rv-page-transition"
-    ></div>
+        aria-hidden="true"
+    >
+        <div class="rv-warp-flash"></div>
+        <div class="rv-warp-streaks" id="rvWarpStreaks"></div>
+        <div class="rv-warp-ring"></div>
+        <div class="rv-warp-ring rv-warp-ring-two"></div>
+        <div class="rv-warp-iris"></div>
+        <div class="rv-warp-logo">RUPAVUE</div>
+    </div>
 
 
     <!-- =========================================================
@@ -2004,6 +2547,347 @@
             window.addEventListener('load', fitPageToScreen);
 
 
+            /*
+             * RUPA SPEECH BUBBLE
+             *
+             * After Rupa walks in, it "types" a few lines in
+             * its speech bubble, ending with a nudge to press
+             * START SESSION, then repeats.
+             */
+            const rupaMessages = [
+                [['Hi, I\'m Rupa!']],
+                [['Ready to turn your photos into art?']],
+                [['Bring your friends and family, and let\'s create magic!']],
+                [['I\'m here to guide you through the process.']],
+                [['What are you waiting for?']],
+                [['Tap '], ['START SESSION', 'rupa-speech-highlight'], [' to begin!']],
+            ];
+
+            const rupaSpeech =
+                document.getElementById('rupaSpeech');
+
+            const rupaSpeechText =
+                document.getElementById('rupaSpeechText');
+
+            const prefersReducedMotion =
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function rupaWait(milliseconds) {
+                return new Promise(function (resolve) {
+                    setTimeout(resolve, milliseconds);
+                });
+            }
+
+            const rupaLongestMessage =
+                rupaMessages
+                    .map(function (segments) {
+                        return segments.map(function (segment) {
+                            return segment[0];
+                        }).join('');
+                    })
+                    .reduce(function (longest, message) {
+                        return message.length > longest.length ? message : longest;
+                    }, '');
+
+            /*
+             * Places the bubble next to Rupa's head so it never
+             * covers the page. Tries spots from "above-right of
+             * the head" (preferred) towards "above-left", and
+             * at each spot lets the bubble grow as wide as the
+             * free space allows (up to 360px). Measured with the
+             * longest message so the bubble never outgrows it.
+             */
+            function fitRupaSpeech() {
+
+                const character =
+                    document.querySelector('.rupa-character');
+
+                if (!character || !rupaSpeech) {
+                    return;
+                }
+
+                const safetyMargin = 18;
+
+                /*
+                 * The side theme cards are only preview photos, so
+                 * the bubble may overlap them; everything else
+                 * (heading, showcase, features, button) stays clear.
+                 */
+                const obstacles =
+                    Array.from(document.querySelectorAll(
+                        '.rv-center-showcase, .rv-hero h1, .rv-hero p, .rv-feature, #startSessionButton'
+                    ))
+                        .map(function (element) {
+                            return element.getBoundingClientRect();
+                        })
+                        .filter(function (bounds) {
+                            return bounds.width > 0 && bounds.height > 0;
+                        });
+
+                /* In order of preference: furthest right first */
+                const spots = [];
+
+                for (const left of [0.55, 0.48, 0.42, 0.36, 0.3, 0.2, 0.1, -0.04]) {
+                    for (const bottom of [1.01, 0.94, 1.06, 0.9]) {
+                        spots.push({ left: left, bottom: bottom });
+                    }
+                }
+
+                const savedText = rupaSpeechText.innerHTML;
+
+                rupaSpeechText.textContent = rupaLongestMessage;
+
+                rupaSpeech.style.width = 'min-content';
+
+                const smallestWidth = rupaSpeech.offsetWidth;
+
+                rupaSpeech.style.width = '';
+
+                /*
+                 * offsetLeft/Top ignore the float and sway
+                 * transforms; the safety margin covers them.
+                 */
+                const characterLeft = character.offsetLeft;
+                const characterTop = character.offsetTop;
+                const characterWidth = character.offsetWidth;
+                const characterHeight = character.offsetHeight;
+
+                function applySpot(spot, maxWidth) {
+                    rupaSpeech.style.setProperty('--rupa-speech-left', (spot.left * 100) + '%');
+                    rupaSpeech.style.setProperty('--rupa-speech-bottom', (spot.bottom * 100) + '%');
+                    rupaSpeech.style.setProperty('--rupa-speech-max', maxWidth + 'px');
+                }
+
+                function roomAtSpot(spot) {
+
+                    const left =
+                        characterLeft + characterWidth * spot.left;
+
+                    const bottom =
+                        characterTop + characterHeight * (1 - spot.bottom);
+
+                    const top =
+                        bottom - rupaSpeech.offsetHeight;
+
+                    if (top < safetyMargin) {
+                        return 0;
+                    }
+
+                    let room =
+                        window.innerWidth - safetyMargin - left;
+
+                    for (const bounds of obstacles) {
+
+                        /*
+                         * Rupa only floats upwards, so the bubble
+                         * needs less room below it than above.
+                         */
+                        const sharesRow =
+                            bounds.bottom + safetyMargin > top
+                            && bounds.top - 8 < bottom;
+
+                        if (!sharesRow || bounds.right + safetyMargin <= left) {
+                            continue;
+                        }
+
+                        room = Math.min(room, bounds.left - safetyMargin - left);
+
+                    }
+
+                    return Math.floor(room);
+
+                }
+
+                /*
+                 * Work out how wide the bubble can be at every
+                 * spot, then use the furthest-right spot that
+                 * gives a readable width (about 8 letters), or
+                 * failing that the widest spot.
+                 */
+                const fittingSpots = [];
+
+                for (const spot of spots) {
+
+                    let maxWidth = 360;
+
+                    for (let attempt = 0; attempt < 4; attempt++) {
+
+                        applySpot(spot, maxWidth);
+
+                        const room = roomAtSpot(spot);
+
+                        if (rupaSpeech.offsetWidth <= room) {
+                            fittingSpots.push({
+                                spot: spot,
+                                maxWidth: maxWidth,
+                                width: rupaSpeech.offsetWidth,
+                            });
+                            break;
+                        }
+
+                        if (room < smallestWidth) {
+                            break;
+                        }
+
+                        maxWidth = room;
+
+                    }
+
+                }
+
+                const widest =
+                    Math.max.apply(null, fittingSpots.map(function (fit) {
+                        return fit.width;
+                    }).concat([0]));
+
+                const comfortableWidth =
+                    parseFloat(window.getComputedStyle(rupaSpeech).fontSize) * 8;
+
+                const chosen =
+                    fittingSpots.find(function (fit) {
+                        return fit.width >= Math.min(widest, comfortableWidth);
+                    });
+
+                if (chosen) {
+                    applySpot(chosen.spot, chosen.maxWidth);
+                } else {
+                    applySpot(spots[spots.length - 1], smallestWidth);
+                }
+
+                /* Point the tail at the middle of Rupa's head */
+
+                const bubbleLeft =
+                    characterLeft + rupaSpeech.offsetLeft;
+
+                const tailLeft =
+                    Math.min(
+                        Math.max(characterLeft + characterWidth / 2 - bubbleLeft, 22),
+                        rupaSpeech.offsetWidth - 22
+                    );
+
+                rupaSpeech.style.setProperty('--rupa-tail-left', tailLeft + 'px');
+
+                rupaSpeechText.innerHTML = savedText;
+
+            }
+
+            window.addEventListener('resize', fitRupaSpeech);
+
+            async function typeRupaMessage(segments) {
+
+                rupaSpeechText.innerHTML = '';
+
+                for (const [text, className] of segments) {
+
+                    const span =
+                        document.createElement('span');
+
+                    if (className) {
+                        span.className = className;
+                    }
+
+                    rupaSpeechText.appendChild(span);
+
+                    if (prefersReducedMotion) {
+                        span.textContent = text;
+                        continue;
+                    }
+
+                    for (const character of text) {
+                        span.textContent += character;
+                        await rupaWait(45);
+                    }
+
+                }
+
+            }
+
+            async function startRupaTalking() {
+
+                await rupaWait(prefersReducedMotion ? 400 : 2000);
+
+                for (let index = 0; ; index = (index + 1) % rupaMessages.length) {
+
+                    const isStartPrompt =
+                        index === rupaMessages.length - 1;
+
+                    fitRupaSpeech();
+
+                    rupaSpeechText.innerHTML = '';
+
+                    rupaSpeech.classList.add('visible');
+
+                    await rupaWait(300);
+
+                    await typeRupaMessage(rupaMessages[index]);
+
+                    await rupaWait(isStartPrompt ? 4500 : 2200);
+
+                    rupaSpeech.classList.remove('visible');
+
+                    await rupaWait(600);
+
+                }
+
+            }
+
+            if (rupaSpeech && rupaSpeechText) {
+                startRupaTalking();
+            }
+
+
+            /*
+             * WARP TRANSITION
+             *
+             * Centres the burst on the START button and
+             * spawns the light streaks at random angles.
+             */
+            function startWarpTransition(originElement) {
+
+                const bounds =
+                    originElement.getBoundingClientRect();
+
+                transition.style.setProperty(
+                    '--rv-x',
+                    (bounds.left + bounds.width / 2) + 'px'
+                );
+
+                transition.style.setProperty(
+                    '--rv-y',
+                    (bounds.top + bounds.height / 2) + 'px'
+                );
+
+                const streaks =
+                    document.getElementById('rvWarpStreaks');
+
+                streaks.innerHTML = '';
+
+                for (let i = 0; i < 48; i++) {
+
+                    const streak =
+                        document.createElement('span');
+
+                    streak.style.setProperty(
+                        '--angle',
+                        (Math.random() * 360) + 'deg'
+                    );
+
+                    streak.style.setProperty(
+                        '--delay',
+                        (Math.random() * 0.35) + 's'
+                    );
+
+                    streaks.appendChild(streak);
+
+                }
+
+                document.body.classList.add('rv-leaving');
+
+                transition.classList.add('active');
+
+            }
+
+
             if (startButton && transition) {
 
                 startButton.addEventListener('click', function (event) {
@@ -2022,17 +2906,29 @@
 
                     event.preventDefault();
 
+                    window.rupavueClickSound.play();
+
                     const destination =
                         this.href;
 
-                    transition.classList.add('active');
+                    startWarpTransition(this);
+
+                    /*
+                     * Tell the theme page to play the matching
+                     * warp-in animation when it loads.
+                     */
+                    try {
+                        sessionStorage.setItem('rupavueWarpIn', '1');
+                    } catch (error) {
+                        // Storage unavailable; the theme page just loads normally.
+                    }
 
                     setTimeout(function () {
 
                         window.location.href =
                             destination;
 
-                    }, 500);
+                    }, 1150);
 
                 });
 
@@ -2049,13 +2945,21 @@
 
                 if (transition) {
                     transition.classList.remove('active');
+
+                    document
+                        .getElementById('rvWarpStreaks')
+                        .innerHTML = '';
                 }
+
+                document.body.classList.remove('rv-leaving');
 
             });
 
         });
 
     </script>
+
+@include('partials.click-sound')
 
 </body>
 

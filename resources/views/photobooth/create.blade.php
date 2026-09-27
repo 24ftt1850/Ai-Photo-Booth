@@ -447,13 +447,14 @@
         .title-section {
             text-align: center;
 
+            margin-top: 20px;
             margin-bottom: 10px;
 
             flex-shrink: 0;
         }
 
         .title-section h1 {
-            font-size: clamp(40px, 5.2vw, 64px);
+            font-size: clamp(46px, 6vw, 76px);
 
             font-weight: 800;
 
@@ -489,12 +490,6 @@
             }
         }
 
-        .title-section p {
-            font-size: 22px;
-
-            color: rgba(255, 255, 255, 0.75);
-        }
-
         /* =========================
            SELECTED THEME
         ========================= */
@@ -502,8 +497,8 @@
         .selected-theme {
             text-align: center;
 
-            margin-top: 18px;
-            margin-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 14px;
 
             flex-shrink: 0;
         }
@@ -511,7 +506,7 @@
         .selected-theme span {
             display: inline-block;
 
-            padding: 10px 24px;
+            padding: 12px 30px;
 
             border: 1px solid rgba(255, 255, 255, 0.25);
 
@@ -519,7 +514,7 @@
 
             background: rgba(255, 255, 255, 0.08);
 
-            font-size: 17px;
+            font-size: 21px;
 
             letter-spacing: 1px;
         }
@@ -560,9 +555,9 @@
              */
             width:
                 min(
-                    calc(min(70vh, 620px) * 1.5),
+                    calc(min(74vh, 680px) * 1.5),
                     calc(100vw - 600px),
-                    950px
+                    1040px
                 );
 
             aspect-ratio: 3 / 2;
@@ -768,7 +763,7 @@
 
             top: 50%;
             right: 100%;
-            margin-right: 50px;
+            margin-right: 30px;
 
             transform: translateY(-50%);
 
@@ -777,7 +772,7 @@
 
             gap: 12px;
 
-            width: 200px;
+            width: 320px;
 
             flex-shrink: 0;
         }
@@ -850,8 +845,8 @@
 
             z-index: 6;
 
-            width: 96px;
-            height: 96px;
+            width: 104px;
+            height: 104px;
 
             min-width: 0;
             /* Bottom padding nudges the 📷 up inside the circle */
@@ -861,18 +856,27 @@
             align-items: center;
             justify-content: center;
 
-            font-size: 40px;
+            font-size: 42px;
 
             border-radius: 50%;
-            border: 5px solid rgba(255, 255, 255, 0.85);
+            border: 4px solid rgba(255, 255, 255, 0.95);
 
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(4px);
+            /* Glossy white-to-blue orb */
+            background:
+                radial-gradient(
+                    circle at 35% 28%,
+                    #ffffff,
+                    #e3f2ff 42%,
+                    #7cc4ff 100%
+                );
 
             color: #111;
 
             box-shadow:
-                0 8px 24px rgba(0, 0, 0, 0.4);
+                0 0 22px rgba(40, 165, 255, 0.85),
+                0 0 50px rgba(0, 120, 255, 0.45),
+                0 8px 24px rgba(0, 0, 0, 0.4),
+                inset 0 -6px 14px rgba(0, 90, 200, 0.35);
 
             cursor: pointer;
 
@@ -882,19 +886,112 @@
                 opacity 0.2s ease;
         }
 
+        /* Spinning ring of light around the button */
+
+        .capture-button::before {
+            content: "";
+
+            position: absolute;
+
+            inset: -12px;
+
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    from 0deg,
+                    transparent,
+                    #54c4ff,
+                    #ffffff,
+                    #1a8fff,
+                    transparent 75%
+                );
+
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+
+            pointer-events: none;
+
+            animation: captureRingSpin 2.4s linear infinite;
+        }
+
+        /* Ripple that pulses outward, inviting a tap */
+
+        .capture-button::after {
+            content: "";
+
+            position: absolute;
+
+            inset: -4px;
+
+            border-radius: 50%;
+
+            border: 2px solid rgba(84, 196, 255, 0.9);
+
+            pointer-events: none;
+
+            animation: captureRipple 1.8s ease-out infinite;
+        }
+
         .capture-button:hover:not(:disabled) {
             transform:
                 translateX(-50%)
-                translateY(-3px);
+                translateY(-3px)
+                scale(1.06);
 
             box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.5);
+                0 0 30px rgba(60, 180, 255, 1),
+                0 0 70px rgba(0, 140, 255, 0.6),
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                inset 0 -6px 14px rgba(0, 90, 200, 0.35);
+        }
+
+        .capture-button:active:not(:disabled) {
+            transform:
+                translateX(-50%)
+                scale(0.94);
         }
 
         .capture-button:disabled {
             opacity: 0.4;
 
             cursor: not-allowed;
+        }
+
+        .capture-button:disabled::before,
+        .capture-button:disabled::after {
+            animation: none;
+
+            opacity: 0;
+        }
+
+        @keyframes captureRingSpin {
+            to {
+                rotate: 360deg;
+            }
+        }
+
+        @keyframes captureRipple {
+            from {
+                opacity: 1;
+                scale: 1;
+            }
+
+            to {
+                opacity: 0;
+                scale: 1.45;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .capture-button::before,
+            .capture-button::after {
+                animation: none;
+            }
+
+            .capture-button::after {
+                opacity: 0;
+            }
         }
 
         /* Bigger than the other side buttons: these are the main next step */
@@ -938,18 +1035,180 @@
             transform: translateY(-3px);
         }
 
-        .back-button {
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        /*
+         * Rupa floats beside the camera frame,
+         * same motion as on the welcome page.
+         */
 
-            background: rgba(255, 255, 255, 0.08);
+        .rupa-character {
+            position: relative;
 
-            color: white;
+            width: 100%;
+
+            pointer-events: none;
+            line-height: 0;
         }
 
-        .back-button:hover {
-            background: white;
+        .rupa-character::before {
+            content: "";
 
-            color: #111;
+            position: absolute;
+
+            left: 5%;
+            right: 5%;
+            top: 10%;
+            bottom: 5%;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    rgba(0, 120, 255, 0.35),
+                    transparent 65%
+                );
+        }
+
+        .rupa-character img {
+            position: relative;
+
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+
+            will-change: translate;
+
+            animation: rupaFloat 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        }
+
+        @keyframes rupaFloat {
+            0%,
+            100% {
+                translate: 0 0;
+            }
+
+            50% {
+                translate: 0 -12px;
+            }
+        }
+
+        /*
+         * Speech bubble above Rupa's head,
+         * same look as on the welcome page.
+         */
+
+        .rupa-speech {
+            position: absolute;
+
+            z-index: 2;
+
+            bottom: 100%;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            width: max-content;
+            max-width: 300px;
+            min-height: 52px;
+
+            padding: 12px 18px;
+
+            border-radius: 22px;
+
+            border: 1px solid rgba(90, 170, 255, 0.65);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(10, 45, 115, 0.95),
+                    rgba(4, 20, 58, 0.95)
+                );
+
+            box-shadow:
+                0 0 22px rgba(0, 120, 255, 0.45),
+                inset 0 0 12px rgba(80, 160, 255, 0.15);
+
+            color: #ffffff;
+
+            font-size: 20px;
+            line-height: 1.3;
+            letter-spacing: 0.03em;
+            text-align: center;
+
+            transform-origin: 50% 100%;
+
+            opacity: 0;
+            scale: 0.6;
+            translate: 0 10px;
+
+            transition:
+                opacity 0.3s ease,
+                scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                translate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .rupa-speech.visible {
+            opacity: 1;
+            scale: 1;
+            translate: 0 0;
+        }
+
+        /* Tail pointing down at Rupa's head */
+
+        .rupa-speech::after {
+            content: "";
+
+            position: absolute;
+
+            left: 50%;
+            bottom: -9px;
+
+            width: 16px;
+            height: 16px;
+
+            margin-left: -8px;
+
+            background: rgba(6, 28, 75, 0.95);
+
+            border-right: 1px solid rgba(90, 170, 255, 0.65);
+            border-bottom: 1px solid rgba(90, 170, 255, 0.65);
+
+            rotate: 45deg;
+        }
+
+        .rupa-speech-highlight {
+            color: #5fb4ff;
+
+            text-shadow: 0 0 10px rgba(40, 150, 255, 0.9);
+        }
+
+        .rupa-speech-caret {
+            display: inline-block;
+
+            width: 2px;
+            height: 1em;
+
+            margin-left: 3px;
+
+            vertical-align: -2px;
+
+            background: #8fd0ff;
+
+            animation: rupaCaretBlink 0.8s steps(1) infinite;
+        }
+
+        @keyframes rupaCaretBlink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .rupa-character img,
+            .rupa-speech-caret {
+                animation: none;
+            }
         }
 
         .upload-button {
@@ -1035,7 +1294,7 @@
             }
 
             .title-section h1 {
-                font-size: 40px;
+                font-size: 46px;
             }
 
             .camera-frame {
@@ -1090,13 +1349,34 @@
 
                 min-width: 170px;
             }
+
+            .rupa-character {
+                width: 200px;
+            }
+
+            /*
+             * Rupa sits below the frame on mobile, so the
+             * bubble goes beside its head instead of above,
+             * where it would cover the shutter button.
+             */
+            .rupa-speech {
+                bottom: 60%;
+                left: 90%;
+
+                transform: none;
+                transform-origin: 0 100%;
+
+                max-width: calc(100vw - 220px);
+
+                font-size: 15px;
+            }
+
+            .rupa-speech::after {
+                left: 14px;
+            }
         }
 
         @media (max-width: 480px) {
-
-            .title-section p {
-                font-size: 16px;
-            }
 
             .camera-frame {
                 border-radius: 14px;
@@ -1109,8 +1389,7 @@
 
         .title-section,
         .selected-theme,
-        .camera-wrapper,
-        .back-button {
+        .camera-wrapper {
             position: relative;
             z-index: 2;
         }
@@ -1317,10 +1596,6 @@
             Strike a Pose
         </h1>
 
-        <p>
-            Get ready and capture your photo.
-        </p>
-
     </section>
 
 
@@ -1354,13 +1629,16 @@
 
             <div class="side-controls">
 
-                <a
-                    href="{{ route('photobooth.scene') }}"
-                    class="side-button back-button"
-                    id="backButton"
-                >
-                    ← Change Theme
-                </a>
+                <div class="rupa-character" aria-hidden="true">
+                    <div class="rupa-speech" id="rupaSpeech">
+                        <span id="rupaSpeechText"></span><span class="rupa-speech-caret"></span>
+                    </div>
+
+                    <img
+                        src="{{ asset('images/rupa-pose.png') }}"
+                        alt=""
+                    >
+                </div>
 
             </div>
 
@@ -1544,9 +1822,6 @@
     const captureButton =
         document.getElementById('captureButton');
 
-    const backButton =
-        document.getElementById('backButton');
-
     const uploadButton =
         document.getElementById('uploadButton');
 
@@ -1577,6 +1852,97 @@
     let capturedImageData = null;
 
     let countdownRunning = false;
+
+    let shutterAudioContext = null;
+
+
+    /*
+     * =========================
+     * SHUTTER SOUND
+     * =========================
+     *
+     * Synthesised with the Web Audio API so no
+     * sound file is needed. The context must be
+     * unlocked during a user gesture (the capture
+     * button click), then the click itself plays
+     * after the countdown.
+     */
+
+    function unlockShutterSound() {
+
+        const AudioContextClass =
+            window.AudioContext
+            || window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+            return;
+        }
+
+        if (!shutterAudioContext) {
+            shutterAudioContext =
+                new AudioContextClass();
+        }
+
+        if (shutterAudioContext.state === 'suspended') {
+            shutterAudioContext.resume();
+        }
+
+    }
+
+    function playShutterSound() {
+
+        if (!shutterAudioContext) {
+            return;
+        }
+
+        const context = shutterAudioContext;
+
+        const startTime = context.currentTime;
+
+        /*
+         * Two short filtered noise bursts:
+         * the mirror flipping up, then down.
+         */
+
+        [0, 0.07].forEach((offset, index) => {
+
+            const duration = 0.05;
+
+            const buffer = context.createBuffer(
+                1,
+                Math.floor(context.sampleRate * duration),
+                context.sampleRate
+            );
+
+            const samples = buffer.getChannelData(0);
+
+            for (let i = 0; i < samples.length; i++) {
+                samples[i] =
+                    (Math.random() * 2 - 1)
+                    * Math.pow(1 - i / samples.length, 3);
+            }
+
+            const source = context.createBufferSource();
+            source.buffer = buffer;
+
+            const filter = context.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = index === 0 ? 2500 : 1800;
+            filter.Q.value = 0.8;
+
+            const gain = context.createGain();
+            gain.gain.value = index === 0 ? 0.9 : 0.6;
+
+            source
+                .connect(filter)
+                .connect(gain)
+                .connect(context.destination);
+
+            source.start(startTime + offset);
+
+        });
+
+    }
 
 
     /*
@@ -1659,8 +2025,21 @@
                     video: {
                         facingMode: 'user',
 
+                        /*
+                         * Request a landscape stream that
+                         * matches the 3:2 frame, so the
+                         * preview is not cropped (zoomed in).
+                         */
+                        width: {
+                            ideal: 1920
+                        },
+
+                        height: {
+                            ideal: 1280
+                        },
+
                         aspectRatio: {
-                            ideal: 2 / 3
+                            ideal: 3 / 2
                         }
                     },
 
@@ -1724,6 +2103,8 @@
         countdownRunning = true;
 
         captureButton.disabled = true;
+
+        unlockShutterSound();
 
 
         const numbers = [
@@ -2039,9 +2420,6 @@
             captureButton.style.display =
                 'none';
 
-            backButton.style.display =
-                'none';
-
             uploadButton.style.display =
                 'none';
 
@@ -2081,7 +2459,9 @@
         }
 
 
-       
+        playShutterSound();
+
+
         const targetRatio =
             3 / 2;
 
@@ -2228,9 +2608,6 @@
         captureButton.style.display =
             'none';
 
-        backButton.style.display =
-            'none';
-
         uploadButton.style.display =
             'none';
 
@@ -2276,9 +2653,6 @@
             */
 
             captureButton.style.display =
-                'inline-flex';
-
-            backButton.style.display =
                 'inline-flex';
 
             uploadButton.style.display =
@@ -2382,10 +2756,11 @@
          * Go to generation page.
          */
 
-        window.location.href =
+        window.rupavueClickSound.goTo(
             "{{ route('photobooth.generate') }}"
             + "?theme_id="
-            + encodeURIComponent(currentThemeId);
+            + encodeURIComponent(currentThemeId)
+        );
 
     }
 
@@ -2561,7 +2936,99 @@
 
     }
 
+
+    /*
+     * =========================
+     * RUPA TALKING
+     * =========================
+     *
+     * Rupa "types" a few tips in its speech
+     * bubble, one after another, then repeats.
+     */
+
+    const rupaMessages = [
+        [['Strike a pose!']],
+        [['Look at the camera and smile!']],
+        [['Tap '], ['📷', 'rupa-speech-highlight'], [' to take your photo!']],
+        [['Not happy? You can always '], ['RETAKE', 'rupa-speech-highlight'], ['!']],
+        [['You can also '], ['UPLOAD', 'rupa-speech-highlight'], [' a photo instead.']],
+    ];
+
+    const rupaSpeech =
+        document.getElementById('rupaSpeech');
+
+    const rupaSpeechText =
+        document.getElementById('rupaSpeechText');
+
+    const prefersReducedMotion =
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function rupaWait(milliseconds) {
+        return new Promise(
+            (resolve) => setTimeout(resolve, milliseconds)
+        );
+    }
+
+    async function typeRupaMessage(segments) {
+
+        rupaSpeechText.innerHTML = '';
+
+        for (const [text, className] of segments) {
+
+            const span =
+                document.createElement('span');
+
+            if (className) {
+                span.className = className;
+            }
+
+            rupaSpeechText.appendChild(span);
+
+            if (prefersReducedMotion) {
+                span.textContent = text;
+                continue;
+            }
+
+            for (const character of text) {
+                span.textContent += character;
+                await rupaWait(45);
+            }
+
+        }
+
+    }
+
+    async function startRupaTalking() {
+
+        await rupaWait(prefersReducedMotion ? 400 : 1200);
+
+        for (let index = 0; ; index = (index + 1) % rupaMessages.length) {
+
+            rupaSpeechText.innerHTML = '';
+
+            rupaSpeech.classList.add('visible');
+
+            await rupaWait(300);
+
+            await typeRupaMessage(rupaMessages[index]);
+
+            await rupaWait(4500);
+
+            rupaSpeech.classList.remove('visible');
+
+            await rupaWait(600);
+
+        }
+
+    }
+
+    if (rupaSpeech && rupaSpeechText) {
+        startRupaTalking();
+    }
+
 </script>
+
+@include('partials.click-sound')
 
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -552,6 +552,8 @@
 
             text-align: center;
 
+            margin-top: 24px;
+
             margin-bottom: 36px;
 
         }
@@ -563,9 +565,9 @@
 
             font-size:
                 clamp(
-                    32px,
-                    4vw,
-                    52px
+                    38px,
+                    5vw,
+                    64px
                 );
 
             font-weight: 800;
@@ -575,15 +577,6 @@
             text-shadow:
                 0 0 10px rgba(255,255,255,.18),
                 0 0 28px rgba(0,102,255,.28);
-
-        }
-
-
-        .scene-header p {
-
-            color: rgba(218,237,255,.85);
-
-            font-size: 18px;
 
         }
 
@@ -1106,11 +1099,11 @@
 
             align-items: center;
 
-            gap: 48px;
+            gap: 78px;
 
             margin-top: auto;
             padding-top: 0;
-            padding-bottom: 88px;
+            padding-bottom: 58px;
         }
 
 
@@ -1211,14 +1204,18 @@
 
         .next-button {
 
-            min-width: 340px;
+            position: relative;
+
+            overflow: hidden;
+
+            min-width: 440px;
 
             border: none;
 
             border-radius: 999px;
 
             padding:
-                22px 48px;
+                30px 64px;
 
             display: flex;
 
@@ -1231,30 +1228,33 @@
             background:
                 linear-gradient(
                     135deg,
-                    #1a8fff,
-                    #0052c7
+                    #ffffff,
+                    #dfe7f2
                 );
 
-            color: white;
+            color: #0a2a5c;
 
-            font-size: 17px;
+            font-size: 23px;
 
             font-weight: 800;
 
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
 
             cursor: pointer;
 
             box-shadow:
 
-                0 0 30px
-                rgba(20,140,255,.55),
+                0 0 35px
+                rgba(40,165,255,.95),
+
+                0 0 80px
+                rgba(0,140,255,.55),
 
                 0 14px 35px
-                rgba(0,50,140,.4),
+                rgba(0,30,90,.35),
 
                 inset 0 1px 0
-                rgba(255,255,255,.4);
+                rgba(255,255,255,.9);
 
             transition:
                 .25s ease;
@@ -1263,10 +1263,86 @@
 
         .next-button .next-button-arrow {
 
-            font-size: 20px;
+            font-size: 28px;
 
             transition:
                 transform .25s ease;
+
+        }
+
+        /* Keep the label above the shine */
+
+        .next-button > span {
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+        /*
+         * Shine: a blue streak sweeps across the
+         * button once a theme is selected and the
+         * button is enabled.
+         */
+
+        .next-button::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            bottom: 0;
+            left: -60%;
+
+            width: 45%;
+
+            background:
+                linear-gradient(
+                    100deg,
+                    transparent,
+                    rgba(0,150,255,.9),
+                    transparent
+                );
+
+            transform: skewX(-20deg);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+        }
+
+        .next-button:not(:disabled)::before {
+
+            opacity: 1;
+
+            animation:
+                nextButtonShine 2.8s ease-in-out infinite;
+
+        }
+
+        @keyframes nextButtonShine {
+
+            0% {
+                left: -60%;
+            }
+
+            55%,
+            100% {
+                left: 120%;
+            }
+
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .next-button:not(:disabled)::before {
+
+                animation: none;
+
+            }
 
         }
 
@@ -1314,17 +1390,20 @@
             background:
                 linear-gradient(
                     135deg,
-                    #3aa8ff,
-                    #0060e0
+                    #ffffff,
+                    #eef3fa
                 );
 
             box-shadow:
 
-                0 0 40px
-                rgba(30,150,255,.8),
+                0 0 50px
+                rgba(60,180,255,1),
+
+                0 0 110px
+                rgba(0,140,255,.65),
 
                 0 18px 40px
-                rgba(0,50,140,.45);
+                rgba(0,30,90,.4);
 
         }
 
@@ -1387,6 +1466,8 @@
 
             .scene-header {
 
+                margin-top: 14px;
+
                 margin-bottom: 20px;
 
             }
@@ -1394,14 +1475,7 @@
 
             .scene-header h1 {
 
-                font-size: 32px;
-
-            }
-
-
-            .scene-header p {
-
-                font-size: 12px;
+                font-size: 38px;
 
             }
 
@@ -1481,9 +1555,9 @@
                 min-width: 0;
 
                 padding:
-                    18px 30px;
+                    24px 30px;
 
-                font-size: 15px;
+                font-size: 19px;
 
             }
 
@@ -1617,11 +1691,241 @@
             }
         }
 
+
+        /* =====================================================
+           WARP-IN TRANSITION
+        ===================================================== */
+
+        /*
+         * Continues the welcome page's "warp jump": starts
+         * on the same dark screen with the RUPAVUE logo,
+         * the logo flies past the viewer, a hole opens from
+         * the centre and the page content rises in.
+         * Only runs when html has .rv-warp-in, which is set
+         * when arriving from the welcome page.
+         */
+
+        @property --rv-hole {
+            syntax: '<length-percentage>';
+            inherits: false;
+            initial-value: 0%;
+        }
+
+        .rv-warp-enter {
+            display: none;
+
+            position: fixed;
+            inset: 0;
+
+            z-index: 9999;
+
+            pointer-events: none;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(0, 105, 255, 0.35),
+                    #010611 72%
+                );
+
+            -webkit-mask-image:
+                radial-gradient(
+                    circle at center,
+                    transparent var(--rv-hole),
+                    #000 calc(var(--rv-hole) + 12vmax)
+                );
+
+            mask-image:
+                radial-gradient(
+                    circle at center,
+                    transparent var(--rv-hole),
+                    #000 calc(var(--rv-hole) + 12vmax)
+                );
+        }
+
+        html.rv-warp-in .rv-warp-enter {
+            display: block;
+
+            animation: rvWarpReveal 0.9s cubic-bezier(0.7, 0, 0.2, 1) 0.25s forwards;
+        }
+
+        .rv-warp-enter-logo {
+            display: none;
+
+            position: fixed;
+
+            z-index: 10000;
+
+            pointer-events: none;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            font-family:
+                "Arial Black",
+                Arial,
+                sans-serif;
+
+            font-size: clamp(35px, 7vw, 90px);
+
+            letter-spacing: 0.05em;
+
+            white-space: nowrap;
+
+            color: #ffffff;
+
+            text-shadow:
+                0 0 10px #ffffff,
+                0 0 30px #1688ff,
+                0 0 60px #0066ff;
+        }
+
+        html.rv-warp-in .rv-warp-enter-logo {
+            display: block;
+
+            animation: rvWarpLogoOut 0.6s cubic-bezier(0.6, 0, 0.9, 0.4) 0.1s forwards;
+        }
+
+        html.rv-warp-in .rv-background {
+            animation: rvWarpBackground 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        html.rv-warp-in .scene-header,
+        html.rv-warp-in .carousel-wrapper,
+        html.rv-warp-in .selection-area,
+        html.rv-warp-in .top-nav {
+            animation: rvWarpRiseIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        html.rv-warp-in .scene-header {
+            animation-delay: 0.45s;
+        }
+
+        html.rv-warp-in .carousel-wrapper {
+            animation-delay: 0.6s;
+        }
+
+        html.rv-warp-in .selection-area {
+            animation-delay: 0.75s;
+        }
+
+        html.rv-warp-in .top-nav {
+            animation-delay: 0.9s;
+        }
+
+        @keyframes rvWarpReveal {
+            from {
+                --rv-hole: 0%;
+            }
+
+            to {
+                --rv-hole: 150%;
+            }
+        }
+
+        @keyframes rvWarpLogoOut {
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(3);
+                filter: blur(14px);
+            }
+        }
+
+        @keyframes rvWarpBackground {
+            from {
+                scale: 1.3;
+                filter: brightness(1.8);
+            }
+
+            to {
+                scale: 1;
+                filter: brightness(1);
+            }
+        }
+
+        @keyframes rvWarpRiseIn {
+            from {
+                opacity: 0;
+                translate: 0 40px;
+                scale: 0.94;
+                filter: blur(8px);
+            }
+
+            to {
+                opacity: 1;
+                translate: 0 0;
+                scale: 1;
+                filter: blur(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html.rv-warp-in .rv-warp-enter,
+            html.rv-warp-in .rv-warp-enter-logo {
+                animation: rvWarpFadeOut 0.4s ease forwards;
+            }
+
+            html.rv-warp-in .rv-background,
+            html.rv-warp-in .scene-header,
+            html.rv-warp-in .carousel-wrapper,
+            html.rv-warp-in .selection-area,
+            html.rv-warp-in .top-nav {
+                animation: none;
+            }
+        }
+
+        @keyframes rvWarpFadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+
     </style>
 </head>
 
 
 <body>
+
+    <!-- =====================================================
+         WARP-IN TRANSITION (from welcome page)
+    ===================================================== -->
+
+    <div class="rv-warp-enter" id="rvWarpEnter" aria-hidden="true"></div>
+
+    <div class="rv-warp-enter-logo" aria-hidden="true">RUPAVUE</div>
+
+    <script>
+
+        /*
+         * Runs before first paint so the dark warp screen
+         * shows immediately instead of flashing the page.
+         */
+        (function () {
+
+            try {
+
+                if (sessionStorage.getItem('rupavueWarpIn')) {
+
+                    sessionStorage.removeItem('rupavueWarpIn');
+
+                    document.documentElement.classList.add('rv-warp-in');
+
+                    setTimeout(function () {
+                        document.documentElement.classList.remove('rv-warp-in');
+                    }, 2000);
+
+                }
+
+            } catch (error) {
+                // Storage unavailable; show the page without the transition.
+            }
+
+        })();
+
+    </script>
 
     <!-- =====================================================
          BACKGROUND
@@ -1702,10 +2006,6 @@
             <h1>
                 Choose Your Theme
             </h1>
-
-            <p>
-                Select a theme for your AI photo transformation.
-            </p>
 
         </header>
 
@@ -2439,16 +2739,19 @@
                 themeCards[selectedIndex]
                     .dataset.themeId || '';
 
-            window.location.href =
+            window.rupavueClickSound.goTo(
                 '{{ route('photobooth.create') }}'
                 + '?theme_id='
-                + encodeURIComponent(themeId);
+                + encodeURIComponent(themeId)
+            );
 
         }
     );
 
 
 </script>
+
+@include('partials.click-sound')
 
 </body>
 </html>
