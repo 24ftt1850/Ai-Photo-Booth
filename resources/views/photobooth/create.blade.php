@@ -1573,7 +1573,7 @@
     <div class="top-nav">
 
         <a
-            href="{{ route('photobooth.scene') }}"
+            href="{{ $backUrl ?? route('photobooth.scene') }}"
             class="back-link"
         >
             ← Back

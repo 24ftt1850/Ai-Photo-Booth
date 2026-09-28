@@ -2948,9 +2948,18 @@ html.rv-flash-in .bottom-actions {
         );
 
 
+    /*
+     * The photo is not printed on the guest's device. It is
+     * sent to the admin print queue and printed from there.
+     */
+    let printRequested = false;
+
+    let printRequesting = false;
+
+
     printButton.addEventListener(
         'click',
-        function () {
+        async function () {
 
             if (!requireRating()) {
 
@@ -2959,10 +2968,12 @@ html.rv-flash-in .bottom-actions {
             }
 
 
-            if (!generatedPhoto) {
+            if (printRequested) {
 
-                alert(
-                    'No generated photo is available.'
+                showRatingPopup(
+                    'Your photo is already with our crew. Please collect it at the print counter.',
+                    'Photo sent to print',
+                    '🖨️'
                 );
 
                 return;
@@ -2970,17 +2981,17 @@ html.rv-flash-in .bottom-actions {
             }
 
 
-            const printWindow =
-                window.open(
-                    '',
-                    '_blank'
-                );
+            if (printRequesting) {
+
+                return;
+
+            }
 
 
-            if (!printWindow) {
+            if (!generatedImageId) {
 
                 alert(
-                    'Please allow pop-ups to print the photo.'
+                    'This photo cannot be printed.'
                 );
 
                 return;
@@ -2988,67 +2999,89 @@ html.rv-flash-in .bottom-actions {
             }
 
 
-            /*
-             * Build the print document with DOM APIs
-             * rather than a literal HTML string, so the
-             * page's own source never contains text that
-             * looks like head/body/html tags.
-             */
+            try {
 
-            const printDoc =
-                printWindow.document;
+                printRequesting =
+                    true;
 
-            printDoc.title =
-                'RupaVue Photo';
+                printButton.setAttribute(
+                    'aria-busy',
+                    'true'
+                );
 
 
-            const printStyle =
-                printDoc.createElement('style');
+                const response =
+                    await fetch(
+                        "{{ route('photobooth.print.store') }}",
+                        {
 
-            printStyle.textContent =
-                '@page { size: auto; margin: 0; }' +
-                'html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; display: flex; justify-content: center; align-items: center; }' +
-                'img { width: 3in; height: 2in; object-fit: cover; display: block; }';
+                            method: 'POST',
 
-            printDoc.head.appendChild(
-                printStyle
-            );
+                            headers: {
 
+                                'Content-Type':
+                                    'application/json',
 
-            const printImage =
-                printDoc.createElement('img');
+                                'X-CSRF-TOKEN':
+                                    '{{ csrf_token() }}',
 
-            printImage.alt =
-                'RupaVue Photo';
+                                'Accept':
+                                    'application/json'
 
-            printImage.onload =
-                function () {
+                            },
 
-                    printWindow.focus();
+                            body:
+                                JSON.stringify({
 
-                    printWindow.print();
+                                    generated_image_id:
+                                        Number(generatedImageId)
 
-                    printWindow.close();
+                                })
 
-                };
-
-            printImage.onerror =
-                function () {
-
-                    printWindow.close();
-
-                    alert(
-                        'Unable to load the photo for printing.'
+                        }
                     );
 
-                };
 
-            printImage.src =
-                generatedPhoto;
+                if (!response.ok) {
 
-            printDoc.body.appendChild(
-                printImage
-            );
+                    throw new Error(
+                        'Failed to send photo to print.'
+                    );
+
+                }
+
+
+                printRequested =
+                    true;
+
+                printButton.textContent =
+                    '✅ Sent to Print';
+
+
+                showRatingPopup(
+                    'Your photo has been sent to our crew. Please collect it at the print counter.',
+                    'Photo sent to print',
+                    '🖨️'
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    'Unable to send your photo to print. Please try again.'
+                );
+
+            } finally {
+
+                printRequesting =
+                    false;
+
+                printButton.removeAttribute(
+                    'aria-busy'
+                );
+
+            }
 
         }
     );
@@ -3277,10 +3310,31 @@ html.rv-flash-in .bottom-actions {
         );
 
 
-    function showRatingPopup(message) {
+    const ratingPopupTitle =
+        document.getElementById(
+            'ratingPopupTitle'
+        );
+
+    const ratingPopupIcon =
+        ratingPopup.querySelector(
+            '.rating-popup-icon'
+        );
+
+
+    function showRatingPopup(
+        message,
+        title = 'Rate your photo first',
+        icon = '😊'
+    ) {
 
         ratingPopupMessage.textContent =
             message;
+
+        ratingPopupTitle.textContent =
+            title;
+
+        ratingPopupIcon.textContent =
+            icon;
 
         ratingPopup.classList.add(
             'visible'
@@ -3584,6 +3638,16 @@ html.rv-flash-in .bottom-actions {
 
             sessionStorage.removeItem(
                 'rupavueThemeName'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueFrameId'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueFrameName'
             );
 
 

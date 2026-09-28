@@ -2208,7 +2208,7 @@
                 disabled
             >
                 <span>
-                    CAPTURE PHOTO
+                    CHOOSE FRAME
                 </span>
 
                 <span class="next-button-arrow">
@@ -2740,7 +2740,7 @@
                     .dataset.themeId || '';
 
             window.rupavueClickSound.goTo(
-                '{{ route('photobooth.create') }}'
+                '{{ route('photobooth.frame') }}'
                 + '?theme_id='
                 + encodeURIComponent(themeId)
             );

@@ -38,6 +38,7 @@ class GeminiController extends Controller
         $request->validate([
             'image' => 'required|string',
             'theme_id' => 'required|exists:photoshoot_themes,id',
+            'frame_id' => 'nullable|integer',
         ]);
 
         /*
@@ -345,12 +346,19 @@ class GeminiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $activeFrame = PhotoFrame::where(
-            'is_active',
-            true
-        )
-            ->latest('id')
-            ->first();
+        /*
+         * Use the frame the guest picked on the frame page; fall
+         * back to the latest active frame if it is missing or
+         * has since been deactivated.
+         */
+        $activeFrame = PhotoFrame::selectable()
+            ->find($request->input('frame_id'))
+            ?? PhotoFrame::where(
+                'is_active',
+                true
+            )
+                ->latest('id')
+                ->first();
 
         /*
         |--------------------------------------------------------------------------

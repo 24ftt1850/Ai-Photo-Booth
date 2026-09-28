@@ -96,6 +96,12 @@
                         'icon' => '◎',
                     ],
 
+                    [
+                        'route' => 'admin.prints.index',
+                        'label' => 'Print Queue',
+                        'icon' => '⎙',
+                    ],
+
                 ];
 
             @endphp

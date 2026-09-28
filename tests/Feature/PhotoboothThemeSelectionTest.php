@@ -209,10 +209,10 @@ test('welcome page warps into the theme selection page', function () {
         ->toMatch('/html\.rv-warp-in \.scene-header \{[^}]*animation-delay: 0\.45s;/');
 });
 
-test('theme page shows a bigger, white capture photo button with a blue shine and no blinking', function () {
+test('theme page shows a bigger, white next button with a blue shine and no blinking', function () {
     $html = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
 
-    expect($html)->toContain('CAPTURE PHOTO')
+    expect($html)->toContain('CHOOSE FRAME')
         ->toMatch('/\.next-button \{[^}]*min-width: 440px;[^}]*padding:\s*30px 64px;[^}]*#ffffff,\s*#dfe7f2[^}]*color: #0a2a5c;[^}]*font-size: 23px;[^}]*0 0 35px\s*rgba\(40,165,255,\.95\),\s*0 0 80px\s*rgba\(0,140,255,\.55\)/')
         ->toMatch('/\.next-button::before \{[^}]*rgba\(0,150,255,\.9\)/')
         ->toMatch('/\.next-button:not\(:disabled\):hover \{[^}]*0 0 50px\s*rgba\(60,180,255,1\),\s*0 0 110px\s*rgba\(0,140,255,\.65\)/')

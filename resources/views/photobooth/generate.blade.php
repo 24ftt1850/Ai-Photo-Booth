@@ -2085,7 +2085,10 @@
                                 capturedPhoto,
 
                             theme_id:
-                                themeId
+                                themeId,
+
+                            frame_id:
+                                sessionStorage.getItem('rupavueFrameId')
 
                         })
 

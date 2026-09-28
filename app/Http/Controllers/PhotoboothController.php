@@ -30,7 +30,40 @@ class PhotoboothController extends Controller
 
         $photoFrames = PhotoFrame::where('is_active', true)->get();
 
-        return view('photobooth.create', compact('theme', 'photoFrames'));
+        /*
+         * The frame page skips itself when there are no frames,
+         * so only send "Back" there when it will actually show.
+         */
+        $backUrl = PhotoFrame::selectable()->exists()
+            ? route('photobooth.frame', ['theme_id' => $theme->id])
+            : route('photobooth.scene');
+
+        return view('photobooth.create', compact('theme', 'photoFrames', 'backUrl'));
+    }
+
+    /**
+     * Choose a photo frame after picking a theme. Only active
+     * frames stored in Google Drive are offered.
+     */
+    public function frame(Request $request)
+    {
+        $theme = Theme::where('id', $request->query('theme_id'))
+            ->where('is_active', true)
+            ->first();
+
+        if (! $theme) {
+            return redirect()
+                ->route('photobooth.scene')
+                ->with('error', 'Please select a theme first.');
+        }
+
+        $frames = PhotoFrame::selectable()->latest('id')->get();
+
+        if ($frames->isEmpty()) {
+            return redirect()->route('photobooth.create', ['theme_id' => $theme->id]);
+        }
+
+        return view('photobooth.frame', compact('theme', 'frames'));
     }
 
     public function scene()

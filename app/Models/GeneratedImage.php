@@ -34,10 +34,17 @@ class GeneratedImage extends Model
         'google_drive_url',
         'google_drive_status',
 
+        // Admin print queue
+        'print_status',
+        'print_requested_at',
+        'printed_at',
+
     ];
 
     protected $casts = [
         'satisfaction_rating' => 'integer',
+        'print_requested_at' => 'datetime',
+        'printed_at' => 'datetime',
     ];
 
     public function photoSession()

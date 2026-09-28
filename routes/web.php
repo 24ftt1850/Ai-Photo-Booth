@@ -1,16 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\GoogleDriveController;
-use App\Http\Controllers\PhotoboothFeedbackController;
-use App\Models\Theme;
-use App\Models\PhotoFrame;
-use App\Models\GeneratedImage;
-use App\Http\Controllers\PublicPhotoController;
 use App\Http\Controllers\PhotoboothController;
-
+use App\Http\Controllers\PhotoboothFeedbackController;
+use App\Http\Controllers\PhotoboothPrintController;
+use App\Http\Controllers\PublicPhotoController;
+use App\Models\GeneratedImage;
+use App\Models\PhotoFrame;
+use App\Models\Theme;
+use App\Services\GoogleDriveService;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,8 @@ Route::get('/photobooth', [PhotoboothController::class, 'create'])
 Route::get('/photobooth/scene', [PhotoboothController::class, 'scene'])
     ->name('photobooth.scene');
 
+Route::get('/photobooth/frame', [PhotoboothController::class, 'frame'])
+    ->name('photobooth.frame');
 
 Route::get('/photobooth/generate', function () {
 
@@ -41,7 +44,6 @@ Route::get('/photobooth/generate', function () {
 
 })->name('photobooth.generate');
 
-
 Route::get('/photobooth/result', function () {
 
     $photoFrames = PhotoFrame::where('is_active', true)->get();
@@ -50,7 +52,6 @@ Route::get('/photobooth/result', function () {
 
 })->name('photobooth.result');
 
-
 Route::get('/photobooth/feedback', function () {
 
     $photoFrames = PhotoFrame::where('is_active', true)->get();
@@ -58,7 +59,6 @@ Route::get('/photobooth/feedback', function () {
     return view('photobooth.feedback', compact('photoFrames'));
 
 })->name('photobooth.feedback');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -74,7 +74,6 @@ Route::get('/photobooth/photo/{generatedImage}', function (GeneratedImage $gener
 
 })->name('photobooth.photo');
 
-
 /*
 |--------------------------------------------------------------------------
 | Gemini AI Image Generation
@@ -85,7 +84,6 @@ Route::post(
     '/gemini-generate',
     [GeminiController::class, 'generateImage']
 )->name('gemini.generate');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -98,6 +96,16 @@ Route::post(
     [PhotoboothFeedbackController::class, 'store']
 )->name('photobooth.feedback.store');
 
+/*
+|--------------------------------------------------------------------------
+| Photobooth Print (sent to the admin print queue)
+|--------------------------------------------------------------------------
+*/
+
+Route::post(
+    '/photobooth/print',
+    [PhotoboothPrintController::class, 'store']
+)->name('photobooth.print.store');
 
 /*
 |--------------------------------------------------------------------------
@@ -107,12 +115,42 @@ Route::post(
 
 Route::get('/', function () {
 
+    /*
+     * First visit: show the one-time setup page
+     * before the welcome page.
+     */
+    if (! request()->cookie('rupavue_setup_complete')) {
+        return redirect()->route('setup');
+    }
+
     $photoFrames = PhotoFrame::where('is_active', true)->get();
 
     return view('welcome', compact('photoFrames'));
 
 })->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| One-time Setup (IP address + event)
+|--------------------------------------------------------------------------
+| Shown once, before the welcome page. The IP address and event
+| are not saved or used yet; completing setup only remembers,
+| with a long-lived cookie, that it has been done.
+*/
+
+Route::get('/setup', function () {
+
+    return view('photobooth.setup');
+
+})->name('setup');
+
+Route::post('/setup', function () {
+
+    return redirect()
+        ->route('home')
+        ->withCookie(cookie()->forever('rupavue_setup_complete', '1'));
+
+})->name('setup.complete');
 
 /*
 |--------------------------------------------------------------------------
@@ -129,7 +167,7 @@ Route::get('/test-frame', function () {
         ->latest('id')
         ->first();
 
-    if (!$frame) {
+    if (! $frame) {
         return 'NO ACTIVE FRAME FOUND';
     }
 
@@ -141,7 +179,7 @@ Route::get('/test-frame', function () {
 
         'path' => $frame->frame_path,
 
-        'url' => asset('storage/' . $frame->frame_path),
+        'url' => asset('storage/'.$frame->frame_path),
 
         'exists' => \Storage::disk('public')
             ->exists($frame->frame_path),
@@ -174,12 +212,10 @@ Route::get(
     [GoogleDriveController::class, 'connect']
 )->name('google-drive.connect');
 
-
 Route::get(
     '/google-drive/callback',
     [GoogleDriveController::class, 'callback']
 )->name('google-drive.callback');
-
 
 Route::get(
     '/google-drive/test',
@@ -193,7 +229,7 @@ Route::get(
 
 Route::get(
     '/google-drive/service-test',
-    function (\App\Services\GoogleDriveService $googleDrive) {
+    function (GoogleDriveService $googleDrive) {
 
         try {
 
@@ -243,27 +279,24 @@ Route::get(
 
             imagedestroy($image);
 
-
             /*
              * Upload PNG to Google Drive.
              */
             $result = $googleDrive->uploadImage(
                 $testFilePath,
-                'RUPAVUE-Service-Test-' .
-                    now()->format('Ymd-His') .
+                'RUPAVUE-Service-Test-'.
+                    now()->format('Ymd-His').
                     '.png'
             );
 
-
             return response()->json([
                 'success' => true,
-                'message' =>
-                    'GoogleDriveService upload successful.',
+                'message' => 'GoogleDriveService upload successful.',
 
                 'file' => $result,
             ]);
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
 
             return response()->json([
                 'success' => false,
