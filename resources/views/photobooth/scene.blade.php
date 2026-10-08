@@ -76,10 +76,11 @@
 
             overflow: hidden;
 
+            /* Bottom room for the pinned CHOOSE FRAME button */
             padding:
                 4px
                 5vw
-                35px;
+                calc(var(--rv-start-bottom, 45px) + 160px);
 
             display: flex;
             flex-direction: column;
@@ -710,7 +711,16 @@
                 );
 
             min-width: 0;
-            height: clamp(300px, 48vh, 560px);
+            /* Shorter when needed so the carousel ends above the pinned button */
+            height:
+                clamp(
+                    260px,
+                    min(
+                        48vh,
+                        calc(100dvh - var(--rv-start-bottom, 45px) - 124px * var(--rv-start-scale, 1) - 250px)
+                    ),
+                    560px
+                );
             border-radius: 22px;
             overflow: hidden;
             cursor: pointer;
@@ -1090,115 +1100,25 @@
            BOTTOM ACTION BAR
         ===================================================== */
 
+        /*
+         * Pinned in the same spot as the START SESSION
+         * button on the welcome page.
+         */
+
         .selection-area {
-            width: 100%;
+            position: fixed;
+
+            left: 0;
+            right: 0;
+            bottom: var(--rv-start-bottom, 45px);
+
+            z-index: 20;
 
             display: flex;
 
-            flex-direction: column;
+            justify-content: center;
 
-            align-items: center;
-
-            gap: 78px;
-
-            margin-top: auto;
-            padding-top: 0;
-            padding-bottom: 58px;
-        }
-
-
-        .action-bar {
-            width: 100%;
-
-            min-height: 84px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: flex-start;
-
-            padding:
-                20px 32px;
-
-            border-radius: 22px;
-
-            background:
-                rgba(255,255,255,.90);
-
-            border:
-                1px solid
-                rgba(255,255,255,.95);
-
-            box-shadow:
-
-                0 12px 35px
-                rgba(0,45,120,.18),
-
-                inset 0 1px 0
-                white;
-
-            backdrop-filter:
-                blur(10px);
-
-            /* Move only the selected white container upward */
-            transform: translateY(10px);
-        }
-
-
-        .selected-info {
-
-            width: 100%;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 16px;
-
-            min-width: 0;
-
-            color: #55718f;
-
-            font-size: 20px;
-
-            white-space: nowrap;
-
-        }
-
-
-        .selected-info strong {
-
-            color:
-                #0871e9;
-
-            font-size: 24px;
-
-            flex-shrink: 0;
-
-        }
-
-
-        .selected-description {
-
-            min-width: 0;
-
-            flex: 1;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-
-            white-space: nowrap;
-
-            color: #55718f;
-
-            font-size: 19px;
-
-            padding-left: 14px;
-
-            border-left: 1px solid
-                rgba(85,113,143,.35);
+            pointer-events: none;
         }
 
 
@@ -1208,7 +1128,18 @@
 
             overflow: hidden;
 
-            min-width: 440px;
+            pointer-events: auto;
+
+            /* Same size as the welcome START SESSION button */
+
+            min-width: 620px;
+
+            min-height: 124px;
+
+            /* Same scale as START SESSION on this screen */
+            scale: var(--rv-start-scale, 1);
+
+            transform-origin: center bottom;
 
             border: none;
 
@@ -1234,11 +1165,13 @@
 
             color: #0a2a5c;
 
-            font-size: 23px;
+            font-family: "Arial Black", Arial, Helvetica, sans-serif;
 
-            font-weight: 800;
+            font-size: 30px;
 
-            letter-spacing: 1.5px;
+            font-weight: 900;
+
+            letter-spacing: 0.08em;
 
             cursor: pointer;
 
@@ -1515,49 +1448,47 @@
             }
 
 
-            .action-bar {
-
-                flex-direction: column;
-
-                align-items: stretch;
-
-                padding:
-                    16px;
-
-                transform: translateY(-10px);
-
-            }
+        }
 
 
-            .selected-info {
+        /* Match the welcome START SESSION button on mobile */
 
-                justify-content: flex-start;
+        @media (max-width: 800px) {
 
-                white-space: normal;
+            .scene-page {
+
+                padding-bottom: 220px;
 
             }
 
+            .selection-area {
 
-            .selected-description {
-
-                white-space: nowrap;
-
-                overflow: hidden;
-
-                text-overflow: ellipsis;
+                bottom: 90px;
 
             }
-
 
             .next-button {
 
-                width: 100%;
-                min-width: 0;
+                min-width: 380px;
+
+                min-height: 92px;
 
                 padding:
-                    24px 30px;
+                    22px 36px;
 
-                font-size: 19px;
+                font-size: 21px;
+
+            }
+
+        }
+
+        @media (max-width: 400px) {
+
+            .next-button {
+
+                min-width: 300px;
+
+                font-size: 17px;
 
             }
 
@@ -1884,6 +1815,46 @@
         }
 
     </style>
+
+    <script>
+        /*
+         * Puts the next button exactly where START SESSION sat on
+         * the welcome page (same distance from the bottom, same
+         * scale), as long as the window is the same size.
+         */
+        (function () {
+
+            function placeLikeStartButton() {
+
+                const root =
+                    document.documentElement;
+
+                let spot = null;
+
+                try {
+                    spot = JSON.parse(sessionStorage.getItem('rupavueStartButtonSpot'));
+                } catch (error) {
+                    spot = null;
+                }
+
+                if (
+                    spot &&
+                    spot.viewportWidth === window.innerWidth &&
+                    spot.viewportHeight === window.innerHeight
+                ) {
+                    root.style.setProperty('--rv-start-bottom', spot.bottom + 'px');
+                    root.style.setProperty('--rv-start-scale', spot.scale);
+                } else {
+                    root.style.removeProperty('--rv-start-bottom');
+                    root.style.removeProperty('--rv-start-scale');
+                }
+            }
+
+            placeLikeStartButton();
+
+            window.addEventListener('resize', placeLikeStartButton);
+        })();
+    </script>
 </head>
 
 
@@ -2177,30 +2148,6 @@
 
         <div class="selection-area">
 
-            <div class="action-bar">
-
-                <div class="selected-info">
-
-                    <span>
-                        Selected:
-                    </span>
-
-                    <strong id="selectedThemeName">
-                        No theme selected yet
-                    </strong>
-
-                    <span
-                        class="selected-description"
-                        id="selectedThemeDescription"
-                    >
-                        Select a theme to see its description.
-                    </span>
-
-                </div>
-
-            </div>
-
-
             <button
                 type="button"
                 class="next-button"
@@ -2246,12 +2193,6 @@
 
     const carouselDots =
         document.getElementById('carouselDots');
-
-    const selectedThemeName =
-        document.getElementById('selectedThemeName');
-
-    const selectedThemeDescription =
-        document.getElementById('selectedThemeDescription');
 
     const nextButton =
         document.getElementById('nextButton');
@@ -2426,17 +2367,6 @@
         const themeName =
             selectedCard.dataset.themeName
             || 'Theme';
-
-        const themeDescription =
-            selectedCard.dataset.themeDescription
-            || 'Create a unique AI-powered photo experience.';
-
-
-        selectedThemeName.textContent =
-            themeName;
-
-        selectedThemeDescription.textContent =
-            themeDescription;
 
 
         setThemeBackground(

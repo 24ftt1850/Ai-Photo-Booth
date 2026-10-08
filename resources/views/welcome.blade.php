@@ -2387,6 +2387,47 @@
 
 
             /*
+             * Remembers exactly where START SESSION sits on this
+             * screen (distance from the bottom and page scale) so
+             * the CHOOSE FRAME and CAPTURE PHOTO buttons can sit
+             * in the same spot at the same size. Hover/press
+             * transforms are ignored while measuring.
+             */
+            function rememberStartButtonSpot() {
+
+                if (!startButton || window.innerWidth <= 800) {
+                    return;
+                }
+
+                const previousTransition =
+                    startButton.style.transition;
+
+                const previousTransform =
+                    startButton.style.transform;
+
+                startButton.style.transition = 'none';
+                startButton.style.transform = 'none';
+
+                const bounds =
+                    startButton.getBoundingClientRect();
+
+                startButton.style.transform = previousTransform;
+                startButton.style.transition = previousTransition;
+
+                try {
+                    sessionStorage.setItem('rupavueStartButtonSpot', JSON.stringify({
+                        viewportWidth: window.innerWidth,
+                        viewportHeight: window.innerHeight,
+                        bottom: window.innerHeight - bounds.bottom,
+                        scale: bounds.height / startButton.offsetHeight,
+                    }));
+                } catch (error) {
+                    // Storage unavailable; the next pages use their default spot.
+                }
+            }
+
+
+            /*
              * RUPA SPEECH BUBBLE
              *
              * After Rupa walks in, it "types" a few lines in
@@ -2749,6 +2790,8 @@
 
                     const destination =
                         this.href;
+
+                    rememberStartButtonSpot();
 
                     startWarpTransition(this);
 

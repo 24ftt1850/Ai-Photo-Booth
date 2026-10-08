@@ -95,7 +95,7 @@
             min-height: 100vh;
             min-height: 100dvh;
 
-            padding: 28px 5vw 140px;
+            padding: 28px 5vw calc(var(--rv-start-bottom, 45px) + 160px);
 
             display: flex;
             flex-direction: column;
@@ -274,7 +274,7 @@
             position: fixed;
             left: 0;
             right: 0;
-            bottom: 28px;
+            bottom: var(--rv-start-bottom, 45px);
 
             display: flex;
             justify-content: center;
@@ -282,10 +282,16 @@
             pointer-events: none;
         }
 
+        /* Same size and spot as the welcome START SESSION button */
         .next-button {
             pointer-events: auto;
 
-            min-width: 440px;
+            min-width: 620px;
+            min-height: 124px;
+
+            /* Same scale as START SESSION on this screen */
+            scale: var(--rv-start-scale, 1);
+            transform-origin: center bottom;
 
             border: none;
             border-radius: 999px;
@@ -301,10 +307,10 @@
 
             color: #0a2a5c;
 
-            font-family: inherit;
-            font-size: 23px;
-            font-weight: 800;
-            letter-spacing: 1.5px;
+            font-family: "Arial Black", Arial, Helvetica, sans-serif;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
 
             cursor: pointer;
 
@@ -434,21 +440,21 @@
             text-decoration: none;
         }
 
-        @media (max-width: 700px) {
+        @media (max-width: 800px) {
 
             .frame-page {
-                padding-bottom: 200px;
+                padding-bottom: 220px;
             }
 
             .next-button {
-                min-width: 0;
-                width: calc(100vw - 32px);
-                padding: 22px 32px;
-                font-size: 18px;
+                min-width: 380px;
+                min-height: 92px;
+                padding: 22px 36px;
+                font-size: 21px;
             }
 
             .action-bar {
-                bottom: 100px;
+                bottom: 90px;
             }
 
             .top-nav {
@@ -456,7 +462,55 @@
             }
         }
 
+        @media (max-width: 400px) {
+
+            .next-button {
+                min-width: 300px;
+                font-size: 17px;
+            }
+        }
+
     </style>
+
+    <script>
+        /*
+         * Puts the next button exactly where START SESSION sat on
+         * the welcome page (same distance from the bottom, same
+         * scale), as long as the window is the same size.
+         */
+        (function () {
+
+            function placeLikeStartButton() {
+
+                const root =
+                    document.documentElement;
+
+                let spot = null;
+
+                try {
+                    spot = JSON.parse(sessionStorage.getItem('rupavueStartButtonSpot'));
+                } catch (error) {
+                    spot = null;
+                }
+
+                if (
+                    spot &&
+                    spot.viewportWidth === window.innerWidth &&
+                    spot.viewportHeight === window.innerHeight
+                ) {
+                    root.style.setProperty('--rv-start-bottom', spot.bottom + 'px');
+                    root.style.setProperty('--rv-start-scale', spot.scale);
+                } else {
+                    root.style.removeProperty('--rv-start-bottom');
+                    root.style.removeProperty('--rv-start-scale');
+                }
+            }
+
+            placeLikeStartButton();
+
+            window.addEventListener('resize', placeLikeStartButton);
+        })();
+    </script>
 </head>
 
 <body>

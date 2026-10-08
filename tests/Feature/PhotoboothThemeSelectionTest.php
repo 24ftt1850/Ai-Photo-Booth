@@ -66,13 +66,40 @@ test('scene page lets guests swipe the theme track left and right', function () 
         ], false);
 });
 
-test('scene page uses a larger selected theme box with larger text', function () {
+test('scene page does not show the white selected theme box', function () {
     $html = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
 
-    expect($html)->toMatch('/\.action-bar \{[^}]*min-height: 84px;/')
-        ->toMatch('/\.selected-info \{[^}]*font-size: 20px;/')
-        ->toMatch('/\.selected-info strong \{[^}]*font-size: 24px;/')
-        ->toMatch('/\.selected-description \{[^}]*font-size: 19px;/');
+    expect($html)->not->toContain('action-bar')
+        ->not->toContain('selected-info')
+        ->not->toContain('selectedThemeName')
+        ->not->toContain('No theme selected yet');
+});
+
+test('theme and frame buttons match the welcome start session button size and position', function () {
+    $welcome = (string) $this->view('welcome');
+
+    expect($welcome)->toMatch('/\.rv-start-button \{[^}]*min-width: 620px;[^}]*min-height: 124px;[^}]*padding: 30px 64px;/')
+        ->toContain("sessionStorage.setItem('rupavueStartButtonSpot'")
+        ->toContain('bottom: window.innerHeight - bounds.bottom')
+        ->toContain('scale: bounds.height / startButton.offsetHeight')
+        ->toContain("rememberStartButtonSpot();\n\n                    startWarpTransition(this);");
+
+    $scene = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
+
+    expect($scene)->toMatch('/\.selection-area \{[^}]*position: fixed;[^}]*bottom: var\(--rv-start-bottom, 45px\);[^}]*justify-content: center;/')
+        ->toMatch('/\.next-button \{[^}]*min-width: 620px;[^}]*min-height: 124px;[^}]*scale: var\(--rv-start-scale, 1\);[^}]*transform-origin: center bottom;[^}]*padding:\s*30px 64px;[^}]*font-size: 30px;/')
+        ->toContain("sessionStorage.getItem('rupavueStartButtonSpot')")
+        ->toContain("root.style.setProperty('--rv-start-bottom', spot.bottom + 'px');");
+
+    $frame = (string) $this->view('photobooth.frame', [
+        'theme' => makeTheme(1, 'Frame Theme', '2026-09-01 12:00:00'),
+        'frames' => collect(),
+    ]);
+
+    expect($frame)->toMatch('/\.action-bar \{[^}]*position: fixed;[^}]*bottom: var\(--rv-start-bottom, 45px\);[^}]*justify-content: center;/')
+        ->toMatch('/\.next-button \{[^}]*min-width: 620px;[^}]*min-height: 124px;[^}]*scale: var\(--rv-start-scale, 1\);[^}]*transform-origin: center bottom;[^}]*padding: 30px 64px;[^}]*font-size: 30px;/')
+        ->toContain("sessionStorage.getItem('rupavueStartButtonSpot')")
+        ->toContain("root.style.setProperty('--rv-start-scale', spot.scale);");
 });
 
 test('camera page pushes the selected theme label down a little', function () {
@@ -213,10 +240,9 @@ test('theme page shows a bigger, white next button with a blue shine and no blin
     $html = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
 
     expect($html)->toContain('CHOOSE FRAME')
-        ->toMatch('/\.next-button \{[^}]*min-width: 440px;[^}]*padding:\s*30px 64px;[^}]*#ffffff,\s*#dfe7f2[^}]*color: #0a2a5c;[^}]*font-size: 23px;[^}]*0 0 35px\s*rgba\(40,165,255,\.95\),\s*0 0 80px\s*rgba\(0,140,255,\.55\)/')
+        ->toMatch('/\.next-button \{[^}]*min-width: 620px;[^}]*padding:\s*30px 64px;[^}]*#ffffff,\s*#dfe7f2[^}]*color: #0a2a5c;[^}]*font-size: 30px;[^}]*0 0 35px\s*rgba\(40,165,255,\.95\),\s*0 0 80px\s*rgba\(0,140,255,\.55\)/')
         ->toMatch('/\.next-button::before \{[^}]*rgba\(0,150,255,\.9\)/')
         ->toMatch('/\.next-button:not\(:disabled\):hover \{[^}]*0 0 50px\s*rgba\(60,180,255,1\),\s*0 0 110px\s*rgba\(0,140,255,\.65\)/')
-        ->toMatch('/\.selection-area \{[^}]*gap: 78px;[^}]*padding-bottom: 58px;/')
         ->toMatch('/\.next-button:not\(:disabled\)::before \{[^}]*animation:\s*nextButtonShine /')
         ->toContain('@keyframes nextButtonShine')
         ->not->toContain('nextButtonGlow');
