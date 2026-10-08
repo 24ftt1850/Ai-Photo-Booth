@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BoothSetting;
 use App\Models\PhotoFrame;
 use App\Models\Theme;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class PhotoboothController extends Controller
          * The frame page skips itself when there are no frames,
          * so only send "Back" there when it will actually show.
          */
-        $backUrl = PhotoFrame::selectable()->exists()
+        $backUrl = BoothSetting::guestsCanPickFrame() && PhotoFrame::selectable()->exists()
             ? route('photobooth.frame', ['theme_id' => $theme->id])
             : route('photobooth.scene');
 
@@ -57,7 +58,12 @@ class PhotoboothController extends Controller
                 ->with('error', 'Please select a theme first.');
         }
 
-        $frames = PhotoFrame::selectable()->latest('id')->get();
+        /*
+         * Skipped when the admin site fixes the frame automatically.
+         */
+        $frames = BoothSetting::guestsCanPickFrame()
+            ? PhotoFrame::selectable()->latest('id')->get()
+            : collect();
 
         if ($frames->isEmpty()) {
             return redirect()->route('photobooth.create', ['theme_id' => $theme->id]);

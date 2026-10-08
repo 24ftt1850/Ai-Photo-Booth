@@ -102,6 +102,12 @@
                         'icon' => '⎙',
                     ],
 
+                    [
+                        'route' => 'admin.google-drive.index',
+                        'label' => 'Google Drive',
+                        'icon' => '☁',
+                    ],
+
                 ];
 
             @endphp

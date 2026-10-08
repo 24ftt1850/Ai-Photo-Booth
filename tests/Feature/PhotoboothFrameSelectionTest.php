@@ -46,6 +46,18 @@ test('frame page lists the active google drive frames and continues to the captu
         ->toContain(json_encode(route('photobooth.create', ['theme_id' => 7])));
 });
 
+test('frame page has no subtitle and animates the heading and capture button in blue', function () {
+    $html = (string) $this->view('photobooth.frame', [
+        'theme' => makeFrameTheme(),
+        'frames' => collect([makeFrame(1, 'Gold Border', 'drive-gold')]),
+    ]);
+
+    expect($html)->not->toContain('pick a frame for your photo')
+        ->toContain('animation: frameTitleGlow')
+        ->toContain('animation: nextGlowBlink')
+        ->toContain('animation: nextRingBlink');
+});
+
 test('frame preview falls back to the google drive thumbnail when the local file is missing', function () {
     expect(makeFrame(1, 'Gold', 'abc123')->previewUrl())
         ->toBe('https://drive.google.com/thumbnail?id=abc123&sz=w1000');

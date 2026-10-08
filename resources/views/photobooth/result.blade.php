@@ -2179,16 +2179,16 @@
         flex: 0 0 auto;
 
         width: min(100%, 420px) !important;
-        height: 60px !important;
+        height: 76px !important;
 
-        margin: 0 !important;
+        margin: 16px 0 0 !important;
     }
 
     .new-session-button {
         width: 100% !important;
         min-width: 0 !important;
 
-        height: 60px !important;
+        height: 76px !important;
 
         padding: 10px 20px !important;
 
@@ -2417,6 +2417,98 @@ html.rv-flash-in .bottom-actions {
     }
 }
 
+
+/* =========================================================
+   INTRO — photo full screen, then settles into place
+   Arriving from the generate page, the AI photo (without
+   its frame) first fills the middle of the screen. After a
+   few seconds it glides back into the photo box, the framed
+   photo fades in over it and the rest of the page appears.
+========================================================= */
+
+.result-frame {
+    position: relative;
+}
+
+.header {
+    transition: opacity .6s ease .2s;
+}
+
+html.result-intro .header {
+    opacity: 0;
+}
+
+/* Hold the QR, feedback and buttons until the photo settles */
+
+html.result-intro .qr-panel,
+html.result-intro .feedback-card,
+html.result-intro .bottom-actions {
+    animation-play-state: paused;
+}
+
+/* The intro plays instead of the normal photo reveal */
+
+.result-frame.intro-played {
+    animation: none;
+}
+
+html.result-intro .result-frame {
+    z-index: 50;
+
+    opacity: 0;
+}
+
+html.result-intro .result-frame.is-intro-ready {
+    animation: resultIntroPop .9s .45s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.result-frame.is-settling {
+    z-index: 50;
+
+    transition: transform 1.1s cubic-bezier(.65, 0, .25, 1);
+}
+
+/* Unframed AI photo laid over the framed one during the intro */
+
+.result-frame .result-intro-image {
+    position: absolute;
+    inset: 0;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    object-fit: contain !important;
+
+    transition: opacity .8s ease;
+}
+
+.result-intro-image.is-hidden {
+    opacity: 0;
+}
+
+.result-frame.intro-played #resultImage {
+    transition: opacity .8s ease;
+}
+
+.result-frame.is-showing-ai #resultImage {
+    opacity: 0;
+}
+
+@keyframes resultIntroPop {
+
+    from {
+        opacity: 0;
+        scale: .85;
+        filter: blur(14px) brightness(1.6);
+    }
+
+    to {
+        opacity: 1;
+        scale: 1;
+        filter: none;
+    }
+}
+
     </style>
 
     <script>
@@ -2425,6 +2517,17 @@ html.rv-flash-in .bottom-actions {
             if (sessionStorage.getItem('rupavueFlashIn')) {
                 sessionStorage.removeItem('rupavueFlashIn');
                 document.documentElement.classList.add('rv-flash-in');
+
+                /*
+                 * Show the photo (without its frame) full screen
+                 * first; see playResultIntro() below.
+                 */
+                if (
+                    sessionStorage.getItem('rupavueAiPhoto') &&
+                    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ) {
+                    document.documentElement.classList.add('result-intro');
+                }
             }
         } catch (e) {}
     </script>
@@ -2527,6 +2630,15 @@ html.rv-flash-in .bottom-actions {
                 id="resultImage"
                 src=""
                 alt="RupaVue AI generated photo"
+                style="display: none;"
+            >
+
+            <img
+                id="resultIntroImage"
+                class="result-intro-image"
+                src=""
+                alt=""
+                aria-hidden="true"
                 style="display: none;"
             >
 
@@ -2796,6 +2908,12 @@ html.rv-flash-in .bottom-actions {
         );
 
 
+    const qrCodeUrl =
+        sessionStorage.getItem(
+            'rupavueQrCodeUrl'
+        );
+
+
     /*
     |--------------------------------------------------------------------------
     | ELEMENTS
@@ -2850,6 +2968,92 @@ html.rv-flash-in .bottom-actions {
 
     /*
     |--------------------------------------------------------------------------
+    | INTRO — PHOTO FULL SCREEN, THEN BACK INTO PLACE
+    |--------------------------------------------------------------------------
+    |
+    | Moves the photo box to the middle of the screen and
+    | enlarges it, showing the AI photo without its frame.
+    | After a few seconds it glides back into place, the
+    | framed photo fades in and the rest of the page appears.
+    */
+
+    function playResultIntro() {
+
+        const root =
+            document.documentElement;
+
+        const resultFrame =
+            document.querySelector('.result-frame');
+
+        const introImage =
+            document.getElementById('resultIntroImage');
+
+        const aiPhoto =
+            sessionStorage.getItem('rupavueAiPhoto');
+
+        if (
+            !root.classList.contains('result-intro') ||
+            !resultFrame ||
+            !introImage ||
+            !aiPhoto ||
+            !generatedPhoto
+        ) {
+            root.classList.remove('result-intro');
+
+            return;
+        }
+
+        introImage.src = aiPhoto;
+        introImage.style.display = 'block';
+
+        resultFrame.classList.add('intro-played', 'is-showing-ai');
+
+        const bounds =
+            resultFrame.getBoundingClientRect();
+
+        const scale =
+            Math.min(
+                (window.innerWidth * 0.94) / bounds.width,
+                (window.innerHeight * 0.9) / bounds.height
+            );
+
+        const offsetX =
+            window.innerWidth / 2 - (bounds.left + bounds.width / 2);
+
+        const offsetY =
+            window.innerHeight / 2 - (bounds.top + bounds.height / 2);
+
+        resultFrame.style.transform =
+            'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
+
+        resultFrame.classList.add('is-intro-ready');
+
+        setTimeout(function () {
+
+            resultFrame.classList.add('is-settling');
+            resultFrame.classList.remove('is-intro-ready');
+
+            resultFrame.style.transform = '';
+
+            root.classList.remove('result-intro');
+
+            setTimeout(function () {
+
+                resultFrame.classList.remove('is-settling', 'is-showing-ai');
+
+                introImage.classList.add('is-hidden');
+
+            }, 1100);
+
+        }, 4000);
+
+    }
+
+    playResultIntro();
+
+
+    /*
+    |--------------------------------------------------------------------------
     | GENERATE QR CODE
     |--------------------------------------------------------------------------
     */
@@ -2876,10 +3080,53 @@ html.rv-flash-in .bottom-actions {
         }
 
 
+        qrCode.innerHTML = '';
+
+
+        /*
+         * Prefer this photo's own QR code image from the server,
+         * which works even when the QR library cannot load.
+         */
+
+        if (qrCodeUrl) {
+
+            const qrImage =
+                document.createElement('img');
+
+            qrImage.alt = 'QR code to download your photo';
+
+            qrImage.onload = () => {
+
+                qrStatus.textContent =
+                    'Scan with your phone to save your photo.';
+
+            };
+
+            qrImage.onerror = () => {
+
+                qrCode.innerHTML = '';
+
+                drawQRCodeInBrowser();
+
+            };
+
+            qrImage.src = qrCodeUrl;
+
+            qrCode.appendChild(qrImage);
+
+            return;
+
+        }
+
+
+        drawQRCodeInBrowser();
+
+    }
+
+
+    function drawQRCodeInBrowser() {
+
         try {
-
-            qrCode.innerHTML = '';
-
 
             /*
              * Point the QR code at the public, Google Drive-backed
@@ -3044,9 +3291,20 @@ html.rv-flash-in .bottom-actions {
 
                 if (!response.ok) {
 
-                    throw new Error(
-                        'Failed to send photo to print.'
-                    );
+                    /*
+                     * Show the server's reason (e.g. printing not set
+                     * up yet) instead of a generic "try again".
+                     */
+                    const failure =
+                        await response.json().catch(() => ({}));
+
+                    const printError =
+                        new Error('Failed to send photo to print.');
+
+                    printError.guestMessage =
+                        failure.message || '';
+
+                    throw printError;
 
                 }
 
@@ -3069,6 +3327,7 @@ html.rv-flash-in .bottom-actions {
                 console.error(error);
 
                 alert(
+                    error.guestMessage ||
                     'Unable to send your photo to print. Please try again.'
                 );
 
@@ -3653,6 +3912,11 @@ html.rv-flash-in .bottom-actions {
 
             sessionStorage.removeItem(
                 'rupavuePublicPhotoUrl'
+            );
+
+
+            sessionStorage.removeItem(
+                'rupavueQrCodeUrl'
             );
 
 

@@ -6,6 +6,17 @@
 
     <title>Applying AI Magic - RupaVue</title>
 
+    <script>
+        /*
+         * Start in "intro" mode before the first paint, so the
+         * page never flashes its full layout before the
+         * generating box takes over the screen.
+         */
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.documentElement.classList.add('gen-intro');
+        }
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -536,7 +547,7 @@
         .theme-label span {
             display: inline-block;
 
-            padding: 9px 22px;
+            padding: 11px 28px;
 
             border: 1px solid rgba(255,255,255,.9);
             border-radius: 50px;
@@ -551,7 +562,7 @@
 
             backdrop-filter: blur(10px);
 
-            font-size: 17px;
+            font-size: 21px;
             letter-spacing: .8px;
         }
 
@@ -863,12 +874,16 @@
         }
 
         /* =====================================================
-           AI RESULT LOADING
+           AI RESULT LOADING — DARK BLUE PORTAL
         ===================================================== */
 
         /*
-         * Dark "aurora" backdrop that slowly shifts
-         * while the AI works on the photo.
+         * Near-black navy backdrop with a dark blue portal
+         * swirling in the middle. The arms are bent by an SVG
+         * noise filter (#aiPortalWarp) and inner bands spin
+         * faster than outer ones, like a real vortex. When the
+         * photo is ready the box gets .is-done and the portal
+         * and the backdrop burn to a bright white.
          */
 
         .ai-magic-placeholder {
@@ -879,178 +894,280 @@
             color: #ffffff;
 
             background:
+                radial-gradient(
+                    circle at 50% 42%,
+                    rgba(8, 30, 110, 0.55) 0%,
+                    transparent 55%
+                ),
                 linear-gradient(
                     120deg,
-                    #041433,
-                    #0a3a8c,
-                    #2a1a7a,
-                    #0877e8,
-                    #041433
+                    #000208,
+                    #020a24,
+                    #01061a,
+                    #03113a,
+                    #000208
                 );
 
-            background-size: 300% 300%;
+            background-size: 100% 100%, 300% 300%;
 
-            animation: aiAurora 8s ease-in-out infinite;
+            animation: aiAurora 10s ease-in-out infinite;
+        }
+
+        /* White light that floods the box once the photo is ready */
+
+        .ai-magic-placeholder::after {
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            z-index: 1;
+
+            background:
+                radial-gradient(
+                    circle at 50% 42%,
+                    #ffffff 0%,
+                    rgba(235, 246, 255, 0.95) 35%,
+                    rgba(190, 225, 255, 0.85) 100%
+                );
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition: opacity 0.9s ease 0.2s;
+        }
+
+        .ai-magic-placeholder.is-done::after {
+            opacity: 1;
         }
 
         .ai-magic-placeholder p {
             position: relative;
-            z-index: 2;
+            z-index: 3;
 
             font-size: 20px;
             font-weight: 600;
             letter-spacing: 0.04em;
 
-            text-shadow: 0 0 12px rgba(80, 170, 255, 0.8);
+            color: #b9d6ff;
+
+            text-shadow: 0 0 12px rgba(30, 90, 255, 0.8);
+
+            transition: color 0.6s ease, text-shadow 0.6s ease;
         }
 
-        /* Glowing beam sweeping down the frame, like a scanner */
+        .ai-magic-placeholder.is-done p {
+            color: #0a2a5c;
 
-        .ai-magic-scan {
-            position: absolute;
-
-            left: 0;
-            right: 0;
-            top: -90px;
-
-            height: 90px;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    transparent,
-                    rgba(84, 196, 255, 0.28) 70%,
-                    rgba(200, 240, 255, 0.95) 98%,
-                    transparent
-                );
-
-            animation: aiScan 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
         }
 
-        /* Twinkling sparkles scattered over the frame */
+        /*
+         * The portal fills the whole box: it is a circle wider
+         * than the box's diagonal, centred and clipped by the
+         * box, with the text sitting along the bottom.
+         */
 
-        .ai-magic-sparkle {
+        .ai-magic-placeholder {
+            justify-content: flex-end;
+
+            padding-bottom: 5%;
+        }
+
+        .ai-magic-placeholder.is-error {
+            justify-content: center;
+
+            padding-bottom: 0;
+        }
+
+        .ai-magic {
+            position: absolute;
+            inset: 0;
+
+            z-index: 2;
+        }
+
+        .ai-portal-filters {
+            position: absolute;
+        }
+
+        .ai-portal {
             position: absolute;
 
-            width: 8px;
-            height: 8px;
+            left: 50%;
+            top: 50%;
+
+            width: 135%;
+
+            aspect-ratio: 1;
+
+            translate: -50% -50%;
+
+            container-type: inline-size;
+
+            transition:
+                filter 0.9s ease,
+                scale 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* Dark blue haze drifting around the portal */
+
+        .ai-portal-mist {
+            position: absolute;
+            inset: -28%;
 
             border-radius: 50%;
 
-            background: #ffffff;
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(10, 40, 150, 0.6) 0%,
+                    rgba(5, 22, 90, 0.35) 38%,
+                    transparent 68%
+                );
+
+            filter: url(#aiPortalWarp);
+
+            animation:
+                aiSpin 14s linear infinite,
+                aiPortalBreathe 3s ease-in-out infinite;
+        }
+
+        /*
+         * Spiral bands: each one is a ring of dark blue arms.
+         * Inner bands are smaller and spin faster, and their
+         * arms start further round, so together they twist
+         * into a spiral.
+         */
+
+        .ai-portal-swirl {
+            position: absolute;
+            inset: var(--i);
+
+            border-radius: 50%;
+
+            background:
+                repeating-conic-gradient(
+                    from var(--r),
+                    rgba(1, 6, 26, 0) 0deg,
+                    rgba(18, 62, 190, 0.9) 12deg,
+                    rgba(6, 26, 100, 0.75) 22deg,
+                    rgba(1, 6, 26, 0) 36deg
+                );
+
+            -webkit-mask: radial-gradient(farthest-side, transparent 52%, #000 70%, #000 86%, transparent 100%);
+            mask: radial-gradient(farthest-side, transparent 52%, #000 70%, #000 86%, transparent 100%);
+
+            filter: url(#aiPortalWarp) blur(0.6px);
+
+            animation: aiSpin var(--s) linear infinite;
+        }
+
+        /* Thin crackling rim of electric blue around the eye */
+
+        .ai-portal-ring {
+            position: absolute;
+            inset: 36%;
+
+            border-radius: 50%;
+
+            border: 2px solid rgba(40, 110, 255, 0.55);
 
             box-shadow:
-                0 0 10px #ffffff,
-                0 0 20px #54c4ff;
+                0 0 18px rgba(20, 80, 255, 0.7),
+                inset 0 0 22px rgba(20, 80, 255, 0.5);
+
+            filter: url(#aiPortalWarp);
+
+            animation: aiPortalFlicker 2.8s ease-in-out infinite;
+        }
+
+        /* Sparks pulled in along a spiral towards the centre */
+
+        .ai-portal-spark {
+            position: absolute;
+
+            left: 50%;
+            top: 50%;
+
+            width: 5px;
+            height: 5px;
+
+            margin: -2.5px 0 0 -2.5px;
+
+            border-radius: 50%;
+
+            background: #8fb8ff;
+
+            box-shadow:
+                0 0 6px #2f6bff,
+                0 0 14px rgba(20, 70, 230, 0.9);
 
             opacity: 0;
 
-            animation: aiTwinkle 2.4s ease-in-out infinite;
+            animation: aiPortalPull 2.4s cubic-bezier(0.5, 0, 0.9, 0.6) var(--d) infinite;
         }
 
-        .ai-magic-sparkle:nth-child(2) { left: 14%; top: 22%; animation-delay: 0s; }
-        .ai-magic-sparkle:nth-child(3) { left: 80%; top: 18%; animation-delay: 0.4s; }
-        .ai-magic-sparkle:nth-child(4) { left: 24%; top: 76%; animation-delay: 0.8s; }
-        .ai-magic-sparkle:nth-child(5) { left: 70%; top: 70%; animation-delay: 1.2s; }
-        .ai-magic-sparkle:nth-child(6) { left: 46%; top: 12%; animation-delay: 1.6s; }
-        .ai-magic-sparkle:nth-child(7) { left: 90%; top: 48%; animation-delay: 2s; }
+        /* Dark eye of the portal holding Rupa */
 
-        /* Glowing orb with two counter-rotating rings */
-
-        .ai-magic-orb {
-            position: relative;
-            z-index: 2;
-
-            width: 110px;
-            height: 110px;
-
-            margin: 0 auto 18px;
-        }
-
-        .ai-magic-ring {
+        .ai-portal-core {
             position: absolute;
-
-            inset: 0;
-
-            border-radius: 50%;
-
-            background:
-                conic-gradient(
-                    from 0deg,
-                    transparent,
-                    #54c4ff,
-                    #ffffff,
-                    #a57bff,
-                    transparent 70%
-                );
-
-            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-            mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-
-            animation: aiSpin 1.4s linear infinite;
-        }
-
-        .ai-magic-ring-inner {
-            inset: 16px;
-
-            animation: aiSpin 2s linear infinite reverse;
-        }
-
-        .ai-magic-core {
-            position: absolute;
-
-            inset: 30px;
+            inset: 38%;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
+            overflow: hidden;
+
             border-radius: 50%;
 
-            font-size: 26px;
+            font-size: 38px;
 
             background:
                 radial-gradient(
                     circle,
-                    rgba(255, 255, 255, 0.95),
-                    rgba(84, 196, 255, 0.6) 55%,
-                    transparent 75%
+                    #061a5a 0%,
+                    #020a28 55%,
+                    #000105 100%
                 );
 
-            animation: aiCorePulse 1.6s ease-in-out infinite;
+            box-shadow:
+                0 0 26px 6px rgba(0, 2, 12, 0.95),
+                0 0 40px rgba(20, 70, 230, 0.55),
+                inset 0 0 24px rgba(0, 0, 0, 0.9);
+
+            animation: aiCorePulse 2s ease-in-out infinite;
+        }
+
+        .ai-portal-core img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+        /* DONE: the portal flares up to bright white */
+
+        .ai-magic-placeholder.is-done .ai-portal {
+            filter: brightness(6) saturate(0);
+
+            scale: 1.15;
+        }
+
+        .ai-magic-placeholder.is-done .ai-portal-core {
+            background: #ffffff;
         }
 
         @keyframes aiAurora {
             0%,
             100% {
-                background-position: 0% 50%;
+                background-position: 0 0, 0% 50%;
             }
 
             50% {
-                background-position: 100% 50%;
-            }
-        }
-
-        @keyframes aiScan {
-            from {
-                top: -90px;
-            }
-
-            to {
-                top: 100%;
-            }
-        }
-
-        @keyframes aiTwinkle {
-            0%,
-            100% {
-                opacity: 0;
-                scale: 0.3;
-            }
-
-            50% {
-                opacity: 1;
-                scale: 1.2;
+                background-position: 0 0, 100% 50%;
             }
         }
 
@@ -1060,33 +1177,75 @@
             }
         }
 
-        @keyframes aiCorePulse {
+        @keyframes aiPortalBreathe {
             0%,
             100% {
-                scale: 0.9;
-                box-shadow: 0 0 20px rgba(84, 196, 255, 0.6);
+                opacity: 0.75;
+                scale: 0.95;
             }
 
             50% {
-                scale: 1.1;
-                box-shadow: 0 0 40px rgba(165, 123, 255, 0.9);
+                opacity: 1;
+                scale: 1.05;
+            }
+        }
+
+        @keyframes aiPortalFlicker {
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            55% {
+                opacity: 0.45;
+            }
+
+            70% {
+                opacity: 0.9;
+            }
+        }
+
+        @keyframes aiPortalPull {
+            0% {
+                opacity: 0;
+                transform: rotate(var(--a)) translateX(48cqw) scale(1);
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: rotate(calc(var(--a) + 220deg)) translateX(0) scale(0.2);
+            }
+        }
+
+        @keyframes aiCorePulse {
+            0%,
+            100% {
+                scale: 0.97;
+            }
+
+            50% {
+                scale: 1.03;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
             .ai-magic-placeholder,
-            .ai-magic-scan,
-            .ai-magic-sparkle,
-            .ai-magic-ring,
-            .ai-magic-core {
+            .ai-portal-mist,
+            .ai-portal-swirl,
+            .ai-portal-ring,
+            .ai-portal-core {
                 animation: none;
             }
 
-            .ai-magic-sparkle {
-                opacity: 0.8;
-            }
-
-            .ai-magic-scan {
+            .ai-portal-spark {
                 display: none;
             }
         }
@@ -1551,6 +1710,96 @@
                 animation-delay: 0s;
             }
         }
+
+
+        /* =====================================================
+           INTRO — generating box full screen, then settles
+           The AI Result box first appears alone, enlarged in
+           the middle of the screen. After a few seconds it
+           glides back into its place and the rest of the page
+           fades in around it.
+        ===================================================== */
+
+        .top-nav,
+        .title-section,
+        .theme-label,
+        .generation-container > .photo-container:not(.ai-result-container),
+        .rupa-character,
+        .ai-result-container .photo-title {
+            transition:
+                opacity .6s ease var(--gen-reveal-delay, 0s),
+                translate .6s ease var(--gen-reveal-delay, 0s);
+        }
+
+        .title-section {
+            --gen-reveal-delay: .1s;
+        }
+
+        .theme-label {
+            --gen-reveal-delay: .2s;
+        }
+
+        .generation-container > .photo-container:not(.ai-result-container) {
+            --gen-reveal-delay: .3s;
+        }
+
+        .rupa-character {
+            --gen-reveal-delay: .45s;
+        }
+
+        .ai-result-container .photo-title {
+            --gen-reveal-delay: .3s;
+        }
+
+        .top-nav {
+            --gen-reveal-delay: .6s;
+        }
+
+        html.gen-intro .top-nav,
+        html.gen-intro .title-section,
+        html.gen-intro .theme-label,
+        html.gen-intro .generation-container > .photo-container:not(.ai-result-container),
+        html.gen-intro .rupa-character,
+        html.gen-intro .ai-result-container .photo-title {
+            opacity: 0;
+            translate: 0 18px;
+
+            pointer-events: none;
+        }
+
+        /* Hidden until the script has moved it to the centre */
+
+        html.gen-intro #aiResultFrame {
+            position: relative;
+            z-index: 50;
+
+            opacity: 0;
+        }
+
+        html.gen-intro #aiResultFrame.is-intro-ready {
+            opacity: 1;
+
+            animation: genIntroPop .7s cubic-bezier(.2, .8, .2, 1) both;
+        }
+
+        #aiResultFrame.is-settling {
+            position: relative;
+            z-index: 50;
+
+            transition: transform 1.1s cubic-bezier(.65, 0, .25, 1);
+        }
+
+        @keyframes genIntroPop {
+            from {
+                opacity: 0;
+                scale: .7;
+            }
+
+            to {
+                opacity: 1;
+                scale: 1;
+            }
+        }
     </style>
 </head>
 
@@ -1638,10 +1887,6 @@
         <h1>
             Applying AI Magic
         </h1>
-
-        <p id="topStatusText">
-            Your photo is being transformed...
-        </p>
 
     </section>
 
@@ -1750,32 +1995,60 @@
 
         <!-- GENERATED -->
 
-        <div class="photo-container">
+        <div class="photo-container ai-result-container">
 
             <div class="photo-title">
                 AI Result
             </div>
 
-            <div class="photo-frame">
+            <div class="photo-frame" id="aiResultFrame">
 
                 <div class="photo-placeholder ai-magic-placeholder">
 
                     <!-- AI "creating" animation -->
 
                     <div class="ai-magic" id="aiMagic" aria-hidden="true">
-                        <span class="ai-magic-scan"></span>
 
-                        <span class="ai-magic-sparkle"></span>
-                        <span class="ai-magic-sparkle"></span>
-                        <span class="ai-magic-sparkle"></span>
-                        <span class="ai-magic-sparkle"></span>
-                        <span class="ai-magic-sparkle"></span>
-                        <span class="ai-magic-sparkle"></span>
+                        <!--
+                            Noise that bends the portal's arms like
+                            swirling energy instead of straight rays.
+                        -->
+                        <svg class="ai-portal-filters" width="0" height="0" focusable="false">
+                            <filter id="aiPortalWarp" x="-25%" y="-25%" width="150%" height="150%">
+                                <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="7" result="noise">
+                                    <animate attributeName="baseFrequency" dur="9s" values="0.018;0.03;0.018" repeatCount="indefinite" />
+                                </feTurbulence>
+                                <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G" />
+                            </filter>
+                        </svg>
 
-                        <div class="ai-magic-orb">
-                            <span class="ai-magic-ring"></span>
-                            <span class="ai-magic-ring ai-magic-ring-inner"></span>
-                            <span class="ai-magic-core">✨</span>
+                        <div class="ai-portal">
+                            <span class="ai-portal-mist"></span>
+
+                            <span class="ai-portal-swirl" style="--i: 0%; --r: 0deg; --s: 7s;"></span>
+                            <span class="ai-portal-swirl" style="--i: 9%; --r: 12deg; --s: 5s;"></span>
+                            <span class="ai-portal-swirl" style="--i: 17%; --r: 24deg; --s: 3.6s;"></span>
+                            <span class="ai-portal-swirl" style="--i: 24%; --r: 36deg; --s: 2.5s;"></span>
+
+                            <span class="ai-portal-ring"></span>
+
+                            <span class="ai-portal-spark" style="--a: 0deg; --d: 0s;"></span>
+                            <span class="ai-portal-spark" style="--a: 45deg; --d: 0.8s;"></span>
+                            <span class="ai-portal-spark" style="--a: 90deg; --d: 1.6s;"></span>
+                            <span class="ai-portal-spark" style="--a: 135deg; --d: 0.4s;"></span>
+                            <span class="ai-portal-spark" style="--a: 180deg; --d: 1.2s;"></span>
+                            <span class="ai-portal-spark" style="--a: 225deg; --d: 2s;"></span>
+                            <span class="ai-portal-spark" style="--a: 270deg; --d: 0.6s;"></span>
+                            <span class="ai-portal-spark" style="--a: 315deg; --d: 1.4s;"></span>
+
+                            <!-- Centre picture: public/images/rupa-generating.png -->
+                            <span class="ai-portal-core">
+                                <img
+                                    src="{{ asset('images/rupa-generating.png') }}"
+                                    alt=""
+                                    onerror="this.replaceWith('✨')"
+                                >
+                            </span>
                         </div>
                     </div>
 
@@ -1928,11 +2201,25 @@
         message
     ) {
 
+        stopProgressCreep();
+
+        setProgressBar(value);
+
+        setProgressMessage(message);
+
+    }
+
+    function setProgressBar(value) {
+
         progressFill.style.width =
             value + '%';
 
         progressText.textContent =
-            value + '%';
+            Math.round(value) + '%';
+
+    }
+
+    function setProgressMessage(message) {
 
         statusText.textContent =
             message;
@@ -1947,12 +2234,60 @@
 
 
     /*
+     * Gemini does not report how far along an image is,
+     * so while waiting the bar eases from `from` towards
+     * `ceiling`, slowing down as it gets closer so it never
+     * finishes before the photo really is ready. Around
+     * `expectedMilliseconds` it is roughly 85% of the way.
+     */
+
+    let progressCreepTimer = null;
+
+    function startProgressCreep(
+        from,
+        ceiling,
+        expectedMilliseconds
+    ) {
+
+        stopProgressCreep();
+
+        const startedAt =
+            performance.now();
+
+        progressCreepTimer = setInterval(() => {
+
+            const elapsed =
+                performance.now() - startedAt;
+
+            const eased =
+                1 - Math.exp(-2 * elapsed / expectedMilliseconds);
+
+            setProgressBar(
+                from + (ceiling - from) * eased
+            );
+
+        }, 250);
+
+    }
+
+    function stopProgressCreep() {
+
+        clearInterval(progressCreepTimer);
+
+        progressCreepTimer = null;
+
+    }
+
+
+    /*
     |--------------------------------------------------------------------------
     | Show Error (visible to the guest, stops the spinner)
     |--------------------------------------------------------------------------
     */
 
     function showError(message) {
+
+        stopProgressCreep();
 
         statusText.textContent = message;
 
@@ -1976,6 +2311,8 @@
 
         if (aiMagic) {
             aiMagic.style.display = 'none';
+
+            aiMagic.parentElement.classList.add('is-error');
         }
 
         if (loadingText) {
@@ -2038,6 +2375,8 @@
         }
 
 
+        let creatingMessageTimer = null;
+
         try {
 
             updateProgress(
@@ -2053,6 +2392,13 @@
                 25,
                 'Uploading your photo...'
             );
+
+            startProgressCreep(25, 90, 20000);
+
+            creatingMessageTimer =
+                setTimeout(() => {
+                    setProgressMessage('AI is creating your photo...');
+                }, 1500);
 
 
             /*
@@ -2096,10 +2442,7 @@
                 );
 
 
-            updateProgress(
-                45,
-                'AI is creating your photo...'
-            );
+            clearTimeout(creatingMessageTimer);
 
 
             let data = null;
@@ -2166,6 +2509,12 @@
 
 
             sessionStorage.setItem(
+                'rupavueAiPhoto',
+                data.ai_image || data.generated_image
+            );
+
+
+            sessionStorage.setItem(
                 'rupavueOriginalPhoto',
                 data.original_image
             );
@@ -2183,6 +2532,12 @@
             );
 
 
+            sessionStorage.setItem(
+                'rupavueQrCodeUrl',
+                data.qr_code_url || ''
+            );
+
+
             await wait(700);
 
 
@@ -2192,7 +2547,20 @@
             );
 
 
-            await wait(500);
+            /*
+            * Portal flares up to bright white
+            */
+
+            document
+                .querySelector('.ai-magic-placeholder')
+                .classList
+                .add('is-done');
+
+            document.getElementById('loadingText').textContent =
+                'Your photo is ready!';
+
+
+            await wait(1100);
 
 
             /*
@@ -2237,6 +2605,8 @@
 
         } catch (error) {
 
+            clearTimeout(creatingMessageTimer);
+
             console.error(
                 error
             );
@@ -2250,6 +2620,72 @@
         }
 
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Intro
+    |--------------------------------------------------------------------------
+    |
+    | Moves the AI Result box to the middle of the screen and
+    | enlarges it, holds it there for a few seconds, then lets
+    | it glide back into place while the rest of the page
+    | fades in.
+    */
+
+    function playGenerateIntro() {
+
+        const aiResultFrame =
+            document.getElementById('aiResultFrame');
+
+        const root =
+            document.documentElement;
+
+        if (!root.classList.contains('gen-intro') || !aiResultFrame) {
+            root.classList.remove('gen-intro');
+
+            return;
+        }
+
+        const bounds =
+            aiResultFrame.getBoundingClientRect();
+
+        const scale =
+            Math.min(
+                (window.innerWidth * 0.9) / bounds.width,
+                (window.innerHeight * 0.85) / bounds.height
+            );
+
+        const offsetX =
+            window.innerWidth / 2 - (bounds.left + bounds.width / 2);
+
+        const offsetY =
+            window.innerHeight / 2 - (bounds.top + bounds.height / 2);
+
+        aiResultFrame.style.transform =
+            'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
+
+        aiResultFrame.classList.add('is-intro-ready');
+
+        setTimeout(function () {
+
+            aiResultFrame.classList.add('is-settling');
+
+            aiResultFrame.style.transform = '';
+
+            root.classList.remove('gen-intro');
+
+            aiResultFrame.classList.remove('is-intro-ready');
+
+            setTimeout(function () {
+                aiResultFrame.classList.remove('is-settling');
+            }, 1200);
+
+        }, 3000);
+
+    }
+
+    playGenerateIntro();
 
 
     /*

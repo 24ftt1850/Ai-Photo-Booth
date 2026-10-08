@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\GeminiController;
-use App\Http\Controllers\GoogleDriveController;
 use App\Http\Controllers\PhotoboothController;
 use App\Http\Controllers\PhotoboothFeedbackController;
 use App\Http\Controllers\PhotoboothPrintController;
@@ -9,7 +8,6 @@ use App\Http\Controllers\PublicPhotoController;
 use App\Models\GeneratedImage;
 use App\Models\PhotoFrame;
 use App\Models\Theme;
-use App\Services\GoogleDriveService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -116,10 +114,13 @@ Route::post(
 Route::get('/', function () {
 
     /*
-     * First visit: show the one-time setup page
-     * before the welcome page.
+     * Opening the link from outside the booth (a clicked link,
+     * bookmark or typed URL) shows the setup page first. Coming
+     * back to home from inside the booth goes straight to welcome.
      */
-    if (! request()->cookie('rupavue_setup_complete')) {
+    $refererHost = parse_url((string) request()->headers->get('referer'), PHP_URL_HOST);
+
+    if ($refererHost !== request()->getHost()) {
         return redirect()->route('setup');
     }
 
@@ -131,11 +132,25 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Dashboard
+|--------------------------------------------------------------------------
+| Where Fortify sends users after logging in. Admin work happens
+| on the separate RupaVue admin site, so go back to the booth.
+*/
+
+Route::get('/dashboard', function () {
+
+    return redirect()->route('home');
+
+})->middleware('auth')->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
 | One-time Setup (IP address + event)
 |--------------------------------------------------------------------------
-| Shown once, before the welcome page. The IP address and event
-| are not saved or used yet; completing setup only remembers,
-| with a long-lived cookie, that it has been done.
+| Shown each time the booth link is opened, before the welcome page.
+| The IP address and event are not saved or used yet; completing
+| setup just continues to the welcome page.
 */
 
 Route::get('/setup', function () {
@@ -146,9 +161,7 @@ Route::get('/setup', function () {
 
 Route::post('/setup', function () {
 
-    return redirect()
-        ->route('home')
-        ->withCookie(cookie()->forever('rupavue_setup_complete', '1'));
+    return redirect()->route('home');
 
 })->name('setup.complete');
 
@@ -201,107 +214,7 @@ Route::get(
     [PublicPhotoController::class, 'download']
 )->name('public.photo.download');
 
-/*
-|--------------------------------------------------------------------------
-| Google Drive
-|--------------------------------------------------------------------------
-*/
-
 Route::get(
-    '/google-drive/connect',
-    [GoogleDriveController::class, 'connect']
-)->name('google-drive.connect');
-
-Route::get(
-    '/google-drive/callback',
-    [GoogleDriveController::class, 'callback']
-)->name('google-drive.callback');
-
-Route::get(
-    '/google-drive/test',
-    [GoogleDriveController::class, 'test']
-)->name('google-drive.test');
-
-Route::get(
-    '/google-drive/upload-test',
-    [GoogleDriveController::class, 'uploadTest']
-)->name('google-drive.upload-test');
-
-Route::get(
-    '/google-drive/service-test',
-    function (GoogleDriveService $googleDrive) {
-
-        try {
-
-            $testFilePath = storage_path(
-                'app/google/rupavue-service-test.png'
-            );
-
-            /*
-             * Create a simple 500x500 PNG.
-             */
-            $image = imagecreatetruecolor(500, 500);
-
-            $background = imagecolorallocate(
-                $image,
-                30,
-                35,
-                50
-            );
-
-            $white = imagecolorallocate(
-                $image,
-                255,
-                255,
-                255
-            );
-
-            imagefill(
-                $image,
-                0,
-                0,
-                $background
-            );
-
-            imagestring(
-                $image,
-                5,
-                150,
-                240,
-                'RUPAVUE TEST',
-                $white
-            );
-
-            imagepng(
-                $image,
-                $testFilePath
-            );
-
-            imagedestroy($image);
-
-            /*
-             * Upload PNG to Google Drive.
-             */
-            $result = $googleDrive->uploadImage(
-                $testFilePath,
-                'RUPAVUE-Service-Test-'.
-                    now()->format('Ymd-His').
-                    '.png'
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'GoogleDriveService upload successful.',
-
-                'file' => $result,
-            ]);
-
-        } catch (Throwable $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-)->name('google-drive.service-test');
+    '/photo/{token}/qr',
+    [PublicPhotoController::class, 'qrCode']
+)->name('public.photo.qr');

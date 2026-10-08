@@ -99,13 +99,28 @@ test('generate page shows an ai magic animation instead of a loading circle', fu
     $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
 
     expect($html)->toMatch('/AI Result.*<div class="photo-placeholder ai-magic-placeholder">\s*<!-- AI "creating" animation -->\s*<div class="ai-magic" id="aiMagic"/s')
-        ->toContain('class="ai-magic-scan"')
-        ->toContain('class="ai-magic-orb"')
+        ->toContain('class="ai-portal"')
         ->toMatch('/\.ai-magic-placeholder \{[^}]*animation: aiAurora /')
-        ->toMatch('/\.ai-magic-scan \{[^}]*animation: aiScan /')
         ->toContain("aiMagic.style.display = 'none';")
         ->not->toContain('loading-circle')
         ->not->toContain('loadingCircle');
+});
+
+test('generate page shows a dark blue portal around rupa that turns bright white when done', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/<span class="ai-portal-core">\s*<img\s+src="[^"]*images\/rupa-generating\.png"/')
+        ->toContain('class="ai-portal-swirl"')
+        ->toContain('<filter id="aiPortalWarp"')
+        ->toMatch('/\.ai-magic \{[^}]*position: absolute;[^}]*inset: 0;/')
+        ->toMatch('/\.ai-portal \{[^}]*width: 135%;/')
+        ->toContain("aiMagic.parentElement.classList.add('is-error');")
+        ->toMatch('/\.ai-portal-swirl \{[^}]*filter: url\(#aiPortalWarp\)/')
+        ->toContain('class="ai-portal-spark"')
+        ->toMatch('/\.ai-portal-swirl \{[^}]*repeating-conic-gradient[^}]*animation: aiSpin /')
+        ->toMatch('/\.ai-magic-placeholder\.is-done \.ai-portal \{[^}]*filter: brightness\(6\) saturate\(0\);/')
+        ->toMatch('/\.ai-magic-placeholder\.is-done::after \{[^}]*opacity: 1;/')
+        ->toMatch("/updateProgress\(\s*100,.*?\.add\('is-done'\).*?flash\.classList\.add\('active'\)/s");
 });
 
 test('generate page shows the loading bar as rupa talking in a speech bubble', function () {
@@ -119,4 +134,71 @@ test('generate page shows the loading bar as rupa talking in a speech bubble', f
         ->toMatch('/\.rupa-speech \{[^}]*width: clamp\(260px, 22vw, 380px\);[^}]*padding: 18px 22px;/')
         ->toMatch('/\.rupa-speech-message \{[^}]*font-size: 20px;/')
         ->and(substr_count($html, 'id="progressFill"'))->toBe(1);
+});
+
+test('result page places the start new session button a bit lower under print', function () {
+    $html = (string) $this->view('photobooth.result', ['photoFrames' => collect()]);
+
+    expect($html)->toMatch('/\.new-session \{[^}]*margin: 16px 0 0 !important;/')
+        ->toMatch('/\.new-session-button \{[^}]*height: 76px !important;/');
+});
+
+test('generate page opens with the generating box full screen before it settles into place', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch("/<head>.*document\.documentElement\.classList\.add\('gen-intro'\).*<\/head>/s")
+        ->toContain('<div class="photo-container ai-result-container">')
+        ->toContain('<div class="photo-frame" id="aiResultFrame">')
+        ->toMatch('/html\.gen-intro \.title-section,[^{]*\{[^}]*opacity: 0;/')
+        ->toMatch('/#aiResultFrame\.is-settling \{[^}]*transition: transform 1\.1s/')
+        ->toMatch("/function playGenerateIntro\(\).*?root\.classList\.remove\('gen-intro'\).*?\}, 3000\);/s")
+        ->toMatch('/playGenerateIntro\(\);\s.*generateAIImage\(\);/s');
+});
+
+test('generator returns the ai image without its frame and the generate page keeps it', function () {
+    $source = file_get_contents(app_path('Http/Controllers/GeminiController.php'));
+
+    expect($source)->toMatch('/\'ai_image\' => Storage::url\(\s*\$generatedRelativePath\s*\)/');
+
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch("/sessionStorage\.setItem\(\s*'rupavueAiPhoto',\s*data\.ai_image \|\| data\.generated_image\s*\)/");
+});
+
+test('result page shows the unframed photo full screen before it settles into place', function () {
+    $html = (string) $this->view('photobooth.result', ['photoFrames' => collect()]);
+
+    expect($html)->toMatch("/<head>.*sessionStorage\.getItem\('rupavueAiPhoto'\).*document\.documentElement\.classList\.add\('result-intro'\).*<\/head>/s")
+        ->toContain('id="resultIntroImage"')
+        ->toMatch('/html\.result-intro \.qr-panel,[^{]*\{[^}]*animation-play-state: paused;/')
+        ->toMatch('/\.result-frame\.intro-played \{[^}]*animation: none;/')
+        ->toMatch('/\.result-frame\.is-settling \{[^}]*transition: transform 1\.1s/')
+        ->toMatch("/function playResultIntro\(\).*?introImage\.src = aiPhoto;.*?root\.classList\.remove\('result-intro'\).*?introImage\.classList\.add\('is-hidden'\).*?\}, 4000\);/s");
+});
+
+test('generate page shows the title without the subtitle underneath', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toContain('Applying AI Magic')
+        ->not->toContain('id="topStatusText"')
+        ->not->toContain('Your photo is being transformed...');
+});
+
+test('generate page shows the theme name in larger text', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/\.theme-label span \{[^}]*font-size: 21px;/');
+});
+
+test('generate page eases the progress bar while waiting for the ai photo', function () {
+    $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()])
+        ->assertSee('function startProgressCreep(', false)
+        ->assertSeeInOrder([
+            "'Uploading your photo...'",
+            'startProgressCreep(25, 90, 20000)',
+            'await fetch(',
+            'clearTimeout(creatingMessageTimer)',
+            "'Finishing your photo...'",
+        ], false)
+        ->assertDontSee("updateProgress(\n                45,", false);
 });

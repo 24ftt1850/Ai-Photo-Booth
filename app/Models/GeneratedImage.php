@@ -24,7 +24,9 @@ class GeneratedImage extends Model
         'resolution',
         'generated_photo_path',
         'applied_frame_path',
+        'chosen_frame_id',
         'generation_status',
+        'failure_reason',
         'satisfaction_rating',
         'feedback_comment',
 
@@ -55,5 +57,18 @@ class GeneratedImage extends Model
     public function theme()
     {
         return $this->belongsTo(Theme::class, 'theme_id');
+    }
+
+    /**
+     * Link the guest's QR code opens: the shared Google Drive file
+     * when it is public, otherwise this app's own photo page.
+     */
+    public function publicPhotoUrl(): string
+    {
+        if ($this->google_drive_status === 'public' && $this->google_drive_url) {
+            return $this->google_drive_url;
+        }
+
+        return route('public.photo.show', $this->public_token);
     }
 }

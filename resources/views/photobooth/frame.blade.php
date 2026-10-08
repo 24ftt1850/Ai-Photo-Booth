@@ -110,17 +110,30 @@
         .frame-header h1 {
             font-size: clamp(38px, 5vw, 64px);
             font-weight: 800;
-            margin-bottom: 10px;
 
             text-shadow:
-                0 0 10px rgba(255,255,255,.18),
-                0 0 28px rgba(0,102,255,.28);
+                0 0 5px rgba(255,255,255,.8),
+                0 0 18px rgba(0,123,255,.75),
+                0 0 45px rgba(0,92,255,.45);
+
+            animation: frameTitleGlow 2.4s ease-in-out infinite;
         }
 
-        .frame-header p {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 18px;
-            color: rgba(255,255,255,.7);
+        @keyframes frameTitleGlow {
+            0%,
+            100% {
+                text-shadow:
+                    0 0 5px rgba(255,255,255,.8),
+                    0 0 18px rgba(0,123,255,.75),
+                    0 0 45px rgba(0,92,255,.45);
+            }
+
+            50% {
+                text-shadow:
+                    0 0 8px rgba(255,255,255,.95),
+                    0 0 28px rgba(30,144,255,1),
+                    0 0 70px rgba(0,100,255,.7);
+            }
         }
 
 
@@ -302,12 +315,82 @@
                 inset 0 1px 0 rgba(255,255,255,.9);
 
             transition: .25s ease;
+
+            position: relative;
+            isolation: isolate;
+        }
+
+        /*
+         * Blinking blue glow and ring around the button,
+         * matching the START SESSION button on the welcome page.
+         */
+        .next-button::before,
+        .next-button::after {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            z-index: -1;
+            border-radius: inherit;
+            pointer-events: none;
+            will-change: opacity;
+        }
+
+        .next-button::before {
+            box-shadow:
+                0 0 22px 4px rgba(0,140,255,.95),
+                0 0 60px 14px rgba(0,100,255,.6),
+                0 0 110px 30px rgba(0,80,255,.3);
+
+            animation: nextGlowBlink 1.4s ease-in-out infinite;
+        }
+
+        .next-button::after {
+            inset: -6px;
+            border: 4px solid #1e90ff;
+
+            animation: nextRingBlink 1.4s ease-in-out infinite;
+        }
+
+        @keyframes nextGlowBlink {
+            0%,
+            100% {
+                opacity: .25;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes nextRingBlink {
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         .next-button:disabled {
             opacity: .45;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        .next-button:disabled::before,
+        .next-button:disabled::after {
+            animation: none;
+            opacity: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .frame-header h1,
+            .next-button::before,
+            .next-button::after {
+                animation: none;
+            }
         }
 
         .top-nav {
@@ -409,10 +492,6 @@
         <h1>
             Choose Your Frame
         </h1>
-
-        <p>
-            {{ $theme->theme_name }} · pick a frame for your photo
-        </p>
 
     </header>
 

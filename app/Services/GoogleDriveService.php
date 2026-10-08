@@ -5,83 +5,59 @@ namespace App\Services;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
-use Illuminate\Support\Facades\Storage;
+use Google\Service\Drive\Permission;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class GoogleDriveService
 {
     /**
-     * Where the OAuth token is persisted, relative to the
-     * "local" storage disk (storage/app/...).
+     * Absolute path of the persisted OAuth token.
      *
      * Kept on disk instead of the PHP session so that any
      * request (including unattended kiosk requests that never
      * touch the OAuth flow themselves) can upload to Drive once
      * an admin has connected the account a single time.
+     *
+     * GOOGLE_DRIVE_TOKEN_PATH points this at the RupaVue admin
+     * site's token, so connecting Google there also connects
+     * the photobooth.
      */
-    private const TOKEN_PATH = 'google/token.json';
+    private function tokenPath(): string
+    {
+        return config('services.google_drive.token_path')
+            ?: storage_path('app/private/google/token.json');
+    }
 
     /**
-     * Build a fresh, unauthenticated Google client using the
-     * credentials provided by the admin (client id/secret).
+     * Build a fresh, unauthenticated Google client.
+     *
+     * A token must be refreshed with the Google app that issued
+     * it, so the RupaVue admin site's client id/secret are only
+     * used with its shared token (GOOGLE_DRIVE_TOKEN_PATH); the
+     * local token uses this app's own credentials.json.
      */
     private function buildBaseClient(): Client
     {
-        $client = new Client();
+        $client = new Client;
 
-        $credentialsPath = base_path(
-            env(
-                'GOOGLE_DRIVE_CREDENTIALS',
-                'storage/app/google/credentials.json'
-            )
-        );
+        $adminCredentials = config('services.google_drive.token_path')
+            ? $this->adminSiteCredentials()
+            : null;
 
-        $client->setAuthConfig($credentialsPath);
-
-        $client->setRedirectUri(
-            env(
-                'GOOGLE_DRIVE_REDIRECT_URI',
-                'http://127.0.0.1:8000/google-drive/callback'
-            )
-        );
-
-        $client->setAccessType('offline');
-        $client->setPrompt('consent');
+        if ($adminCredentials) {
+            $client->setClientId($adminCredentials['client_id']);
+            $client->setClientSecret($adminCredentials['client_secret']);
+        } else {
+            $client->setAuthConfig(base_path(
+                config('services.google_drive.credentials')
+            ));
+        }
 
         $client->addScope(Drive::DRIVE);
 
         return $client;
     }
-
-
-    /**
-     * URL the admin visits once to grant Drive access.
-     */
-    public function getAuthUrl(): string
-    {
-        return $this->buildBaseClient()->createAuthUrl();
-    }
-
-
-    /**
-     * Exchange the OAuth code for a token and persist it to disk.
-     */
-    public function handleAuthCode(string $code): array
-    {
-        $client = $this->buildBaseClient();
-
-        $token = $client->fetchAccessTokenWithAuthCode($code);
-
-        if (isset($token['error'])) {
-            throw new \Exception(
-                $token['error_description'] ?? $token['error']
-            );
-        }
-
-        $this->saveToken($token);
-
-        return $token;
-    }
-
 
     /**
      * Whether we currently hold a usable (refreshable) token.
@@ -91,24 +67,47 @@ class GoogleDriveService
         $token = $this->loadToken();
 
         return $token !== null
-            && !empty($token['refresh_token']);
+            && ! empty($token['refresh_token']);
     }
 
+    /**
+     * Client id/secret the RupaVue admin site keeps in the shared
+     * google_drive_settings table, so the photobooth refreshes the
+     * shared token with the same Google app as the admin site.
+     *
+     * @return array{client_id: string, client_secret: string}|null
+     */
+    private function adminSiteCredentials(): ?array
+    {
+        try {
+            $settings = DB::table('google_drive_settings')->first(['client_id', 'client_secret']);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (! $settings || blank($settings->client_id) || blank($settings->client_secret)) {
+            return null;
+        }
+
+        return [
+            'client_id' => $settings->client_id,
+            'client_secret' => $settings->client_secret,
+        ];
+    }
 
     private function loadToken(): ?array
     {
-        if (!Storage::disk('local')->exists(self::TOKEN_PATH)) {
+        if (! File::exists($this->tokenPath())) {
             return null;
         }
 
         $token = json_decode(
-            Storage::disk('local')->get(self::TOKEN_PATH),
+            File::get($this->tokenPath()),
             true
         );
 
         return is_array($token) ? $token : null;
     }
-
 
     private function saveToken(array $token): void
     {
@@ -123,17 +122,23 @@ class GoogleDriveService
 
             $existing = $this->loadToken();
 
-            if ($existing && !empty($existing['refresh_token'])) {
+            if ($existing && ! empty($existing['refresh_token'])) {
                 $token['refresh_token'] = $existing['refresh_token'];
             }
         }
 
-        Storage::disk('local')->put(
-            self::TOKEN_PATH,
-            json_encode($token)
+        File::ensureDirectoryExists(dirname($this->tokenPath()));
+
+        File::put(
+            $this->tokenPath(),
+            json_encode($token, JSON_PRETTY_PRINT)
         );
     }
 
+    private function forgetToken(): void
+    {
+        File::delete($this->tokenPath());
+    }
 
     /**
      * Build an authenticated client, refreshing the access token
@@ -143,9 +148,9 @@ class GoogleDriveService
     {
         $token = $this->loadToken();
 
-        if (!$token) {
+        if (! $token) {
             throw new \Exception(
-                'Google Drive is not connected. Please connect it from the admin panel first.'
+                'Google Drive is not connected. Please connect it from the RupaVue admin site first.'
             );
         }
 
@@ -158,7 +163,7 @@ class GoogleDriveService
             $refreshToken = $token['refresh_token']
                 ?? $client->getRefreshToken();
 
-            if (!$refreshToken) {
+            if (! $refreshToken) {
                 throw new \Exception(
                     'Google Drive access has expired and there is no refresh token. Please reconnect Google Drive.'
                 );
@@ -169,8 +174,18 @@ class GoogleDriveService
             );
 
             if (isset($refreshed['error'])) {
+
+                /*
+                 * A revoked or expired refresh token can never work
+                 * again, so forget it and let the RupaVue admin site
+                 * show that Google must be reconnected.
+                 */
+                if ($refreshed['error'] === 'invalid_grant') {
+                    $this->forgetToken();
+                }
+
                 throw new \Exception(
-                    'Failed to refresh Google Drive access: ' .
+                    'Failed to refresh Google Drive access: '.
                     ($refreshed['error_description'] ?? $refreshed['error'])
                 );
             }
@@ -183,7 +198,6 @@ class GoogleDriveService
         return $client;
     }
 
-
     /**
      * Fetch metadata for the configured destination folder, used
      * to confirm the connection is working.
@@ -194,9 +208,9 @@ class GoogleDriveService
 
         $drive = new Drive($client);
 
-        $folderId = env('GOOGLE_DRIVE_GENERATED_FOLDER_ID');
+        $folderId = config('services.google_drive.generated_folder_id');
 
-        if (!$folderId) {
+        if (! $folderId) {
             throw new \Exception(
                 'GOOGLE_DRIVE_GENERATED_FOLDER_ID is not configured.'
             );
@@ -214,22 +228,17 @@ class GoogleDriveService
         ];
     }
 
-
     /**
      * Upload an image to the RUPAVUE Google Drive folder.
-     *
-     * @param string $localFilePath
-     * @param string $fileName
-     * @return array
      */
     public function uploadImage(
         string $localFilePath,
         string $fileName
     ): array {
 
-        if (!file_exists($localFilePath)) {
+        if (! file_exists($localFilePath)) {
             throw new \Exception(
-                'Image file does not exist: ' . $localFilePath
+                'Image file does not exist: '.$localFilePath
             );
         }
 
@@ -237,16 +246,13 @@ class GoogleDriveService
 
         $drive = new Drive($client);
 
-        $folderId = env(
-            'GOOGLE_DRIVE_GENERATED_FOLDER_ID'
-        );
+        $folderId = config('services.google_drive.generated_folder_id');
 
-        if (!$folderId) {
+        if (! $folderId) {
             throw new \Exception(
                 'GOOGLE_DRIVE_GENERATED_FOLDER_ID is not configured.'
             );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -258,10 +264,9 @@ class GoogleDriveService
             'name' => $fileName,
 
             'parents' => [
-                $folderId
+                $folderId,
             ],
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -279,7 +284,6 @@ class GoogleDriveService
             );
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Determine MIME type
@@ -290,10 +294,9 @@ class GoogleDriveService
             $localFilePath
         );
 
-        if (!$mimeType) {
+        if (! $mimeType) {
             $mimeType = 'image/png';
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -310,11 +313,9 @@ class GoogleDriveService
 
                 'uploadType' => 'multipart',
 
-                'fields' =>
-                    'id,name,mimeType,webViewLink',
+                'fields' => 'id,name,mimeType,webViewLink',
             ]
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -334,81 +335,82 @@ class GoogleDriveService
     }
 
     public function makeFilePublic(string $fileId): void
-{
-    if (empty($fileId)) {
-        throw new \Exception('Google Drive file ID is empty.');
+    {
+        if (empty($fileId)) {
+            throw new \Exception('Google Drive file ID is empty.');
+        }
+
+        $client = $this->getClient();
+        $drive = new Drive($client);
+
+        $permission = new Permission([
+            'type' => 'anyone',
+            'role' => 'reader',
+        ]);
+
+        $drive->permissions->create(
+            $fileId,
+            $permission
+        );
     }
 
-    $client = $this->getClient();
-    $drive = new Drive($client);
-
-    $permission = new \Google\Service\Drive\Permission([
-        'type' => 'anyone',
-        'role' => 'reader',
-    ]);
-
-    $drive->permissions->create(
-        $fileId,
-        $permission
-    );
-}
     /**
- * Download a file from Google Drive.
- *
- * The file is downloaded using its Google Drive file ID
- * and saved to a local temporary path.
- */
-public function downloadFile(
-    string $fileId,
-    string $localFilePath
-): string {
+     * Download a file from Google Drive.
+     *
+     * The file is downloaded using its Google Drive file ID
+     * and saved to a local temporary path.
+     */
+    public function downloadFile(
+        string $fileId,
+        string $localFilePath
+    ): string {
 
-    if (empty($fileId)) {
-        throw new \Exception(
-            'Google Drive file ID is empty.'
+        if (empty($fileId)) {
+            throw new \Exception(
+                'Google Drive file ID is empty.'
+            );
+        }
+
+        $client = $this->getClient();
+
+        $drive = new Drive($client);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Download file from Google Drive
+        |--------------------------------------------------------------------------
+        */
+
+        $response = $drive->files->get(
+            $fileId,
+            [
+                'alt' => 'media',
+            ]
         );
-    }
 
-    $client = $this->getClient();
+        $content = $response->getBody()->getContents();
 
-    $drive = new Drive($client);
+        if ($content === false || $content === '') {
+            throw new \Exception(
+                'Unable to download the file from Google Drive.'
+            );
+        }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Download file from Google Drive
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure destination directory exists
+        |--------------------------------------------------------------------------
+        */
 
-    $response = $drive->files->get(
-        $fileId,
-        [
-            'alt' => 'media',
-        ]
-    );
+        $directory = dirname($localFilePath);
 
-    $content = $response->getBody()->getContents();
-
-    if ($content === false || $content === '') {
-        throw new \Exception(
-            'Unable to download the file from Google Drive.'
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Make sure destination directory exists
-    |--------------------------------------------------------------------------
-    */
-
-    $directory = dirname($localFilePath);
-
-    if (!is_dir($directory)) {
-        mkdir(
-            $directory,
-            0755,
-            true
-        );
-    }
+        if (! is_dir($directory)) {
+            mkdir(
+                $directory,
+                0755,
+                true
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -429,5 +431,4 @@ public function downloadFile(
 
         return $localFilePath;
     }
-    
 }

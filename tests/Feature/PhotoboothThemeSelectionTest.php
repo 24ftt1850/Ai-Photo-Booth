@@ -274,7 +274,7 @@ test('rupa character talks and tells the guest to press start session', function
         ->toContain("[['Tap '], ['START SESSION', 'rupa-speech-highlight'], [' to begin!']]")
         ->toContain('async function startRupaTalking()')
         ->toMatch('/\.rupa-speech\.visible \{[^}]*opacity: 1;/')
-        ->toMatch('/\.rupa-speech \{[^}]*--rupa-speech-left: 42%;[^}]*bottom: var\(--rupa-speech-bottom\);[^}]*left: var\(--rupa-speech-left\);[^}]*max-width: var\(--rupa-speech-max\);[^}]*font-size: 20px;/')
+        ->toMatch('/\.rupa-speech \{[^}]*--rupa-speech-left: 42%;[^}]*bottom: var\(--rupa-speech-bottom\);[^}]*left: var\(--rupa-speech-left\);[^}]*max-width: var\(--rupa-speech-max\);[^}]*font-size: 24px;/')
         ->toContain('function fitRupaSpeech()')
         ->toContain("window.addEventListener('resize', fitRupaSpeech);")
         ->toMatch('/fitRupaSpeech\(\);\s*rupaSpeechText\.innerHTML = \'\';\s*rupaSpeech\.classList\.add\(\'visible\'\);/');

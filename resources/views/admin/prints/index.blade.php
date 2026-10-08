@@ -1,6 +1,11 @@
 <x-admin-layout title="Print Queue" subtitle="Photos guests have asked to print — print them from this computer">
 
     <x-slot:actions>
+        <label class="flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-semibold text-gray-300">
+            <input type="checkbox" id="autoPrintToggle" class="h-3.5 w-3.5 accent-violet-400">
+            Auto-print new orders
+        </label>
+
         <span class="rounded-full border border-violet-400/30 bg-violet-400/10 px-3 py-1 text-xs font-semibold text-violet-300">
             {{ $queuedPrints->count() }} waiting
         </span>
@@ -79,71 +84,134 @@
     @endif
 
     <script>
-        /*
-         * Print a queued photo on this (admin) computer, then
-         * mark it as printed once the print dialog closes.
-         */
         let isPrinting = false;
 
-        document.querySelectorAll('.admin-print-button').forEach(function (button) {
+        const printButtons = Array.from(document.querySelectorAll('.admin-print-button'));
+
+        const autoPrintToggle = document.getElementById('autoPrintToggle');
+
+        const autoPrintStorageKey = 'rupavueAutoPrint';
+
+        const renderedQueuedIds = @json($queuedPrints->pluck('id'));
+
+        function isAutoPrintEnabled() {
+            try {
+                return localStorage.getItem(autoPrintStorageKey) === '1';
+            } catch (error) {
+                return false;
+            }
+        }
+
+        /*
+         * Print a queued photo on this (admin) computer through a
+         * hidden iframe (no pop-up needed), then mark it as printed.
+         */
+        function printOrder(button) {
+            if (isPrinting) {
+                return;
+            }
+
+            isPrinting = true;
+
+            const printFrame = document.createElement('iframe');
+
+            printFrame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+
+            document.body.appendChild(printFrame);
+
+            const printDoc = printFrame.contentWindow.document;
+
+            printDoc.open();
+            printDoc.write('<!doctype html><html><head><title>RupaVue Photo</title></head><body></body></html>');
+            printDoc.close();
+
+            const printStyle = printDoc.createElement('style');
+
+            printStyle.textContent =
+                '@page { size: auto; margin: 0; }' +
+                'html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; display: flex; justify-content: center; align-items: center; }' +
+                'img { width: 3in; height: 2in; object-fit: cover; display: block; }';
+
+            printDoc.head.appendChild(printStyle);
+
+            const printImage = printDoc.createElement('img');
+
+            printImage.alt = 'RupaVue Photo';
+
+            printImage.onload = function () {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+
+                document.getElementById(button.dataset.printedForm).submit();
+            };
+
+            printImage.onerror = function () {
+                printFrame.remove();
+                isPrinting = false;
+
+                alert('Unable to load the photo for printing.');
+            };
+
+            printImage.src = new URL(button.dataset.photoUrl, window.location.href).href;
+
+            printDoc.body.appendChild(printImage);
+        }
+
+        printButtons.forEach(function (button) {
             button.addEventListener('click', function () {
-                const printWindow = window.open('', '_blank');
-
-                if (!printWindow) {
-                    alert('Please allow pop-ups to print the photo.');
-
-                    return;
-                }
-
-                isPrinting = true;
-
-                const printDoc = printWindow.document;
-
-                printDoc.title = 'RupaVue Photo';
-
-                const printStyle = printDoc.createElement('style');
-
-                printStyle.textContent =
-                    '@page { size: auto; margin: 0; }' +
-                    'html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; display: flex; justify-content: center; align-items: center; }' +
-                    'img { width: 3in; height: 2in; object-fit: cover; display: block; }';
-
-                printDoc.head.appendChild(printStyle);
-
-                const printImage = printDoc.createElement('img');
-
-                printImage.alt = 'RupaVue Photo';
-
-                printImage.onload = function () {
-                    printWindow.focus();
-                    printWindow.print();
-                    printWindow.close();
-
-                    document.getElementById(button.dataset.printedForm).submit();
-                };
-
-                printImage.onerror = function () {
-                    printWindow.close();
-                    isPrinting = false;
-
-                    alert('Unable to load the photo for printing.');
-                };
-
-                printImage.src = new URL(button.dataset.photoUrl, window.location.href).href;
-
-                printDoc.body.appendChild(printImage);
+                printOrder(button);
             });
         });
 
-        /*
-         * Keep the queue fresh so new guest requests show up
-         * without the admin reloading the page.
-         */
-        setInterval(function () {
-            if (!isPrinting) {
-                window.location.reload();
+        autoPrintToggle.checked = isAutoPrintEnabled();
+
+        autoPrintToggle.addEventListener('change', function () {
+            try {
+                localStorage.setItem(autoPrintStorageKey, autoPrintToggle.checked ? '1' : '0');
+            } catch (error) {
+                //
             }
-        }, 15000);
+
+            if (autoPrintToggle.checked && printButtons.length) {
+                printOrder(printButtons[0]);
+            }
+        });
+
+        /*
+         * A guest's print order triggers printing here: with auto-print
+         * on, the oldest queued order prints as soon as the page loads.
+         * After it is marked printed the page reloads and the next one prints.
+         */
+        if (isAutoPrintEnabled() && printButtons.length) {
+            printOrder(printButtons[0]);
+        }
+
+        /*
+         * Poll for new guest orders and reload only when the queue changes.
+         */
+        setInterval(async function () {
+            if (isPrinting) {
+                return;
+            }
+
+            try {
+                const response = await fetch("{{ route('admin.prints.pending') }}", {
+                    headers: { 'Accept': 'application/json' },
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.queued_ids.join(',') !== renderedQueuedIds.join(',') && !isPrinting) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }, 4000);
     </script>
 
 </x-admin-layout>

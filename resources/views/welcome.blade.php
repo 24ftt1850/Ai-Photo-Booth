@@ -473,7 +473,7 @@
 
         .rv-main {
             width: 100%;
-            max-width: 1500px;
+            max-width: 1680px;
 
             margin: 0 auto;
 
@@ -626,9 +626,9 @@
             display: grid;
 
             grid-template-columns:
-                minmax(190px, 260px)
-                minmax(450px, 680px)
-                minmax(190px, 260px);
+                minmax(230px, 340px)
+                minmax(520px, 880px)
+                minmax(230px, 340px);
 
             justify-content: center;
             align-items: center;
@@ -650,8 +650,8 @@
 
             position: absolute;
 
-            width: 760px;
-            height: 430px;
+            width: 980px;
+            height: 540px;
 
             left: 50%;
             top: 50%;
@@ -1011,73 +1011,6 @@
 
 
         /* =========================================================
-           FEATURES
-           ========================================================= */
-
-        .rv-features {
-            width: min(850px, 100%);
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            margin: 0 auto 28px;
-
-            animation:
-                fadeUp 1s ease 0.35s both;
-        }
-
-        .rv-feature {
-            flex: 1;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            gap: 12px;
-
-            padding: 5px 25px;
-
-            color: #f0f7ff;
-
-            font-size: 13px;
-
-            letter-spacing: 0.06em;
-
-            text-transform: uppercase;
-
-            text-align: center;
-        }
-
-        .rv-feature + .rv-feature {
-            border-left: 2px solid rgba(68, 151, 255, 0.45);
-        }
-
-        .rv-feature-icon {
-            width: 34px;
-            height: 34px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 50%;
-
-            color: #66b9ff;
-
-            background:
-                rgba(0, 110, 255, 0.10);
-
-            border: 1px solid rgba(70, 163, 255, 0.35);
-
-            box-shadow:
-                0 0 14px rgba(0, 111, 255, 0.22);
-
-            font-size: 15px;
-        }
-
-
-        /* =========================================================
            START BUTTON
            ========================================================= */
 
@@ -1224,20 +1157,16 @@
         }
 
         .rv-camera-icon {
-            width: 56px;
-            height: 56px;
-
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 12px;
+            font-size: 44px;
 
-            background: #dcecff;
+            line-height: 1;
 
-            border: 1px solid rgba(0, 110, 255, 0.35);
-
-            font-size: 29px;
+            position: relative;
+            top: -4px;
         }
 
         .rv-arrow {
@@ -1269,7 +1198,7 @@
            RUPA CHARACTER VIDEO
            ========================================================= */
 
-        .rupa-character {
+        .rupa-welcome {
             position: fixed;
             left: 70px;
             bottom: 40px;
@@ -1295,7 +1224,8 @@
                 rupaSway 6s cubic-bezier(0.45, 0, 0.55, 1) 1.8s infinite;
         }
 
-        .rupa-character img {
+        .rupa-welcome video,
+        .rupa-welcome img {
             position: relative;
 
             display: block;
@@ -1318,7 +1248,7 @@
          * on every animation frame and caused the lag.
          */
 
-        .rupa-character::before {
+        .rupa-welcome::before {
             content: "";
 
             position: absolute;
@@ -1340,7 +1270,7 @@
 
         /* Soft glow on the floor that shrinks as Rupa rises */
 
-        .rupa-character::after {
+        .rupa-welcome::after {
             content: "";
 
             position: absolute;
@@ -1412,7 +1342,7 @@
 
             color: #ffffff;
 
-            font-size: 20px;
+            font-size: 24px;
             line-height: 1.3;
             letter-spacing: 0.03em;
 
@@ -1423,7 +1353,7 @@
             translate: 0 10px;
 
             transition:
-                opacity 0.3s ease,
+                opacity 0.7s ease,
                 scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
                 translate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -1492,7 +1422,7 @@
 
                 border-radius: 18px;
 
-                font-size: 15px;
+                font-size: 18px;
             }
         }
 
@@ -1500,7 +1430,7 @@
             .rupa-speech {
                 padding: 9px 11px;
 
-                font-size: 13px;
+                font-size: 15px;
             }
         }
 
@@ -1565,9 +1495,10 @@
 
         @media (prefers-reduced-motion: reduce) {
 
-            .rupa-character,
-            .rupa-character img,
-            .rupa-character::after {
+            .rupa-welcome,
+            .rupa-welcome video,
+            .rupa-welcome img,
+            .rupa-welcome::after {
                 animation: none;
             }
         }
@@ -1575,7 +1506,7 @@
         /* Smaller laptops: stay clear of the START button */
 
         @media (max-width: 1449px) {
-            .rupa-character {
+            .rupa-welcome {
                 left: 20px;
                 bottom: 20px;
                 width: 200px;
@@ -1583,14 +1514,14 @@
         }
 
         @media (max-width: 1000px) {
-            .rupa-character {
+            .rupa-welcome {
                 left: 10px;
                 width: 150px;
             }
         }
 
         @media (max-width: 800px) {
-            .rupa-character {
+            .rupa-welcome {
                 left: 24px;
                 bottom: 20px;
                 width: 185px;
@@ -1598,7 +1529,7 @@
         }
 
         @media (max-width: 400px) {
-            .rupa-character {
+            .rupa-welcome {
                 left: 16px;
                 bottom: 12px;
                 width: 150px;
@@ -1645,7 +1576,7 @@
         }
 
         body.rv-leaving .rv-main,
-        body.rv-leaving .rupa-character {
+        body.rv-leaving .rupa-welcome {
             animation: rvWarpZoom 0.9s cubic-bezier(0.6, 0, 0.9, 0.4) forwards;
         }
 
@@ -1866,7 +1797,7 @@
         @media (prefers-reduced-motion: reduce) {
 
             body.rv-leaving .rv-main,
-            body.rv-leaving .rupa-character {
+            body.rv-leaving .rupa-welcome {
                 animation: none;
             }
 
@@ -1941,22 +1872,11 @@
 
             .rv-showcase {
                 grid-template-columns:
-                    minmax(150px, 210px)
-                    minmax(400px, 570px)
-                    minmax(150px, 210px);
+                    minmax(170px, 260px)
+                    minmax(440px, 660px)
+                    minmax(170px, 260px);
 
                 gap: 18px;
-            }
-
-            .rv-feature {
-                padding: 5px 12px;
-
-                font-size: 11px;
-            }
-
-            .rv-feature-icon {
-                width: 30px;
-                height: 30px;
             }
         }
 
@@ -2008,7 +1928,7 @@
             .rv-showcase {
                 grid-template-columns: 1fr;
 
-                max-width: 500px;
+                max-width: 600px;
 
                 gap: 18px;
             }
@@ -2019,7 +1939,7 @@
             }
 
             .rv-theme-card {
-                max-width: 220px;
+                max-width: 280px;
 
                 margin: auto;
             }
@@ -2054,32 +1974,6 @@
                 padding: 7px 11px;
 
                 font-size: 9px;
-            }
-
-            .rv-features {
-                flex-direction: column;
-
-                gap: 12px;
-
-                margin-top: 5px;
-            }
-
-            .rv-feature {
-                width: 100%;
-
-                justify-content: center;
-
-                padding: 8px;
-
-                font-size: 10px;
-            }
-
-            .rv-feature + .rv-feature {
-                border-left: 0;
-
-                border-top: 1px solid rgba(68, 151, 255, 0.25);
-
-                padding-top: 14px;
             }
 
             .rv-start-button {
@@ -2205,10 +2099,10 @@
 
 
     <!-- =========================================================
-         RUPA CHARACTER VIDEO
+         RUPA WELCOME VIDEO
          ========================================================= -->
 
-    <div class="rupa-character" aria-hidden="true">
+    <div class="rupa-welcome" aria-hidden="true">
         <div class="rupa-speech" id="rupaSpeech">
             <span id="rupaSpeechText"></span><span class="rupa-speech-caret"></span>
         </div>
@@ -2382,61 +2276,6 @@
 
 
             <!-- =================================================
-                 FEATURES
-                 ================================================= -->
-
-            <section class="rv-features">
-
-
-                <!-- Feature 1 -->
-
-                <div class="rv-feature">
-
-                    <div class="rv-feature-icon">
-                        ⚡
-                    </div>
-
-                    <span>
-                        INSTANT GENERATION
-                    </span>
-
-                </div>
-
-
-                <!-- Feature 2 -->
-
-                <div class="rv-feature">
-
-                    <div class="rv-feature-icon">
-                        ✦
-                    </div>
-
-                    <span>
-                        UNIQUE THEMES
-                    </span>
-
-                </div>
-
-
-                <!-- Feature 3 -->
-
-                <div class="rv-feature">
-
-                    <div class="rv-feature-icon">
-                        ↓
-                    </div>
-
-                    <span>
-                        HD DOWNLOADS
-                    </span>
-
-                </div>
-
-
-            </section>
-
-
-            <!-- =================================================
                  CTA
                  ================================================= -->
 
@@ -2594,13 +2433,13 @@
              * covers the page. Tries spots from "above-right of
              * the head" (preferred) towards "above-left", and
              * at each spot lets the bubble grow as wide as the
-             * free space allows (up to 360px). Measured with the
+             * free space allows (up to 420px). Measured with the
              * longest message so the bubble never outgrows it.
              */
             function fitRupaSpeech() {
 
                 const character =
-                    document.querySelector('.rupa-character');
+                    document.querySelector('.rupa-welcome');
 
                 if (!character || !rupaSpeech) {
                     return;
@@ -2611,11 +2450,11 @@
                 /*
                  * The side theme cards are only preview photos, so
                  * the bubble may overlap them; everything else
-                 * (heading, showcase, features, button) stays clear.
+                 * (heading, showcase, button) stays clear.
                  */
                 const obstacles =
                     Array.from(document.querySelectorAll(
-                        '.rv-center-showcase, .rv-hero h1, .rv-hero p, .rv-feature, #startSessionButton'
+                        '.rv-center-showcase, .rv-hero h1, .rv-hero p, #startSessionButton'
                     ))
                         .map(function (element) {
                             return element.getBoundingClientRect();
@@ -2708,7 +2547,7 @@
 
                 for (const spot of spots) {
 
-                    let maxWidth = 360;
+                    let maxWidth = 420;
 
                     for (let attempt = 0; attempt < 4; attempt++) {
 
@@ -2821,11 +2660,11 @@
 
                     await typeRupaMessage(rupaMessages[index]);
 
-                    await rupaWait(isStartPrompt ? 4500 : 2200);
+                    await rupaWait(isStartPrompt ? 6000 : 3500);
 
                     rupaSpeech.classList.remove('visible');
 
-                    await rupaWait(600);
+                    await rupaWait(900);
 
                 }
 
