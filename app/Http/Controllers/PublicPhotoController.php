@@ -9,10 +9,13 @@ use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PublicPhotoController extends Controller
 {
-    public function show(string $token)
+    public function show(string $token): View
     {
         $image = GeneratedImage::where('public_token', $token)
             ->where('generation_status', 'success')
@@ -49,7 +52,7 @@ class PublicPhotoController extends Controller
     public function download(
         string $token,
         GoogleDriveService $googleDrive
-    ) {
+    ): BinaryFileResponse|StreamedResponse {
         $image = GeneratedImage::where('public_token', $token)
             ->where('generation_status', 'success')
             ->firstOrFail();

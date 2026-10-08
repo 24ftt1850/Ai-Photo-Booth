@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * A print job shown on the RupaVue admin site's Print Orders page.
@@ -28,7 +29,10 @@ class PrintOrder extends Model
         'print_status',
     ];
 
-    public function generatedImage()
+    /**
+     * @return BelongsTo<GeneratedImage, $this>
+     */
+    public function generatedImage(): BelongsTo
     {
         return $this->belongsTo(GeneratedImage::class);
     }

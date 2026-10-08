@@ -2,11 +2,33 @@
 
 namespace App\Models;
 
+use Database\Factories\ThemeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $theme_name
+ * @property string|null $description
+ * @property string|null $thumbnail_path
+ * @property string|null $thumbnail_local_path
+ * @property int|null $photo_frame_id
+ * @property string|null $google_drive_file_id
+ * @property string|null $google_drive_url
+ * @property string|null $google_drive_status
+ * @property string $prompt_prefix
+ * @property string|null $prompt_suffix
+ * @property string|null $negative_prompt
+ * @property bool|null $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read string|null $thumbnail_url
+ */
 class Theme extends Model
 {
+    /** @use HasFactory<ThemeFactory> */
     use HasFactory;
 
     protected $table = 'photoshoot_themes';
@@ -60,7 +82,10 @@ class Theme extends Model
             && $this->created_at->greaterThanOrEqualTo(now()->subDays(7));
     }
 
-    public function generatedImages()
+    /**
+     * @return HasMany<GeneratedImage, $this>
+     */
+    public function generatedImages(): HasMany
     {
         return $this->hasMany(GeneratedImage::class, 'theme_id');
     }

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\GeneratedImage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PhotoboothFeedbackController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
             'generated_image_id' => ['required', 'integer', 'exists:generated_images,id'],
@@ -16,7 +17,7 @@ class PhotoboothFeedbackController extends Controller
             'comment' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $generatedImage = GeneratedImage::findOrFail($data['generated_image_id']);
+        $generatedImage = GeneratedImage::findOrFail($request->integer('generated_image_id'));
 
         $feedbackComment = collect([$data['feedback'] ?? null, $data['comment'] ?? null])
             ->filter()

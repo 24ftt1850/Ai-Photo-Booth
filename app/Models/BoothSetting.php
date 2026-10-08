@@ -3,9 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Booth options managed on the RupaVue admin site (Photo Frames page).
+ *
+ * @property int $id
+ * @property bool $guests_can_pick_frame
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class BoothSetting extends Model
 {
@@ -28,6 +34,6 @@ class BoothSetting extends Model
             return true;
         }
 
-        return $setting?->guests_can_pick_frame ?? true;
+        return $setting->guests_can_pick_frame ?? true;
     }
 }

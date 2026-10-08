@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\BoothSetting;
 use App\Models\PhotoFrame;
 use App\Models\Theme;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PhotoboothController extends Controller
 {
-    public function create(Request $request)
+    public function create(Request $request): RedirectResponse|View
     {
         $themeId = $request->query('theme_id');
 
@@ -46,7 +48,7 @@ class PhotoboothController extends Controller
      * Choose a photo frame after picking a theme. Only active
      * frames stored in Google Drive are offered.
      */
-    public function frame(Request $request)
+    public function frame(Request $request): RedirectResponse|View
     {
         $theme = Theme::where('id', $request->query('theme_id'))
             ->where('is_active', true)
@@ -72,7 +74,7 @@ class PhotoboothController extends Controller
         return view('photobooth.frame', compact('theme', 'frames'));
     }
 
-    public function scene()
+    public function scene(): View
     {
         $themes = Theme::where('is_active', true)
             ->orderBy('created_at')

@@ -16,11 +16,11 @@ class PhotoboothPrintController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'generated_image_id' => ['required', 'integer', 'exists:generated_images,id'],
         ]);
 
-        $generatedImage = GeneratedImage::findOrFail($data['generated_image_id']);
+        $generatedImage = GeneratedImage::findOrFail($request->integer('generated_image_id'));
 
         /*
          * A second tap while the photo is still waiting to print

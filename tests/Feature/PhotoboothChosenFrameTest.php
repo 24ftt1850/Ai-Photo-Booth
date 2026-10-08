@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     Storage::fake('public');
     config()->set('services.gemini.model', 'test-model');
-    putenv('GEMINI_API_KEY=test-key');
+    config()->set('services.gemini.api_key', 'test-key');
 
     Schema::create('photoshoot_themes', function (Blueprint $table) {
         $table->id();
@@ -93,10 +93,6 @@ beforeEach(function () {
     $this->mock(GoogleDriveService::class, function ($mock) {
         $mock->shouldReceive('uploadImage')->andThrow(new Exception('Google Drive is not connected.'));
     });
-});
-
-afterEach(function () {
-    putenv('GEMINI_API_KEY');
 });
 
 function framePng(): string

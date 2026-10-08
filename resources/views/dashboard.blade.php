@@ -79,16 +79,6 @@
 
                 </a>
 
-
-                @if (Auth::user()->isAdmin())
-                    <a href="{{ route('admin.dashboard') }}"
-                       class="text-sm font-medium text-gray-500 transition hover:text-white">
-
-                        Admin
-
-                    </a>
-                @endif
-
             </div>
 
 

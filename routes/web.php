@@ -5,7 +5,6 @@ use App\Http\Controllers\PhotoboothController;
 use App\Http\Controllers\PhotoboothFeedbackController;
 use App\Http\Controllers\PhotoboothPrintController;
 use App\Http\Controllers\PublicPhotoController;
-use App\Models\GeneratedImage;
 use App\Models\PhotoFrame;
 use App\Models\Theme;
 use Illuminate\Support\Facades\Route;
@@ -57,20 +56,6 @@ Route::get('/photobooth/feedback', function () {
     return view('photobooth.feedback', compact('photoFrames'));
 
 })->name('photobooth.feedback');
-
-/*
-|--------------------------------------------------------------------------
-| QR-Scanned Photo View / Download
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/photobooth/photo/{generatedImage}', function (GeneratedImage $generatedImage) {
-
-    $imageUrl = Storage::url($generatedImage->generated_photo_path);
-
-    return view('photobooth.photo', compact('generatedImage', 'imageUrl'));
-
-})->name('photobooth.photo');
 
 /*
 |--------------------------------------------------------------------------
@@ -194,10 +179,10 @@ Route::get('/test-frame', function () {
 
         'url' => asset('storage/'.$frame->frame_path),
 
-        'exists' => \Storage::disk('public')
+        'exists' => Storage::disk('public')
             ->exists($frame->frame_path),
 
-        'full_path' => \Storage::disk('public')
+        'full_path' => Storage::disk('public')
             ->path($frame->frame_path),
 
     ]);

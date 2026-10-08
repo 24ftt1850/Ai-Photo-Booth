@@ -13,18 +13,20 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
+use stdClass;
 
 class GeminiController extends Controller
 {
     public function generateImage(
         Request $request,
         GoogleDriveService $googleDrive
-    ) {
+    ): JsonResponse {
         /*
         |--------------------------------------------------------------------------
         | Allow Time For The Gemini Call
@@ -54,7 +56,7 @@ class GeminiController extends Controller
         $imageData = $request->input('image');
 
         $theme = Theme::findOrFail(
-            $request->input('theme_id')
+            $request->integer('theme_id')
         );
 
         /*
@@ -98,7 +100,8 @@ class GeminiController extends Controller
         */
 
         $imageBinary = base64_decode(
-            $imageData
+            $imageData,
+            true
         );
 
         if ($imageBinary === false) {
@@ -172,7 +175,8 @@ class GeminiController extends Controller
         */
 
         $generatedBinary = base64_decode(
-            $generatedImage
+            $generatedImage,
+            true
         );
 
         if ($generatedBinary === false) {
@@ -299,7 +303,7 @@ class GeminiController extends Controller
 
                 $generatedImageResource =
                     imagecreatefromstring(
-                        file_get_contents(
+                        File::get(
                             $generatedFullPath
                         )
                     );
@@ -312,7 +316,7 @@ class GeminiController extends Controller
 
                 $frameImageResource =
                     imagecreatefromstring(
-                        file_get_contents(
+                        File::get(
                             $temporaryFramePath
                         )
                     );
@@ -378,6 +382,12 @@ class GeminiController extends Controller
                         0,
                         127
                     );
+
+                if ($transparent === false) {
+                    throw new \Exception(
+                        'Unable to allocate a transparent colour for the framed image.'
+                    );
+                }
 
                 imagefill(
                     $resizedImage,
@@ -609,12 +619,10 @@ class GeminiController extends Controller
                 );
 
             $googleDriveFileId =
-                $driveResult['id']
-                ?? null;
+                $driveResult['id'];
 
             $googleDriveUrl =
-                $driveResult['url']
-                ?? null;
+                $driveResult['url'];
 
             // Make ONLY this generated photo publicly viewable
             if ($googleDriveFileId) {
@@ -856,7 +864,7 @@ class GeminiController extends Controller
      * Returns the generated image as base64, or the error response
      * to send back to the booth.
      */
-    private function generateWithGemini(Theme $theme, object $occasion, string $rawPhotoPath, string $prompt, string $imageData): string|JsonResponse
+    private function generateWithGemini(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $imageData): string|JsonResponse
     {
         /*
         |--------------------------------------------------------------------------
@@ -864,9 +872,9 @@ class GeminiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.api_key');
 
-        if (! $apiKey) {
+        if (! is_string($apiKey) || $apiKey === '') {
 
             $this->recordFailedGeneration($theme, $occasion, $rawPhotoPath, $prompt, 'failed_other', 'The Gemini API key is not configured on the photobooth.');
 
@@ -1018,7 +1026,7 @@ class GeminiController extends Controller
      * Returns the generated image as base64, or the error response
      * to send back to the booth.
      */
-    private function generateWithFlux(Theme $theme, object $occasion, string $rawPhotoPath, string $prompt, string $imageData): string|JsonResponse
+    private function generateWithFlux(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $imageData): string|JsonResponse
     {
         $apiKey = config('services.bfl.api_key');
 
@@ -1107,7 +1115,7 @@ class GeminiController extends Controller
     /**
      * Record and report an HTTP error from the BFL API.
      */
-    private function fluxHttpFailure(Theme $theme, object $occasion, string $rawPhotoPath, string $prompt, string $model, Response $response): JsonResponse
+    private function fluxHttpFailure(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $model, Response $response): JsonResponse
     {
         $detail = $response->json('detail') ?? 'no error message';
 
@@ -1139,7 +1147,7 @@ class GeminiController extends Controller
     /**
      * Save a failed FLUX attempt and build the response for the booth.
      */
-    private function fluxFailure(Theme $theme, object $occasion, string $rawPhotoPath, string $prompt, string $status, string $reason, string $userMessage, int $httpStatus): JsonResponse
+    private function fluxFailure(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $status, string $reason, string $userMessage, int $httpStatus): JsonResponse
     {
         $this->recordFailedGeneration($theme, $occasion, $rawPhotoPath, $prompt, $status, $reason);
 
@@ -1197,7 +1205,9 @@ class GeminiController extends Controller
         $blockReason = data_get($responseData, 'promptFeedback.blockReason');
         $finishReason = data_get($responseData, 'candidates.0.finishReason');
 
-        $modelText = collect(data_get($responseData, 'candidates.0.content.parts', []))
+        $parts = data_get($responseData, 'candidates.0.content.parts');
+
+        $modelText = collect(is_array($parts) ? $parts : [])
             ->pluck('text')
             ->filter()
             ->implode(' ');
@@ -1222,7 +1232,7 @@ class GeminiController extends Controller
      * Save a failed attempt so the RupaVue admin site can show the
      * session and why the AI image could not be generated.
      */
-    private function recordFailedGeneration(Theme $theme, object $occasion, string $rawPhotoPath, string $prompt, string $status, string $reason): void
+    private function recordFailedGeneration(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $status, string $reason): void
     {
         try {
             $photoSession = PhotoSession::create([

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     Storage::fake('public');
     config()->set('services.gemini.model', 'test-model');
-    putenv('GEMINI_API_KEY=test-key');
+    config()->set('services.gemini.api_key', 'test-key');
 
     Schema::create('photoshoot_themes', function (Blueprint $table) {
         $table->id();
@@ -56,10 +56,6 @@ beforeEach(function () {
      */
     DB::table('themes')->insert(['id' => 5, 'name' => 'Galaxy', 'slug' => 'galaxy']);
     DB::table('occasions')->insert(['id' => 2, 'status' => 'active']);
-});
-
-afterEach(function () {
-    putenv('GEMINI_API_KEY');
 });
 
 function generatePhoto($test)

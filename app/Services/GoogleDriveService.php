@@ -95,6 +95,9 @@ class GoogleDriveService
         ];
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function loadToken(): ?array
     {
         if (! File::exists($this->tokenPath())) {
@@ -109,6 +112,9 @@ class GoogleDriveService
         return is_array($token) ? $token : null;
     }
 
+    /**
+     * @param  array<string, mixed>  $token
+     */
     private function saveToken(array $token): void
     {
         /*
@@ -131,7 +137,7 @@ class GoogleDriveService
 
         File::put(
             $this->tokenPath(),
-            json_encode($token, JSON_PRETTY_PRINT)
+            json_encode($token, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
         );
     }
 
@@ -201,6 +207,8 @@ class GoogleDriveService
     /**
      * Fetch metadata for the configured destination folder, used
      * to confirm the connection is working.
+     *
+     * @return array{id: string, name: string, mimeType: string}
      */
     public function getFolderInfo(): array
     {
@@ -230,6 +238,8 @@ class GoogleDriveService
 
     /**
      * Upload an image to the RUPAVUE Google Drive folder.
+     *
+     * @return array{id: string, name: string, mimeType: string, url: string}
      */
     public function uploadImage(
         string $localFilePath,
