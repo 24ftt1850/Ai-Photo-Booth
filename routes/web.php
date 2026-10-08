@@ -8,7 +8,6 @@ use App\Http\Controllers\PublicPhotoController;
 use App\Models\PhotoFrame;
 use App\Models\Theme;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -149,45 +148,6 @@ Route::post('/setup', function () {
     return redirect()->route('home');
 
 })->name('setup.complete');
-
-/*
-|--------------------------------------------------------------------------
-| PHOTO FRAME TEST
-|--------------------------------------------------------------------------
-|
-| Temporary diagnostic route.
-|
-*/
-
-Route::get('/test-frame', function () {
-
-    $frame = PhotoFrame::where('is_active', true)
-        ->latest('id')
-        ->first();
-
-    if (! $frame) {
-        return 'NO ACTIVE FRAME FOUND';
-    }
-
-    return response()->json([
-
-        'id' => $frame->id,
-
-        'name' => $frame->frame_name,
-
-        'path' => $frame->frame_path,
-
-        'url' => asset('storage/'.$frame->frame_path),
-
-        'exists' => Storage::disk('public')
-            ->exists($frame->frame_path),
-
-        'full_path' => Storage::disk('public')
-            ->path($frame->frame_path),
-
-    ]);
-
-});
 
 Route::get(
     '/photo/{token}',

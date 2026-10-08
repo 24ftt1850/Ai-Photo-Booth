@@ -42,3 +42,7 @@ test('welcome page shows the rupa character image', function () {
         ->assertSee('images/rupa-character.png')
         ->assertDontSee('images/rupa-welcome.mp4');
 });
+
+test('the temporary frame diagnostic route is not exposed', function () {
+    $this->get('/test-frame')->assertNotFound();
+});
