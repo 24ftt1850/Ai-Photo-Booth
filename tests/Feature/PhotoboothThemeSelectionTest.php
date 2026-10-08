@@ -285,12 +285,12 @@ test('welcome page has no ai powered footer and a lower start button', function 
 test('welcome page animates the rupa character', function () {
     expect((string) $this->view('welcome'))
         ->toContain('images/rupa-character.png')
-        ->toMatch('/\.rupa-character \{[^}]*left: 70px;[^}]*bottom: 40px;[^}]*width: 290px;/')
-        ->toMatch('/\.rupa-character \{[^}]*animation:\s*rupaEnter [^;]*,\s*rupaSway [^;]*infinite;/')
-        ->toMatch('/\.rupa-character img \{[^}]*animation: rupaFloat [^;]*infinite;/')
+        ->toMatch('/\.rupa-welcome \{[^}]*left: 70px;[^}]*bottom: 40px;[^}]*width: 290px;/')
+        ->toMatch('/\.rupa-welcome \{[^}]*animation:\s*rupaEnter [^;]*,\s*rupaSway [^;]*infinite;/')
+        ->toMatch('/\.rupa-welcome img \{[^}]*animation: rupaFloat [^;]*infinite;/')
         ->toContain('@keyframes rupaShadow')
-        ->toMatch('/\.rupa-character img \{[^}]*will-change: translate, scale;/')
-        ->not->toMatch('/\.rupa-character img \{[^}]*filter:/');
+        ->toMatch('/\.rupa-welcome img \{[^}]*will-change: translate, scale;/')
+        ->not->toMatch('/\.rupa-welcome img \{[^}]*filter:/');
 });
 
 test('rupa character talks and tells the guest to press start session', function () {

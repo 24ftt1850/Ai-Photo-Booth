@@ -3,12 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\Event;
+use App\Models\GeneratedImage;
 use App\Models\PhotoSession;
 use App\Models\Theme;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<\App\Models\GeneratedImage>
+ * @extends Factory<GeneratedImage>
  */
 class GeneratedImageFactory extends Factory
 {

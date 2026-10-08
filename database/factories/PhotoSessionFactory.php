@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Event;
+use App\Models\PhotoSession;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<\App\Models\PhotoSession>
+ * @extends Factory<PhotoSession>
  */
 class PhotoSessionFactory extends Factory
 {

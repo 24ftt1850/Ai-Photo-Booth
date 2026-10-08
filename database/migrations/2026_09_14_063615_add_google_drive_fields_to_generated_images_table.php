@@ -39,7 +39,7 @@ return new class extends Migration
     {
         Schema::table('generated_images', function (Blueprint $table) {
             $table->dropUnique([
-                'generated_images_image_uid_unique'
+                'generated_images_image_uid_unique',
             ]);
 
             $table->dropColumn([
