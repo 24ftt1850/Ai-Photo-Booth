@@ -748,10 +748,61 @@
 
             z-index: 1;
 
+            /* Keeps the card's layers (image, content, frame) stacked inside it */
+            isolation: isolate;
+
             transition:
                 transform .35s ease,
                 box-shadow .3s ease,
                 border-color .3s ease;
+
+        }
+
+
+        /*
+         * Selection frame: its own layer above the image and all
+         * card contents, so the blue border and glow are never
+         * hidden behind the photo (even while it zooms on hover).
+         */
+
+        .theme-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            z-index: 10;
+
+            /* Card radius minus its 2px border */
+            border-radius: 20px;
+
+            border:
+                3px solid
+                #35aaff;
+
+            box-shadow:
+
+                inset 0 0 0 1px
+                rgba(255,255,255,.55),
+
+                inset 0 0 22px
+                rgba(53,170,255,.75);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition:
+                opacity .3s ease;
+
+        }
+
+
+        .theme-card.selected::after {
+
+            opacity: 1;
 
         }
 
@@ -781,7 +832,10 @@
             box-shadow:
 
                 0 18px 45px
-                rgba(0,50,150,.45);
+                rgba(0,50,150,.45),
+
+                0 0 26px
+                rgba(53,170,255,.65);
 
             transform:
                 scale(1.08)
@@ -817,6 +871,8 @@
             object-fit: cover;
 
             opacity: 1;
+
+            z-index: 0;
 
             transition:
                 transform .5s ease,
@@ -1725,6 +1781,7 @@
 
         html.rv-warp-in .scene-header,
         html.rv-warp-in .carousel-wrapper,
+        html.rv-warp-in .carousel-dots,
         html.rv-warp-in .selection-area,
         html.rv-warp-in .top-nav {
             animation: rvWarpRiseIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -1736,6 +1793,11 @@
 
         html.rv-warp-in .carousel-wrapper {
             animation-delay: 0.6s;
+        }
+
+        /* Dots follow the cards in, slightly after them */
+        html.rv-warp-in .carousel-dots {
+            animation-delay: 0.85s;
         }
 
         html.rv-warp-in .selection-area {
@@ -1802,6 +1864,7 @@
             html.rv-warp-in .rv-background,
             html.rv-warp-in .scene-header,
             html.rv-warp-in .carousel-wrapper,
+            html.rv-warp-in .carousel-dots,
             html.rv-warp-in .selection-area,
             html.rv-warp-in .top-nav {
                 animation: none;

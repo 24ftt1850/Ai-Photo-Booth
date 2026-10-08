@@ -314,3 +314,20 @@ test('welcome start button is white with a blinking blue glow', function () {
         ->toContain('@keyframes rvStartGlowBlink')
         ->toContain('@keyframes rvStartRingBlink');
 });
+
+test('selected theme card draws its blue frame above the image and card contents', function () {
+    $html = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/\.theme-card \{[^}]*isolation: isolate;/')
+        ->toMatch('/\.theme-image \{[^}]*z-index: 0;/')
+        ->toMatch('/\.theme-card::after \{[^}]*position: absolute;[^}]*inset: 0;[^}]*z-index: 10;[^}]*border:\s*3px solid\s*#35aaff;[^}]*opacity: 0;[^}]*pointer-events: none;/')
+        ->toMatch('/\.theme-card\.selected::after \{[^}]*opacity: 1;/');
+});
+
+test('theme page carousel dots rise in slightly after the cards', function () {
+    $html = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
+
+    expect($html)->toMatch('/html\.rv-warp-in \.carousel-wrapper,\s*html\.rv-warp-in \.carousel-dots,[^{]*\{[^}]*animation: rvWarpRiseIn /')
+        ->toMatch('/html\.rv-warp-in \.carousel-wrapper \{[^}]*animation-delay: 0\.6s;/')
+        ->toMatch('/html\.rv-warp-in \.carousel-dots \{[^}]*animation-delay: 0\.85s;/');
+});
