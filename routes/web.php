@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GeminiController;
+use App\Http\Controllers\GoogleDriveController;
 use App\Http\Controllers\PhotoboothController;
 use App\Http\Controllers\PhotoboothFeedbackController;
 use App\Http\Controllers\PhotoboothPrintController;
@@ -127,6 +128,28 @@ Route::get('/dashboard', function () {
     return redirect()->route('home');
 
 })->middleware('auth')->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| Google Drive Connection
+|--------------------------------------------------------------------------
+| Connect once and generated photos are uploaded to Drive. The
+| callback is not behind the login because Google calls back on
+| 127.0.0.1; a one-time state proves an admin started it.
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/google-drive', [GoogleDriveController::class, 'index'])
+        ->name('google-drive.index');
+
+    Route::get('/google-drive/connect', [GoogleDriveController::class, 'connect'])
+        ->name('google-drive.connect');
+
+});
+
+Route::get('/google-drive/callback', [GoogleDriveController::class, 'callback'])
+    ->name('google-drive.callback');
 
 /*
 |--------------------------------------------------------------------------

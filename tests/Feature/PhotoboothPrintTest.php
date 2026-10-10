@@ -99,5 +99,4 @@ test('result page sends the photo to the print queue rather than opening a print
 test('the old admin panel is no longer served', function () {
     $this->get('/admin/prints')->assertNotFound();
     $this->get('/admin/google-drive')->assertNotFound();
-    $this->get('/google-drive/connect')->assertNotFound();
 });

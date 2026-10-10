@@ -41,7 +41,7 @@ class GoogleDriveService
     {
         $client = new Client;
 
-        $adminCredentials = config('services.google_drive.token_path')
+        $adminCredentials = $this->usesSharedToken()
             ? $this->adminSiteCredentials()
             : null;
 
@@ -57,6 +57,67 @@ class GoogleDriveService
         $client->addScope(Drive::DRIVE);
 
         return $client;
+    }
+
+    /**
+     * Whether the photobooth uses the RupaVue admin site's token
+     * (GOOGLE_DRIVE_TOKEN_PATH) instead of its own connection.
+     */
+    public function usesSharedToken(): bool
+    {
+        return filled(config('services.google_drive.token_path'));
+    }
+
+    /**
+     * Client for the photobooth's own connect flow, always built
+     * from this app's credentials.json.
+     *
+     * Offline access with a forced consent screen makes Google
+     * always return a refresh token.
+     */
+    private function buildAuthClient(): Client
+    {
+        $client = new Client;
+
+        $client->setAuthConfig(base_path(
+            config('services.google_drive.credentials')
+        ));
+
+        $client->setRedirectUri(config('services.google_drive.redirect_uri'));
+        $client->setAccessType('offline');
+        $client->setPrompt('consent');
+        $client->addScope(Drive::DRIVE);
+
+        return $client;
+    }
+
+    /**
+     * Google's authorization page for connecting the photobooth.
+     */
+    public function getAuthUrl(string $state): string
+    {
+        $client = $this->buildAuthClient();
+
+        $client->setState($state);
+
+        return $client->createAuthUrl();
+    }
+
+    /**
+     * Exchange Google's authorization code for a token and
+     * persist it, so every later request can upload to Drive.
+     */
+    public function handleAuthCode(string $code): void
+    {
+        $token = $this->buildAuthClient()->fetchAccessTokenWithAuthCode($code);
+
+        if (isset($token['error'])) {
+            throw new \Exception(
+                $token['error_description'] ?? $token['error']
+            );
+        }
+
+        $this->saveToken($token);
     }
 
     /**
@@ -156,7 +217,7 @@ class GoogleDriveService
 
         if (! $token) {
             throw new \Exception(
-                'Google Drive is not connected. Please connect it from the RupaVue admin site first.'
+                'Google Drive is not connected. Please connect it from the photobooth Google Drive page first.'
             );
         }
 
