@@ -23,6 +23,15 @@ use stdClass;
 
 class GeminiController extends Controller
 {
+    /**
+     * Final photo size: a landscape 4R (6x4 inch) print at 300 dpi.
+     */
+    private const PRINT_WIDTH = 1800;
+
+    private const PRINT_HEIGHT = 1200;
+
+    private const PRINT_DPI = 300;
+
     public function generateImage(
         Request $request,
         GoogleDriveService $googleDrive
@@ -189,6 +198,8 @@ class GeminiController extends Controller
             ], 500);
         }
 
+        $generatedBinary = $this->fitToPrintSize($generatedBinary);
+
         $generatedFileName =
             'generated_'.
             time().
@@ -332,19 +343,13 @@ class GeminiController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | Frame Dimensions
+                | Final Dimensions (6x4 Print)
                 |--------------------------------------------------------------------------
                 */
 
-                $finalWidth =
-                    imagesx(
-                        $frameImageResource
-                    );
+                $finalWidth = self::PRINT_WIDTH;
 
-                $finalHeight =
-                    imagesy(
-                        $frameImageResource
-                    );
+                $finalHeight = self::PRINT_HEIGHT;
 
                 /*
                 |--------------------------------------------------------------------------
@@ -421,7 +426,7 @@ class GeminiController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | Put Frame Above AI Image
+                | Put Frame Above AI Image, Scaled To The Print Size
                 |--------------------------------------------------------------------------
                 */
 
@@ -435,7 +440,7 @@ class GeminiController extends Controller
                     true
                 );
 
-                imagecopy(
+                imagecopyresampled(
                     $resizedImage,
                     $frameImageResource,
                     0,
@@ -443,7 +448,13 @@ class GeminiController extends Controller
                     0,
                     0,
                     $finalWidth,
-                    $finalHeight
+                    $finalHeight,
+                    imagesx(
+                        $frameImageResource
+                    ),
+                    imagesy(
+                        $frameImageResource
+                    )
                 );
 
                 /*
@@ -474,6 +485,12 @@ class GeminiController extends Controller
                 | Save Final Framed Image
                 |--------------------------------------------------------------------------
                 */
+
+                imageresolution(
+                    $resizedImage,
+                    self::PRINT_DPI,
+                    self::PRINT_DPI
+                );
 
                 imagepng(
                     $resizedImage,
@@ -1258,6 +1275,54 @@ class GeminiController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Scale and centre-crop an image to the 6x4 print size, so it
+     * fills the whole print without being stretched. Data GD
+     * cannot read is returned unchanged.
+     */
+    private function fitToPrintSize(string $imageBinary): string
+    {
+        try {
+            $source = imagecreatefromstring($imageBinary);
+        } catch (\Throwable) {
+            return $imageBinary;
+        }
+
+        if ($source === false) {
+            return $imageBinary;
+        }
+
+        $sourceWidth = imagesx($source);
+        $sourceHeight = imagesy($source);
+
+        $scale = max(self::PRINT_WIDTH / $sourceWidth, self::PRINT_HEIGHT / $sourceHeight);
+
+        $cropWidth = min($sourceWidth, (int) round(self::PRINT_WIDTH / $scale));
+        $cropHeight = min($sourceHeight, (int) round(self::PRINT_HEIGHT / $scale));
+
+        $printImage = imagecreatetruecolor(self::PRINT_WIDTH, self::PRINT_HEIGHT);
+
+        imagecopyresampled(
+            $printImage,
+            $source,
+            0,
+            0,
+            intdiv($sourceWidth - $cropWidth, 2),
+            intdiv($sourceHeight - $cropHeight, 2),
+            self::PRINT_WIDTH,
+            self::PRINT_HEIGHT,
+            $cropWidth,
+            $cropHeight
+        );
+
+        imageresolution($printImage, self::PRINT_DPI, self::PRINT_DPI);
+
+        ob_start();
+        imagepng($printImage, null, 6);
+
+        return (string) ob_get_clean();
     }
 
     /**

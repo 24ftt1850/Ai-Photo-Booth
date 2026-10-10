@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GeminiController;
 use App\Models\GeneratedImage;
 use App\Services\GoogleDriveService;
 use Illuminate\Database\Schema\Blueprint;
@@ -140,6 +141,54 @@ test('the guest pick is ignored when the admin site fixes the frame automaticall
     expect(GeneratedImage::sole())
         ->chosen_frame_id->toBeNull()
         ->applied_frame_path->toBe('frames/theme.png');
+});
+
+test('the framed photo is a landscape 4r print at 300 dpi', function () {
+    generateWithFrame($this, null)->assertOk()->assertJson(['frame_applied' => true]);
+
+    $finalPath = Storage::disk('public')->path(GeneratedImage::sole()->generated_photo_path);
+
+    expect(array_slice(getimagesize($finalPath), 0, 2))->toBe([1800, 1200])
+        ->and(imageresolution(imagecreatefrompng($finalPath)))->toBe([300, 300]);
+});
+
+test('the generated image without a frame is also a 6x4 print', function () {
+    DB::table('photo_frames')->delete();
+
+    generateWithFrame($this, null)->assertOk()->assertJson(['frame_applied' => false]);
+
+    $generatedPath = Storage::disk('public')->path(GeneratedImage::sole()->generated_photo_path);
+
+    expect(array_slice(getimagesize($generatedPath), 0, 2))->toBe([1800, 1200])
+        ->and(imageresolution(imagecreatefrompng($generatedPath)))->toBe([300, 300]);
+});
+
+test('the generated image is cropped to 6x4 instead of being stretched', function () {
+    $wideImage = imagecreatetruecolor(400, 100);
+    imagefilledrectangle($wideImage, 0, 0, 99, 99, (int) imagecolorallocate($wideImage, 255, 0, 0));
+    imagefilledrectangle($wideImage, 100, 0, 299, 99, (int) imagecolorallocate($wideImage, 0, 0, 255));
+    imagefilledrectangle($wideImage, 300, 0, 399, 99, (int) imagecolorallocate($wideImage, 255, 0, 0));
+    ob_start();
+    imagepng($wideImage);
+
+    $printPng = (new ReflectionMethod(GeminiController::class, 'fitToPrintSize'))
+        ->invoke(new GeminiController, (string) ob_get_clean());
+
+    $image = imagecreatefromstring($printPng);
+
+    expect([imagesx($image), imagesy($image)])->toBe([1800, 1200]);
+
+    /*
+     * The centre 150x100 (blue) is kept; the red sides are cropped off.
+     */
+    expect(imagecolorsforindex($image, imagecolorat($image, 5, 600)))->toMatchArray(['red' => 0, 'blue' => 255])
+        ->and(imagecolorsforindex($image, imagecolorat($image, 1794, 600)))->toMatchArray(['red' => 0, 'blue' => 255]);
+});
+
+test('gemini is asked for a 3:2 landscape image', function () {
+    generateWithFrame($this, null)->assertOk();
+
+    Http::assertSent(fn ($request) => $request['generationConfig']['imageConfig']['aspectRatio'] === '3:2');
 });
 
 test('the frame page is skipped when the admin site fixes the frame automatically', function () {
