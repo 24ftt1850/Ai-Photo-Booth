@@ -690,5 +690,9 @@
 
 @include('partials.click-sound')
 
+@include('partials.background-music', ['mood' => 'soft'])
+
+@include('partials.voice', ['voices' => ['frame'], 'delay' => 2])
+
 </body>
 </html>

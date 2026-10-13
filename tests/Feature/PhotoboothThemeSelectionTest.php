@@ -197,6 +197,9 @@ test('camera page plays a shutter click when the photo is taken', function () {
     ]);
 
     expect($html)->toContain('function playShutterSound()')
+        ->toContain('storage\/audio\/effect\/shutter.mp3')
+        ->toMatch('/function playShutterSound\(\) \{[\s\S]*?shutterSound\.currentTime = 0;\s*shutterSound\.play\(\)/')
+        ->not->toContain('function playShutterLayer(')
         ->toMatch('/countdownRunning = true;[\s\S]*?unlockShutterSound\(\);/')
         ->toMatch('/function capturePhoto\(\) \{[\s\S]*?playShutterSound\(\);/');
 });
@@ -284,7 +287,6 @@ test('welcome page has no ai powered footer and a lower start button', function 
 
 test('welcome page animates the rupa character', function () {
     expect((string) $this->view('welcome'))
-        ->toContain('images/rupa-character.png')
         ->toMatch('/\.rupa-welcome \{[^}]*left: 70px;[^}]*bottom: 40px;[^}]*width: 290px;/')
         ->toMatch('/\.rupa-welcome \{[^}]*animation:\s*rupaEnter [^;]*,\s*rupaSway [^;]*infinite;/')
         ->toMatch('/\.rupa-welcome img \{[^}]*animation: rupaFloat [^;]*infinite;/')
@@ -295,8 +297,7 @@ test('welcome page animates the rupa character', function () {
 
 test('rupa character talks and tells the guest to press start session', function () {
     expect((string) $this->view('welcome'))
-        ->toContain('id="rupaSpeech"')
-        ->toContain('id="rupaSpeechText"')
+        ->toMatch('/if \(rupaSpeech && rupaSpeechText\) \{\s*startRupaTalking\(\);/')
         ->toContain("[['Tap '], ['START SESSION', 'rupa-speech-highlight'], [' to begin!']]")
         ->toContain('async function startRupaTalking()')
         ->toMatch('/\.rupa-speech\.visible \{[^}]*opacity: 1;/')
@@ -330,4 +331,98 @@ test('theme page carousel dots rise in slightly after the cards', function () {
     expect($html)->toMatch('/html\.rv-warp-in \.carousel-wrapper,\s*html\.rv-warp-in \.carousel-dots,[^{]*\{[^}]*animation: rvWarpRiseIn /')
         ->toMatch('/html\.rv-warp-in \.carousel-wrapper \{[^}]*animation-delay: 0\.6s;/')
         ->toMatch('/html\.rv-warp-in \.carousel-dots \{[^}]*animation-delay: 0\.85s;/');
+});
+
+test('photobooth pages play the background music with a mood for each step', function () {
+    $theme = makeTheme(1, 'Camera Theme', '2026-09-01 12:00:00');
+
+    $pages = [
+        'welcome' => [[], 'welcome'],
+        'photobooth.scene' => [['themes' => collect(), 'photoFrames' => collect()], 'soft'],
+        'photobooth.frame' => [['theme' => $theme, 'frames' => collect(), 'photoFrames' => collect()], 'soft'],
+        'photobooth.create' => [['theme' => $theme, 'photoFrames' => collect()], 'soft'],
+        'photobooth.generate' => [['theme' => $theme, 'photoFrames' => collect()], 'generate'],
+        'photobooth.result' => [['photoFrames' => collect()], 'result'],
+        'photobooth.feedback' => [['photoFrames' => collect()], 'normal'],
+    ];
+
+    foreach ($pages as $page => [$data, $mood]) {
+        expect((string) $this->view($page, $data))
+            ->toContain('storage/audio/background.mp3')
+            ->toContain('data-mood="'.$mood.'"')
+            ->toContain('window.rupavueMusic = (function () {');
+    }
+
+    expect((string) $this->view('welcome'))
+        ->toMatch("/startButton\.addEventListener\('click'[\s\S]*?window\.rupavueMusic\.fadeTo\('soft', 1\);/");
+});
+
+test('background music carries on between pages and only replays on the result page', function () {
+    $html = (string) $this->view('photobooth.result', ['photoFrames' => collect()]);
+
+    expect($html)
+        ->toContain("window.addEventListener('pagehide', saveState);")
+        ->toMatch("/if \(mood === 'result'\) \{\s*seekTo\(0\);/")
+        ->toMatch('/if \(state !== null\) \{\s*seekTo\(state\.position\);/')
+        ->toContain("fadeTo(wasPlaying ? state.level : 'silent', 0);");
+});
+
+test('photobooth pages play rupa voice lines at the right moments', function () {
+    $theme = makeTheme(1, 'Camera Theme', '2026-09-01 12:00:00');
+
+    $pages = [
+        'welcome' => [[], ['welcome'], '5', '30'],
+        'photobooth.scene' => [['themes' => collect(), 'photoFrames' => collect()], ['theme'], '2', 'null'],
+        'photobooth.frame' => [['theme' => $theme, 'frames' => collect(), 'photoFrames' => collect()], ['frame'], '2', 'null'],
+        'photobooth.create' => [['theme' => $theme, 'photoFrames' => collect()], ['camera'], '2', 'null'],
+        'photobooth.generate' => [['theme' => $theme, 'photoFrames' => collect()], ['generate'], '2', 'null'],
+        'photobooth.result' => [['photoFrames' => collect()], ['ready', 'thankyou'], 'null', 'null'],
+    ];
+
+    foreach ($pages as $page => [$data, $voices, $delay, $repeatAfter]) {
+        $html = (string) $this->view($page, $data);
+
+        foreach ($voices as $voice) {
+            expect($html)->toContain('storage\/audio\/voice\/'.$voice.'.mp3');
+        }
+
+        expect($html)
+            ->toContain('window.rupavueVoice = (function () {')
+            ->toContain('const delay = '.$delay.';')
+            ->toContain('const repeatAfter = '.$repeatAfter.';');
+    }
+
+    expect((string) $this->view('photobooth.result', ['photoFrames' => collect()]))
+        ->toMatch("/qrPanel\.addEventListener\('animationend'[\s\S]*?window\.rupavueVoice\.start\(3\);|window\.rupavueVoice\.start\(3\);[\s\S]*?qrPanel\.addEventListener\('animationend'/");
+
+    expect((string) $this->view('welcome'))
+        ->toMatch("/startButton\.addEventListener\('click'[\s\S]*?window\.rupavueVoice\.stop\(\);/");
+});
+
+test('background music goes lower while rupa is talking', function () {
+    $html = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
+
+    expect($html)
+        ->toContain('return { fadeTo: fadeTo, duckForVoice: duckForVoice };')
+        ->toMatch('/setTalking\(true\);\s*[\s\S]*?clip\.play\(\)/')
+        ->toContain('window.rupavueMusic.duckForVoice(isTalking);');
+});
+
+test('refreshing a photobooth page starts the background music over', function () {
+    expect((string) $this->view('welcome'))
+        ->toContain("navigation.type === 'reload'")
+        ->toContain('const state = isReload() ? null : readState();');
+});
+
+test('camera page plays countdown.mp3 on each countdown number', function () {
+    $html = (string) $this->view('photobooth.create', [
+        'theme' => makeTheme(1, 'Camera Theme', '2026-09-01 12:00:00'),
+        'photoFrames' => collect(),
+    ]);
+
+    expect($html)->toContain('storage\/audio\/effect\/countdown.mp3')
+        ->toContain('function playCountdownSound(index)')
+        ->not->toContain('function playCountdownBeep(')
+        ->toMatch('/countdownRunning = true;[\s\S]*?unlockCountdownSound\(\);/')
+        ->toMatch('/for \(const number of numbers\) \{[\s\S]*?playCountdownSound\(\s*numbers\.indexOf\(number\)\s*\);/');
 });

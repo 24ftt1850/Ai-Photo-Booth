@@ -2698,5 +2698,9 @@
 
 </script>
 
+@include('partials.background-music', ['mood' => 'generate'])
+
+@include('partials.voice', ['voices' => ['generate'], 'delay' => 2])
+
 </body>
 </html>

@@ -1853,7 +1853,10 @@
 
     let countdownRunning = false;
 
-    let shutterAudioContext = null;
+    const shutterSound =
+        new Audio(@json(asset('storage/audio/effect/shutter.mp3')));
+
+    shutterSound.preload = 'auto';
 
 
     /*
@@ -1861,86 +1864,87 @@
      * SHUTTER SOUND
      * =========================
      *
-     * Synthesised with the Web Audio API so no
-     * sound file is needed. The context must be
-     * unlocked during a user gesture (the capture
-     * button click), then the click itself plays
-     * after the countdown.
+     * Plays shutter.mp3 when the photo is taken.
+     * Browsers only allow sound after a tap, so the
+     * capture button click quietly "warms up" the
+     * sound, then it plays after the countdown.
      */
 
     function unlockShutterSound() {
 
-        const AudioContextClass =
-            window.AudioContext
-            || window.webkitAudioContext;
+        shutterSound.muted = true;
 
-        if (!AudioContextClass) {
-            return;
-        }
-
-        if (!shutterAudioContext) {
-            shutterAudioContext =
-                new AudioContextClass();
-        }
-
-        if (shutterAudioContext.state === 'suspended') {
-            shutterAudioContext.resume();
-        }
+        shutterSound.play()
+            .then(() => {
+                shutterSound.pause();
+                shutterSound.currentTime = 0;
+                shutterSound.muted = false;
+            })
+            .catch(() => {
+                shutterSound.muted = false;
+            });
 
     }
 
     function playShutterSound() {
 
-        if (!shutterAudioContext) {
-            return;
-        }
+        shutterSound.muted = false;
+        shutterSound.currentTime = 0;
 
-        const context = shutterAudioContext;
+        shutterSound.play().catch(() => {});
 
-        const startTime = context.currentTime;
+    }
 
-        /*
-         * Two short filtered noise bursts:
-         * the mirror flipping up, then down.
-         */
 
-        [0, 0.07].forEach((offset, index) => {
+    /*
+     * =========================
+     * COUNTDOWN SOUND
+     * =========================
+     *
+     * Plays countdown.mp3 on each countdown number.
+     * Each number has its own copy of the sound so a
+     * beep is not cut off when the next one starts.
+     * Like the shutter, every copy is "warmed up" on
+     * the capture button tap so browsers allow it.
+     */
 
-            const duration = 0.05;
+    const countdownSounds =
+        [0, 1, 2].map(() => {
+            const sound = new Audio(@json(asset('storage/audio/effect/countdown.mp3')));
+            sound.preload = 'auto';
 
-            const buffer = context.createBuffer(
-                1,
-                Math.floor(context.sampleRate * duration),
-                context.sampleRate
-            );
+            return sound;
+        });
 
-            const samples = buffer.getChannelData(0);
+    function unlockCountdownSound() {
 
-            for (let i = 0; i < samples.length; i++) {
-                samples[i] =
-                    (Math.random() * 2 - 1)
-                    * Math.pow(1 - i / samples.length, 3);
-            }
+        countdownSounds.forEach((sound) => {
 
-            const source = context.createBufferSource();
-            source.buffer = buffer;
+            sound.muted = true;
 
-            const filter = context.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.value = index === 0 ? 2500 : 1800;
-            filter.Q.value = 0.8;
-
-            const gain = context.createGain();
-            gain.gain.value = index === 0 ? 0.9 : 0.6;
-
-            source
-                .connect(filter)
-                .connect(gain)
-                .connect(context.destination);
-
-            source.start(startTime + offset);
+            sound.play()
+                .then(() => {
+                    sound.pause();
+                    sound.currentTime = 0;
+                    sound.muted = false;
+                })
+                .catch(() => {
+                    sound.muted = false;
+                });
 
         });
+
+    }
+
+    function playCountdownSound(index) {
+
+        const sound =
+            countdownSounds[index % countdownSounds.length];
+
+        sound.muted = false;
+        sound.currentTime = 0;
+
+        sound.play().catch(() => {});
 
     }
 
@@ -2106,6 +2110,8 @@
 
         unlockShutterSound();
 
+        unlockCountdownSound();
+
 
         const numbers = [
             '3',
@@ -2135,6 +2141,10 @@
 
             countdownNumber.style.animation =
                 'countdownPop 0.9s ease';
+
+            playCountdownSound(
+                numbers.indexOf(number)
+            );
 
 
             await wait(1000);
@@ -3029,6 +3039,10 @@
 </script>
 
 @include('partials.click-sound')
+
+@include('partials.background-music', ['mood' => 'soft'])
+
+@include('partials.voice', ['voices' => ['camera'], 'delay' => 2])
 
 </body>
 </html>

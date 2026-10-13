@@ -2098,9 +2098,11 @@
     </div>
 
 
-    <!-- =========================================================
-         RUPA WELCOME VIDEO
-         ========================================================= -->
+    {{--
+        RUPA WELCOME CHARACTER
+        Hidden for now; remove this Blade comment to bring Rupa and
+        the speech bubble back. The script only starts the bubble
+        when these elements are on the page.
 
     <div class="rupa-welcome" aria-hidden="true">
         <div class="rupa-speech" id="rupaSpeech">
@@ -2112,6 +2114,7 @@
             alt="Rupa Character"
         >
     </div>
+    --}}
 
 
     <!-- =========================================================
@@ -2788,6 +2791,10 @@
 
                     window.rupavueClickSound.play();
 
+                    window.rupavueMusic.fadeTo('soft', 1);
+
+                    window.rupavueVoice.stop();
+
                     const destination =
                         this.href;
 
@@ -2842,6 +2849,10 @@
     </script>
 
 @include('partials.click-sound')
+
+@include('partials.background-music', ['mood' => 'welcome'])
+
+@include('partials.voice', ['voices' => ['welcome'], 'delay' => 5, 'repeatAfter' => 30])
 
 </body>
 

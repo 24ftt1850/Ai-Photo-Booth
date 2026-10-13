@@ -3182,6 +3182,50 @@ html.result-intro .result-frame.is-intro-ready {
     generateQRCode();
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | RUPA VOICE
+    |--------------------------------------------------------------------------
+    |
+    | A few seconds after the QR panel has slid in, Rupa says the
+    | photo is ready and then thanks the guest. The timeout covers
+    | browsers that skip the slide-in animation.
+    */
+
+    function speakAfterQrAppears() {
+
+        let hasSpoken = false;
+
+        const speak = function () {
+
+            if (hasSpoken) {
+                return;
+            }
+
+            hasSpoken = true;
+
+            window.rupavueVoice.start(3);
+
+        };
+
+        const qrPanel =
+            document.querySelector('.qr-panel');
+
+        if (qrPanel) {
+            qrPanel.addEventListener('animationend', function (event) {
+                if (event.target === qrPanel) {
+                    speak();
+                }
+            });
+        }
+
+        setTimeout(speak, 8000);
+
+    }
+
+    speakAfterQrAppears();
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -3931,6 +3975,10 @@ html.result-intro .result-frame.is-intro-ready {
 
 
 @include('partials.click-sound')
+
+@include('partials.background-music', ['mood' => 'result'])
+
+@include('partials.voice', ['voices' => ['ready', 'thankyou']])
 
 </body>
 

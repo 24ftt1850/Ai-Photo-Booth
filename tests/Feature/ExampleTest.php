@@ -35,11 +35,12 @@ test('welcome page does not show the feature highlights', function () {
         ->assertDontSee('HD DOWNLOADS');
 });
 
-test('welcome page shows the rupa character image', function () {
+test('welcome page hides the rupa character and speech bubble for now', function () {
     $response = $this->withHeader('referer', route('setup'))->get(route('home'));
 
     $response->assertOk()
-        ->assertSee('images/rupa-character.png')
+        ->assertDontSee('images/rupa-character.png')
+        ->assertDontSee('id="rupaSpeech"', false)
         ->assertDontSee('images/rupa-welcome.mp4');
 });
 

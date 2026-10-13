@@ -954,6 +954,8 @@ submitButton.addEventListener(
 
 </script>
 
+@include('partials.background-music', ['mood' => 'normal'])
+
 </body>
 
 </html>
