@@ -1894,57 +1894,38 @@
         shutterSound.play().catch(() => {});
 
     }
-
-
     /*
      * =========================
      * COUNTDOWN SOUND
      * =========================
      *
-     * Plays countdown.mp3 on each countdown number.
-     * Each number has its own copy of the sound so a
-     * beep is not cut off when the next one starts.
-     * Like the shutter, every copy is "warmed up" on
-     * the capture button tap so browsers allow it.
+     * Plays countdown.mp3 as each countdown number
+     * appears and cuts it short as the number goes,
+     * so the sound follows the numbers. The first
+     * beep plays during the capture button tap, which
+     * lets the browser play the rest.
      */
 
-    const countdownSounds =
-        [0, 1, 2].map(() => {
-            const sound = new Audio(@json(asset('storage/audio/effect/countdown.mp3')));
-            sound.preload = 'auto';
+    const countdownSound =
+        new Audio(@json(asset('storage/audio/effect/countdown.mp3')));
 
-            return sound;
-        });
+    countdownSound.preload = 'auto';
 
-    function unlockCountdownSound() {
+    const countdownSoundLength = 600;
 
-        countdownSounds.forEach((sound) => {
+    let countdownSoundTimer = null;
 
-            sound.muted = true;
+    function playCountdownSound() {
 
-            sound.play()
-                .then(() => {
-                    sound.pause();
-                    sound.currentTime = 0;
-                    sound.muted = false;
-                })
-                .catch(() => {
-                    sound.muted = false;
-                });
+        clearTimeout(countdownSoundTimer);
 
-        });
+        countdownSound.currentTime = 0;
 
-    }
+        countdownSound.play().catch(() => {});
 
-    function playCountdownSound(index) {
-
-        const sound =
-            countdownSounds[index % countdownSounds.length];
-
-        sound.muted = false;
-        sound.currentTime = 0;
-
-        sound.play().catch(() => {});
+        countdownSoundTimer = setTimeout(() => {
+            countdownSound.pause();
+        }, countdownSoundLength);
 
     }
 
@@ -2110,8 +2091,6 @@
 
         unlockShutterSound();
 
-        unlockCountdownSound();
-
 
         const numbers = [
             '3',
@@ -2142,9 +2121,7 @@
             countdownNumber.style.animation =
                 'countdownPop 0.9s ease';
 
-            playCountdownSound(
-                numbers.indexOf(number)
-            );
+            playCountdownSound();
 
 
             await wait(1000);

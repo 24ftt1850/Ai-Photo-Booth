@@ -69,12 +69,26 @@
 
             /*
              * If the browser blocks sound before the guest has
-             * touched the screen, skip this line rather than
-             * saying it late.
+             * touched the screen, say this line on the first tap.
              */
             clip.play().catch(function () {
-                playFrom(index + 1);
+                setTalking(false);
+                playOnFirstTap(index);
             });
+
+        }
+
+        function playOnFirstTap(index) {
+
+            const unlock = function () {
+                document.removeEventListener('pointerdown', unlock, true);
+                document.removeEventListener('keydown', unlock, true);
+
+                playFrom(index);
+            };
+
+            document.addEventListener('pointerdown', unlock, true);
+            document.addEventListener('keydown', unlock, true);
 
         }
 

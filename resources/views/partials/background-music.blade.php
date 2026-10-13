@@ -11,9 +11,17 @@
                seconds later
     normal   - plays at full volume
 --}}
+@php
+    /*
+     * Versioned by the file's last change so swapping in a new
+     * background.mp3 is not hidden by the browser's cache.
+     */
+    $musicPath = storage_path('app/public/audio/background.mp3');
+    $musicVersion = file_exists($musicPath) ? filemtime($musicPath) : null;
+@endphp
 <audio
     id="rvBackgroundMusic"
-    src="{{ asset('storage/audio/background.mp3') }}"
+    src="{{ asset('storage/audio/background.mp3') }}{{ $musicVersion ? '?v='.$musicVersion : '' }}"
     data-mood="{{ $mood ?? 'normal' }}"
     loop
     preload="auto"

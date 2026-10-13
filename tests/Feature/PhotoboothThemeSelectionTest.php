@@ -348,7 +348,7 @@ test('photobooth pages play the background music with a mood for each step', fun
 
     foreach ($pages as $page => [$data, $mood]) {
         expect((string) $this->view($page, $data))
-            ->toContain('storage/audio/background.mp3')
+            ->toMatch('/storage\/audio\/background\.mp3(\?v=\d+)?"/')
             ->toContain('data-mood="'.$mood.'"')
             ->toContain('window.rupavueMusic = (function () {');
     }
@@ -371,7 +371,7 @@ test('photobooth pages play rupa voice lines at the right moments', function () 
     $theme = makeTheme(1, 'Camera Theme', '2026-09-01 12:00:00');
 
     $pages = [
-        'welcome' => [[], ['welcome'], '5', '30'],
+        'welcome' => [[], ['welcome'], '10', '30'],
         'photobooth.scene' => [['themes' => collect(), 'photoFrames' => collect()], ['theme'], '2', 'null'],
         'photobooth.frame' => [['theme' => $theme, 'frames' => collect(), 'photoFrames' => collect()], ['frame'], '2', 'null'],
         'photobooth.create' => [['theme' => $theme, 'photoFrames' => collect()], ['camera'], '2', 'null'],
@@ -421,8 +421,20 @@ test('camera page plays countdown.mp3 on each countdown number', function () {
     ]);
 
     expect($html)->toContain('storage\/audio\/effect\/countdown.mp3')
-        ->toContain('function playCountdownSound(index)')
+        ->toContain('const countdownSoundLength = 600;')
+        ->toMatch('/function playCountdownSound\(\) \{[\s\S]*?setTimeout\(\(\) => \{\s*countdownSound\.pause\(\);\s*\}, countdownSoundLength\);/')
         ->not->toContain('function playCountdownBeep(')
-        ->toMatch('/countdownRunning = true;[\s\S]*?unlockCountdownSound\(\);/')
-        ->toMatch('/for \(const number of numbers\) \{[\s\S]*?playCountdownSound\(\s*numbers\.indexOf\(number\)\s*\);/');
+        ->not->toContain('unlockCountdownSound')
+        ->toMatch('/async function startCountdown\(\) \{(?:(?!await)[\s\S])*?playCountdownSound\(\);/')
+        ->toMatch('/for \(const number of numbers\) \{[\s\S]*?playCountdownSound\(\);\s*await wait\(1000\);/');
+});
+
+test('welcome voice plays 10 seconds after opening, or on the first tap if the browser blocks it', function () {
+    $html = (string) $this->view('welcome');
+
+    expect($html)
+        ->toContain('storage\/audio\/voice\/welcome.mp3')
+        ->toContain('const delay = 10;')
+        ->toMatch('/clip\.play\(\)\.catch\(function \(\) \{\s*setTalking\(false\);\s*playOnFirstTap\(index\);/')
+        ->toMatch("/function playOnFirstTap\(index\) \{[\s\S]*?document\.addEventListener\('pointerdown', unlock, true\);/");
 });
