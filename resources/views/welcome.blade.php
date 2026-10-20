@@ -2852,7 +2852,7 @@
 
 @include('partials.background-music', ['mood' => 'welcome'])
 
-@include('partials.voice', ['voices' => ['welcome'], 'delay' => 10, 'repeatAfter' => 30])
+@include('partials.voice', ['voices' => ['welcome'], 'delay' => 10, 'repeatAfter' => 60])
 
 </body>
 

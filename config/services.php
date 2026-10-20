@@ -36,6 +36,7 @@ return [
         'token_path' => env('GOOGLE_DRIVE_TOKEN_PATH'),
         'generated_folder_id' => env('GOOGLE_DRIVE_GENERATED_FOLDER_ID'),
         'redirect_uri' => env('GOOGLE_DRIVE_REDIRECT_URI', 'http://127.0.0.1:8000/google-drive/callback'),
+        'refresh_token_lifetime_days' => env('GOOGLE_DRIVE_REFRESH_TOKEN_LIFETIME_DAYS', 7),
     ],
 
     'postmark' => [

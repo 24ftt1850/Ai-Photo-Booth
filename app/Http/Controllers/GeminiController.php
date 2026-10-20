@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
+use App\Models\ThemeReferenceImage;
 use stdClass;
 
 class GeminiController extends Controller
@@ -31,6 +32,12 @@ class GeminiController extends Controller
     private const PRINT_HEIGHT = 1200;
 
     private const PRINT_DPI = 300;
+
+    /**
+     * Raw camera photos, kept separately from the AI pictures
+     * in photobooth/ (which are deleted after a week).
+     */
+    public const RAW_PHOTO_FOLDER = 'photobooth-raw';
 
     public function generateImage(
         Request $request,
@@ -125,6 +132,10 @@ class GeminiController extends Controller
         |--------------------------------------------------------------------------
         | Save Original Image
         |--------------------------------------------------------------------------
+        |
+        | Raw camera photos are kept in their own folder; photobooth/
+        | holds the AI pictures, which are deleted after a week.
+        |
         */
 
         $fileName =
@@ -134,8 +145,11 @@ class GeminiController extends Controller
             uniqid().
             '.jpg';
 
+        $rawPhotoPath =
+            self::RAW_PHOTO_FOLDER.'/'.$fileName;
+
         Storage::disk('public')->put(
-            'photobooth/'.$fileName,
+            $rawPhotoPath,
             $imageBinary
         );
 
@@ -144,16 +158,28 @@ class GeminiController extends Controller
         | Theme Prompt
         |--------------------------------------------------------------------------
         */
+        
+        $prefix = trim((string) ($theme->prompt_prefix ?? ''));
+        $suffix = trim((string) ($theme->prompt_suffix ?? ''));
+        $negativePrompt = trim((string) ($theme->negative_prompt ?? ''));
 
-        $prompt = trim(
-            ($theme->prompt_prefix ?? '').
-            ' '.
-            ($theme->prompt_suffix ?? '')
-        );
+        $prompt = implode("\n\n", array_filter([
+            $prefix,
+            $suffix,
+            $negativePrompt !== ''
+                ? "NEGATIVE PROMPT — STRICTLY AVOID:\n" . $negativePrompt
+                : null,
+        ]));
 
         if ($prompt === '') {
-
-            $this->recordFailedGeneration($theme, $occasion, 'photobooth/'.$fileName, $prompt, 'failed_other', 'The theme has no prompt configured.');
+            $this->recordFailedGeneration(
+                $theme,
+                $occasion,
+                $rawPhotoPath,
+                $prompt,
+                'failed_other',
+                'The theme has no prompt configured.'
+            );
 
             return response()->json([
                 'success' => false,
@@ -161,19 +187,41 @@ class GeminiController extends Controller
             ], 422);
         }
 
+        $prompt .= "\n\nUse the attached reference images as visual guidance "
+            . "for this theme's styling, clothing, props, colours, and scene. "
+            . "Preserve the identity and facial features of the person in "
+            . "the original uploaded photo. Do not copy the identity of "
+            . "people shown in reference images.";
+
+
         /*
         |--------------------------------------------------------------------------
         | Generate AI Image (Gemini or FLUX.2, see AI_PROVIDER)
         |--------------------------------------------------------------------------
         */
 
-        $generated = config('services.ai.provider') === 'flux'
-            ? $this->generateWithFlux($theme, $occasion, 'photobooth/'.$fileName, $prompt, $imageData)
-            : $this->generateWithGemini($theme, $occasion, 'photobooth/'.$fileName, $prompt, $imageData);
+        
+        $referenceImages = config('services.ai.provider') === 'flux'
+            ? []
+            : $this->loadThemeReferenceImages($theme, $googleDrive);
 
-        if ($generated instanceof JsonResponse) {
-            return $generated;
-        }
+        $generated = config('services.ai.provider') === 'flux'
+            ? $this->generateWithFlux(
+                $theme,
+                $occasion,
+                $rawPhotoPath,
+                $prompt,
+                $imageData
+            )
+            : $this->generateWithGemini(
+                $theme,
+                $occasion,
+                $rawPhotoPath,
+                $prompt,
+                $imageData,
+                $referenceImages
+            );
+
 
         $generatedImage = $generated;
 
@@ -190,7 +238,7 @@ class GeminiController extends Controller
 
         if ($generatedBinary === false) {
 
-            $this->recordFailedGeneration($theme, $occasion, 'photobooth/'.$fileName, $prompt, 'failed_other', 'The image returned by the AI service could not be decoded.');
+            $this->recordFailedGeneration($theme, $occasion, $rawPhotoPath, $prompt, 'failed_other', 'The image returned by the AI service could not be decoded.');
 
             return response()->json([
                 'success' => false,
@@ -708,8 +756,7 @@ class GeminiController extends Controller
                         Str::random(4)
                     ),
 
-                'raw_photo_path' => 'photobooth/'.
-                    $fileName,
+                'raw_photo_path' => $rawPhotoPath,
 
                 'consent_given' => true,
 
@@ -805,10 +852,7 @@ class GeminiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'original_image' => Storage::url(
-                'photobooth/'.
-                $fileName
-            ),
+            'original_image' => Storage::url($rawPhotoPath),
 
             /*
             |--------------------------------------------------------------------------
@@ -881,7 +925,14 @@ class GeminiController extends Controller
      * Returns the generated image as base64, or the error response
      * to send back to the booth.
      */
-    private function generateWithGemini(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $imageData): string|JsonResponse
+    private function generateWithGemini(
+        Theme $theme,
+        stdClass $occasion,
+        string $rawPhotoPath,
+        string $prompt,
+        string $imageData,
+        array $referenceImages
+    ): string|JsonResponse
     {
         /*
         |--------------------------------------------------------------------------
@@ -919,7 +970,13 @@ class GeminiController extends Controller
         */
 
         try {
-            $response = $this->requestGeminiImage($model, $apiKey, $prompt, $imageData);
+            $response = $this->requestGeminiImage(
+                $model,
+                $apiKey,
+                $prompt,
+                $imageData,
+                $referenceImages
+            );
         } catch (ConnectionException $e) {
 
             Log::error('RUPAVUE Gemini image generation timed out.', ['model' => $model, 'error' => $e->getMessage()]);
@@ -1177,38 +1234,63 @@ class GeminiController extends Controller
     /**
      * Ask Gemini to restyle the guest's photo with the theme prompt.
      */
-    private function requestGeminiImage(string $model, string $apiKey, string $prompt, string $imageData): Response
-    {
-        return Http::timeout(120)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-            ->post(
-                'https://generativelanguage.googleapis.com/v1beta/models/'.$model.':generateContent?key='.$apiKey,
+    
+        private function requestGeminiImage(
+            string $model,
+            string $apiKey,
+            string $prompt,
+            string $imageData,
+            array $referenceImages
+        ): Response {
+            $parts = [
+                ['text' => $prompt],
                 [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $prompt],
-                                [
-                                    'inline_data' => [
-                                        'mime_type' => 'image/jpeg',
-                                        'data' => $imageData,
-                                    ],
-                                ],
+                    'inline_data' => [
+                        'mime_type' => 'image/jpeg',
+                        'data' => $imageData,
+                    ],
+                ],
+            ];
+
+            foreach ($referenceImages as $index => $reference) {
+                $parts[] = [
+                    'text' => 'Theme reference ' . ($index + 1)
+                        . '. Use this image as visual guidance for the theme. '
+                        . 'Do not copy the identity of people shown in it.',
+                ];
+
+                $parts[] = [
+                    'inline_data' => [
+                        'mime_type' => $reference['mime_type'],
+                        'data' => $reference['data'],
+                    ],
+                ];
+            }
+
+            return Http::timeout(120)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->post(
+                    'https://generativelanguage.googleapis.com/v1beta/models/'
+                        . $model . ':generateContent?key=' . $apiKey,
+                    [
+                        'contents' => [
+                            [
+                                'parts' => $parts,
                             ],
                         ],
-                    ],
-                    'generationConfig' => [
-                        'responseModalities' => ['TEXT', 'IMAGE'],
-                        'imageConfig' => [
-                            'imageSize' => '2k',
-                            'aspectRatio' => '3:2',
+                        'generationConfig' => [
+                            'responseModalities' => ['TEXT', 'IMAGE'],
+                            'imageConfig' => [
+                                'imageSize' => '2k',
+                                'aspectRatio' => '3:2',
+                            ],
                         ],
-                    ],
-                ]
-            );
-    }
+                    ]
+                );
+        }
+
 
     /**
      * Failure status and reason for a Gemini reply without an image,
@@ -1377,4 +1459,107 @@ class GeminiController extends Controller
 
         return $filePath;
     }
+    
+    private function loadThemeReferenceImages(
+        Theme $theme,
+        GoogleDriveService $googleDrive
+    ): array {
+        $disk = Storage::disk('public');
+        $loadedReferences = [];
+
+        $references = ThemeReferenceImage::query()
+            ->where('theme_id', $theme->id)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        foreach ($references as $reference) {
+            $binary = null;
+            $temporaryPath = null;
+
+            try {
+                // Try this website's local copy first.
+                if (
+                    $reference->local_path
+                    && $disk->exists($reference->local_path)
+                ) {
+                    $binary = $disk->get($reference->local_path);
+                }
+
+                // Otherwise, download the image from Google Drive.
+                if (
+                    (! is_string($binary) || $binary === '')
+                    && $reference->google_drive_file_id
+                ) {
+                    $temporaryPath = storage_path(
+                        'app/temp/theme-references/reference_'
+                        . $reference->id . '_' . Str::random(10) . '.img'
+                    );
+
+                    $this->ensureDirectory($temporaryPath);
+
+                    $googleDrive->downloadFile(
+                        $reference->google_drive_file_id,
+                        $temporaryPath
+                    );
+
+                    if (is_file($temporaryPath)) {
+                        $binary = File::get($temporaryPath);
+                    }
+                }
+
+                if (! is_string($binary) || $binary === '') {
+                    Log::warning(
+                        'RUPAVUE reference image could not be loaded.',
+                        ['reference_id' => $reference->id]
+                    );
+
+                    continue;
+                }
+
+                $imageInfo = @getimagesizefromstring($binary);
+                $mimeType = $imageInfo['mime'] ?? null;
+
+                if (! in_array(
+                    $mimeType,
+                    ['image/jpeg', 'image/png', 'image/webp'],
+                    true
+                )) {
+                    Log::warning(
+                        'RUPAVUE reference image has an unsupported format.',
+                        ['reference_id' => $reference->id]
+                    );
+
+                    continue;
+                }
+
+                $loadedReferences[] = [
+                    'mime_type' => $mimeType,
+                    'data' => base64_encode($binary),
+                ];
+            } catch (\Throwable $e) {
+                Log::warning(
+                    'RUPAVUE reference image loading failed.',
+                    [
+                        'reference_id' => $reference->id,
+                        'error' => $e->getMessage(),
+                    ]
+                );
+            } finally {
+                if ($temporaryPath && is_file($temporaryPath)) {
+                    @unlink($temporaryPath);
+                }
+            }
+        }
+
+        Log::info('RUPAVUE theme references loaded.', [
+            'theme_id' => $theme->id,
+            'active_references' => $references->count(),
+            'loaded_references' => count($loadedReferences),
+        ]);
+
+        return $loadedReferences;
+    }
+
 }

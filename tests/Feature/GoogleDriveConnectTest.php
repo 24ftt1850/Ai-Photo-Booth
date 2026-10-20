@@ -2,7 +2,9 @@
 
 use App\Models\User;
 use App\Services\GoogleDriveService;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 
 /*
  * The photobooth can connect Google Drive itself, using its own
@@ -17,6 +19,7 @@ test('the google drive page requires login', function () {
 test('the google drive page offers to connect when not connected', function () {
     $this->mock(GoogleDriveService::class, function ($mock) {
         $mock->shouldReceive('isConnected')->andReturnFalse();
+        $mock->shouldReceive('reconnectDeadline')->andReturnNull();
         $mock->shouldReceive('usesSharedToken')->andReturnFalse();
         $mock->shouldNotReceive('getFolderInfo');
     });
@@ -32,6 +35,7 @@ test('the google drive page offers to connect when not connected', function () {
 test('the google drive page shows the destination folder when connected', function () {
     $this->mock(GoogleDriveService::class, function ($mock) {
         $mock->shouldReceive('isConnected')->andReturnTrue();
+        $mock->shouldReceive('reconnectDeadline')->andReturn(CarbonImmutable::parse('2026-10-18 09:00:00'));
         $mock->shouldReceive('usesSharedToken')->andReturnFalse();
         $mock->shouldReceive('getFolderInfo')->andReturn(['id' => 'folder-id', 'name' => 'RUPAVUE Photos', 'mimeType' => 'application/vnd.google-apps.folder']);
     });
@@ -42,12 +46,15 @@ test('the google drive page shows the destination folder when connected', functi
         ->assertSee('Connected')
         ->assertSee('RUPAVUE Photos')
         ->assertSee('Generated photos will now be saved to Drive.')
-        ->assertSee('RECONNECT GOOGLE DRIVE');
+        ->assertSee('RECONNECT GOOGLE DRIVE')
+        ->assertSee('Reconnect within')
+        ->assertSee('data-reconnect-deadline="2026-10-18T09:00:00+00:00"', false);
 });
 
 test('the google drive page does not connect here while sharing the admin token', function () {
     $this->mock(GoogleDriveService::class, function ($mock) {
         $mock->shouldReceive('isConnected')->andReturnFalse();
+        $mock->shouldReceive('reconnectDeadline')->andReturnNull();
         $mock->shouldReceive('usesSharedToken')->andReturnTrue();
         $mock->shouldNotReceive('getAuthUrl');
     });
@@ -154,4 +161,79 @@ test('the auth url uses the photobooth credentials and asks for offline access',
         ->state->toBe('the-state');
 
     unlink(base_path($credentialsPath));
+});
+
+test('connecting from the setup page returns to the setup page', function () {
+    config()->set('app.url', 'https://ai-photo-booth-.test');
+
+    $state = null;
+
+    $this->mock(GoogleDriveService::class, function ($mock) use (&$state) {
+        $mock->shouldReceive('usesSharedToken')->andReturnFalse();
+        $mock->shouldReceive('getAuthUrl')->once()->andReturnUsing(function (string $givenState) use (&$state) {
+            $state = $givenState;
+
+            return 'https://accounts.google.com/o/oauth2/auth?state='.$givenState;
+        });
+        $mock->shouldReceive('handleAuthCode')->once()->with('auth-code');
+    });
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('google-drive.connect', ['from' => 'setup']));
+
+    expect(Cache::get('google-drive-oauth-state:'.$state))->toBe('setup');
+
+    $this->get(route('google-drive.callback', ['state' => $state, 'code' => 'auth-code']))
+        ->assertRedirect('https://ai-photo-booth-.test/setup?result=connected');
+});
+
+test('an unknown return page falls back to the google drive page', function () {
+    $state = null;
+
+    $this->mock(GoogleDriveService::class, function ($mock) use (&$state) {
+        $mock->shouldReceive('usesSharedToken')->andReturnFalse();
+        $mock->shouldReceive('getAuthUrl')->andReturnUsing(function (string $givenState) use (&$state) {
+            $state = $givenState;
+
+            return 'https://accounts.google.com/o/oauth2/auth';
+        });
+    });
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('google-drive.connect', ['from' => 'https://evil.example']));
+
+    expect(Cache::get('google-drive-oauth-state:'.$state))->toBe('google-drive.index');
+});
+
+test('the reconnect deadline is the token lifetime after connecting', function () {
+    $tokenPath = storage_path('framework/testing/google-reconnect-token.json');
+    File::ensureDirectoryExists(dirname($tokenPath));
+    File::put($tokenPath, json_encode([
+        'access_token' => 'access',
+        'refresh_token' => 'refresh',
+        'connected_at' => CarbonImmutable::parse('2026-10-11 08:00:00')->timestamp,
+    ]));
+
+    config()->set('services.google_drive.token_path', $tokenPath);
+    config()->set('services.google_drive.refresh_token_lifetime_days', 7);
+
+    expect((new GoogleDriveService)->reconnectDeadline()?->toDateTimeString())->toBe('2026-10-18 08:00:00');
+
+    config()->set('services.google_drive.refresh_token_lifetime_days', null);
+
+    expect((new GoogleDriveService)->reconnectDeadline())->toBeNull();
+
+    File::delete($tokenPath);
+});
+
+test('there is no reconnect deadline when the connect time is unknown', function () {
+    $tokenPath = storage_path('framework/testing/google-reconnect-token.json');
+    File::ensureDirectoryExists(dirname($tokenPath));
+    File::put($tokenPath, json_encode(['access_token' => 'access', 'refresh_token' => 'refresh']));
+
+    config()->set('services.google_drive.token_path', $tokenPath);
+
+    expect((new GoogleDriveService)->reconnectDeadline())->toBeNull();
+
+    File::delete($tokenPath);
 });

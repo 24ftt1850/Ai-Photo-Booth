@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Carbon\CarbonImmutable;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
@@ -117,7 +118,30 @@ class GoogleDriveService
             );
         }
 
+        $token['connected_at'] = now()->timestamp;
+
         $this->saveToken($token);
+    }
+
+    /**
+     * When Google will stop accepting the refresh token, so the
+     * booth can show how long is left before reconnecting.
+     *
+     * Google expires refresh tokens a fixed number of days after
+     * consent while the OAuth app is in "Testing"; null when that
+     * lifetime is not configured or the connect time is unknown.
+     */
+    public function reconnectDeadline(): ?CarbonImmutable
+    {
+        $lifetimeDays = (int) config('services.google_drive.refresh_token_lifetime_days');
+        $token = $this->loadToken();
+
+        if ($lifetimeDays <= 0 || ! $this->isConnected() || empty($token['connected_at'])) {
+            return null;
+        }
+
+        return CarbonImmutable::createFromTimestamp((int) $token['connected_at'])
+            ->addDays($lifetimeDays);
     }
 
     /**
@@ -191,6 +215,10 @@ class GoogleDriveService
 
             if ($existing && ! empty($existing['refresh_token'])) {
                 $token['refresh_token'] = $existing['refresh_token'];
+            }
+
+            if ($existing && ! empty($existing['connected_at'])) {
+                $token['connected_at'] = $existing['connected_at'];
             }
         }
 

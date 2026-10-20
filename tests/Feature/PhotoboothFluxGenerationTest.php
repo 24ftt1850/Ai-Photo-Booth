@@ -138,7 +138,8 @@ test('flux restyles the photo and the booth saves the downloaded image', functio
 
     Http::assertNotSent(fn (Request $request) => str_contains($request->url(), 'generativelanguage.googleapis.com'));
 
-    expect(Storage::disk('public')->files('photobooth'))->toHaveCount(2);
+    expect(Storage::disk('public')->files('photobooth'))->toHaveCount(1)
+        ->and(Storage::disk('public')->files('photobooth-raw'))->toHaveCount(1);
 });
 
 test('a photo blocked by flux moderation is saved as nsfw', function () {

@@ -8,7 +8,11 @@ use App\Http\Controllers\PhotoboothPrintController;
 use App\Http\Controllers\PublicPhotoController;
 use App\Models\PhotoFrame;
 use App\Models\Theme;
+use App\Services\GoogleDriveService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 /*
 |--------------------------------------------------------------------------
@@ -151,26 +155,232 @@ Route::middleware('auth')->group(function () {
 Route::get('/google-drive/callback', [GoogleDriveController::class, 'callback'])
     ->name('google-drive.callback');
 
+
 /*
 |--------------------------------------------------------------------------
 | One-time Setup (IP address + event)
 |--------------------------------------------------------------------------
-| Shown each time the booth link is opened, before the welcome page.
-| The IP address and event are not saved or used yet; completing
-| setup just continues to the welcome page.
+| Loads active occasions from the current database.
+| Saves setup selections in the session for now.
+| Remote XAMPP connection will be added later.
 */
 
-Route::get('/setup', function () {
+// Display the setup page.
+Route::get('/setup', function (
+    Request $request,
+    GoogleDriveService $googleDrive
+) {
+    $occasions = DB::table('occasions')
+        ->where('status', 'active')
+        ->orderBy('occasion_name')
+        ->get(['id', 'occasion_name']);
 
-    return view('photobooth.setup');
-
+    return view('photobooth.setup', [
+        'occasions' => $occasions,
+        'isDriveConnected' => $googleDrive->isConnected(),
+        'usesSharedDriveToken' => $googleDrive->usesSharedToken(),
+        'driveReconnectDeadline' => $googleDrive->reconnectDeadline(),
+        'driveResult' => GoogleDriveController::resultMessage(
+            $request->query('result')
+        ),
+    ]);
 })->name('setup');
 
-Route::post('/setup', function () {
+// Test the remote XAMPP/MySQL connection.
+Route::post('/setup/test-remote', function (Request $request) {
+    $validator = Validator::make($request->all(), [
+        'ip_address' => ['required', 'ip'],
+        'remote_port' => ['required', 'integer', 'between:1,65535'],
+        'remote_database' => ['required', 'string', 'max:64'],
+        'remote_username' => ['required', 'string', 'max:128'],
+        'remote_password' => ['present', 'string', 'max:255'],
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => $validator->errors()->first(),
+        ], 422);
+    }
+
+    $data = $validator->validated();
+
+    try {
+        $pdo = new PDO(
+            sprintf(
+                'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+                $data['ip_address'],
+                (int) $data['remote_port'],
+                $data['remote_database']
+            ),
+            $data['remote_username'],
+            $data['remote_password'],
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT => 5,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]
+        );
+
+        $statement = $pdo->query(
+            "SELECT id, occasion_name
+             FROM occasions
+             WHERE status = 'active'
+             ORDER BY occasion_name"
+        );
+
+        $occasions = $statement->fetchAll();
+
+        if (count($occasions) === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Connected successfully, but no active occasions were found.',
+            ], 422);
+        }
+
+        // Save the connection settings server-side for this session.
+        $request->session()->put('setup.remote', [
+            'host' => $data['ip_address'],
+            'port' => (int) $data['remote_port'],
+            'database' => $data['remote_database'],
+            'username' => $data['remote_username'],
+            'password' => $data['remote_password'],
+        ]);
+
+        $request->session()->put(
+            'setup.remote_occasion_ids',
+            array_map(
+                fn ($occasion) => (int) $occasion['id'],
+                $occasions
+            )
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Remote database connection successful.',
+            'occasions' => $occasions,
+        ]);
+    } catch (\Throwable $e) {
+        report($e);
+
+        $request->session()->forget([
+            'setup.remote',
+            'setup.remote_occasion_ids',
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Connection failed. Check the IP, port, database name, credentials, and remote MySQL access.',
+        ], 422);
+    }
+})->name('setup.testRemote');
+
+// Save the selected occasion and connection mode.
+Route::post('/setup', function (Request $request) {
+    $validated = $request->validate([
+        'connection_mode' => ['required', 'in:local,remote'],
+        'occasion_id' => ['required', 'integer'],
+    ]);
+
+    $occasionId = (int) $validated['occasion_id'];
+
+    if ($validated['connection_mode'] === 'local') {
+        $isActive = DB::table('occasions')
+            ->where('id', $occasionId)
+            ->where('status', 'active')
+            ->exists();
+
+        if (! $isActive) {
+            return back()->withErrors([
+                'occasion_id' => 'Please select an active local occasion.',
+            ])->withInput();
+        }
+
+        $request->session()->forget([
+            'setup.remote',
+            'setup.remote_occasion_ids',
+        ]);
+
+        $request->session()->put([
+            'setup.connection_mode' => 'local',
+            'setup.occasion_id' => $occasionId,
+            'setup.completed' => true,
+        ]);
+
+        return redirect()->route('home');
+    }
+
+    $remote = $request->session()->get('setup.remote');
+    $allowedIds = $request->session()->get(
+        'setup.remote_occasion_ids',
+        []
+    );
+
+    if (! $remote || ! in_array($occasionId, $allowedIds, true)) {
+        return back()->withErrors([
+            'occasion_id' => 'Test the remote connection successfully and select one of its active occasions.',
+        ])->withInput();
+    }
+
+    try {
+        // Verify the remote connection again before saving the selection.
+        $pdo = new PDO(
+            sprintf(
+                'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+                $remote['host'],
+                $remote['port'],
+                $remote['database']
+            ),
+            $remote['username'],
+            $remote['password'],
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT => 5,
+            ]
+        );
+
+        $statement = $pdo->prepare(
+            "SELECT id FROM occasions
+             WHERE id = ? AND status = 'active'"
+        );
+        $statement->execute([$occasionId]);
+
+        if (! $statement->fetch()) {
+            return back()->withErrors([
+                'occasion_id' => 'That remote occasion is no longer active.',
+            ])->withInput();
+        }
+    } catch (\Throwable $e) {
+        report($e);
+
+        return back()->withErrors([
+            'occasion_id' => 'The remote database is no longer reachable. Test the connection again.',
+        ])->withInput();
+    }
+
+    $request->session()->put([
+        'setup.connection_mode' => 'remote',
+        'setup.occasion_id' => $occasionId,
+        'setup.completed' => true,
+    ]);
 
     return redirect()->route('home');
-
 })->name('setup.complete');
+
+// Switch back to the existing local .env database.
+Route::post('/setup/local', function (Request $request) {
+    $request->session()->forget([
+        'setup.remote',
+        'setup.remote_occasion_ids',
+    ]);
+
+    $request->session()->put([
+        'setup.connection_mode' => 'local',
+        'setup.completed' => true,
+    ]);
+
+    return redirect()->route('home');
+})->name('setup.local');
 
 Route::get(
     '/photo/{token}',

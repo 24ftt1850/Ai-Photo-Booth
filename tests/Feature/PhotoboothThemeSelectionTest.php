@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\GeneratedImage;
 use App\Models\Theme;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Build an unsaved theme; the photoshoot_themes table has no migration,
@@ -333,6 +335,65 @@ test('theme page carousel dots rise in slightly after the cards', function () {
         ->toMatch('/html\.rv-warp-in \.carousel-dots \{[^}]*animation-delay: 0\.85s;/');
 });
 
+test('popular themes are the ones with the most generated photos', function () {
+    /*
+     * In the migrations generated_images.theme_id points at `themes`;
+     * the live table points at photoshoot_themes.
+     */
+    foreach ([1, 2, 3, 4] as $themeId) {
+        DB::table('themes')->insert(['id' => $themeId, 'name' => 'Theme '.$themeId, 'slug' => 'theme-'.$themeId]);
+    }
+
+    GeneratedImage::factory()->count(3)->create(['theme_id' => 2]);
+    GeneratedImage::factory()->count(5)->create(['theme_id' => 4]);
+    GeneratedImage::factory()->count(1)->create(['theme_id' => 1]);
+    GeneratedImage::factory()->count(2)->create(['theme_id' => 3]);
+
+    expect(Theme::popularThemeIds()->all())->toBe([4, 2, 3])
+        ->and(Theme::popularThemeIds(1)->all())->toBe([4]);
+});
+
+test('scene page labels only the popular themes', function () {
+    $view = $this->view('photobooth.scene', [
+        'themes' => collect([
+            makeTheme(1, 'Quiet Theme', '2026-09-01 12:00:00'),
+            makeTheme(2, 'Loved Theme', '2026-09-02 12:00:00'),
+        ]),
+        'photoFrames' => collect(),
+        'popularThemeIds' => collect([2]),
+    ]);
+
+    $view->assertSeeInOrder([
+        'data-theme-name="Quiet Theme"',
+        'data-theme-popular="false"',
+        'data-theme-name="Loved Theme"',
+        'data-theme-popular="true"',
+        'class="theme-popular-badge"',
+        'POPULAR',
+    ], false);
+
+    expect(substr_count((string) $view, 'class="theme-popular-badge"'))->toBe(1);
+});
+
+test('scene page shows category buttons to filter themes', function () {
+    $view = $this->view('photobooth.scene', [
+        'themes' => collect([makeTheme(1, 'Only Theme', '2026-09-01 12:00:00')]),
+        'photoFrames' => collect(),
+        'popularThemeIds' => collect(),
+    ]);
+
+    $view->assertSeeInOrder([
+        'id="themeCategories"',
+        'data-category="all"',
+        'data-category="popular"',
+        'data-category="new"',
+        ...array_map(fn (string $slug): string => 'data-category="'.$slug.'"', array_keys(Theme::CATEGORIES)),
+        'id="themeTrack"',
+    ], false)
+        ->assertSee('No themes in this category yet.')
+        ->assertSee('function filterThemes(category)', false);
+});
+
 test('photobooth pages play the background music with a mood for each step', function () {
     $theme = makeTheme(1, 'Camera Theme', '2026-09-01 12:00:00');
 
@@ -371,7 +432,7 @@ test('photobooth pages play rupa voice lines at the right moments', function () 
     $theme = makeTheme(1, 'Camera Theme', '2026-09-01 12:00:00');
 
     $pages = [
-        'welcome' => [[], ['welcome'], '10', '30'],
+        'welcome' => [[], ['welcome'], '10', '60'],
         'photobooth.scene' => [['themes' => collect(), 'photoFrames' => collect()], ['theme'], '2', 'null'],
         'photobooth.frame' => [['theme' => $theme, 'frames' => collect(), 'photoFrames' => collect()], ['frame'], '2', 'null'],
         'photobooth.create' => [['theme' => $theme, 'photoFrames' => collect()], ['camera'], '2', 'null'],

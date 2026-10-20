@@ -140,6 +140,37 @@
             color: #ff9a9a;
         }
 
+        .drive-timer {
+            margin-top: 16px;
+
+            color: rgba(255, 255, 255, 0.8);
+
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .drive-timer-remaining {
+            color: #6ff0a8;
+
+            font-variant-numeric: tabular-nums;
+        }
+
+        .drive-timer.is-soon .drive-timer-remaining {
+            color: #ffd27a;
+        }
+
+        .drive-timer.is-expired {
+            color: #ff9a9a;
+        }
+
+        .drive-timer-date {
+            display: block;
+
+            color: rgba(255, 255, 255, 0.55);
+
+            font-size: 13px;
+        }
+
         .drive-button {
             display: inline-block;
 
@@ -182,6 +213,10 @@
             <span class="drive-status is-connected">Connected</span>
         @else
             <span class="drive-status is-disconnected">Not connected</span>
+        @endif
+
+        @if ($reconnectDeadline)
+            @include('google-drive.partials.reconnect-timer', ['deadline' => $reconnectDeadline])
         @endif
 
         @if ($result)

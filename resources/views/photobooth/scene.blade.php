@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -79,7 +79,7 @@
             /* Bottom room for the pinned CHOOSE FRAME button */
             padding:
                 4px
-                5vw
+                4vw
                 calc(var(--rv-start-bottom, 45px) + 160px);
 
             display: flex;
@@ -555,7 +555,7 @@
 
             margin-top: 24px;
 
-            margin-bottom: 36px;
+            margin-bottom: 18px;
 
         }
 
@@ -714,12 +714,12 @@
             /* Shorter when needed so the carousel ends above the pinned button */
             height:
                 clamp(
-                    260px,
+                    280px,
                     min(
-                        48vh,
-                        calc(100dvh - var(--rv-start-bottom, 45px) - 124px * var(--rv-start-scale, 1) - 250px)
+                        52vh,
+                        calc(100dvh - var(--rv-start-bottom, 45px) - 124px * var(--rv-start-scale, 1) - 290px)
                     ),
-                    560px
+                    600px
                 );
             border-radius: 22px;
             overflow: hidden;
@@ -1094,6 +1094,136 @@
 
             right: 68px;
 
+        }
+
+
+        /* =====================================================
+           POPULAR BADGE
+        ===================================================== */
+
+        .theme-popular-badge {
+
+            position: absolute;
+
+            z-index: 5;
+
+            top: 16px;
+            left: 16px;
+
+            padding: 7px 14px;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ff5f6d,
+                    #d6246e
+                );
+
+            color: #ffffff;
+
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .12em;
+
+            box-shadow:
+                0 4px 14px
+                rgba(214,36,110,.55);
+
+        }
+
+
+        /* =====================================================
+           CATEGORY FILTER
+        ===================================================== */
+
+        .theme-categories {
+
+            width: 100%;
+
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+
+            gap: 10px;
+
+            margin-bottom: 4px;
+
+        }
+
+        .theme-category {
+
+            padding: 10px 20px;
+
+            border-radius: 999px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.45);
+
+            background:
+                rgba(4,31,80,.55);
+
+            color: #ffffff;
+
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: .04em;
+
+            cursor: pointer;
+
+            transition:
+                background .2s ease,
+                border-color .2s ease,
+                box-shadow .2s ease;
+
+        }
+
+        .theme-category:hover {
+
+            border-color:
+                rgba(90,170,255,.9);
+
+        }
+
+        .theme-category.active {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1a8fff,
+                    #0052c7
+                );
+
+            border-color: #3aa8ff;
+
+            box-shadow:
+                0 0 18px
+                rgba(20,140,255,.55);
+
+        }
+
+        .theme-card.is-filtered-out {
+            display: none;
+        }
+
+        .theme-filter-empty {
+
+            width: 100%;
+
+            padding: 60px;
+
+            text-align: center;
+
+            color:
+                rgba(255,255,255,.75);
+
+        }
+
+        .theme-filter-empty[hidden] {
+            display: none;
         }
 
 
@@ -1495,11 +1625,34 @@
             }
 
 
+            .theme-categories {
+
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+
+                overflow-x: auto;
+
+                scrollbar-width: none;
+
+            }
+
+
+            .theme-category {
+
+                flex: 0 0 auto;
+
+                padding: 8px 16px;
+
+                font-size: 14px;
+
+            }
+
+
             .theme-card {
 
                 flex-basis: 100%;
 
-                height: clamp(320px, 54vh, 500px);
+                height: clamp(340px, 56vh, 530px);
 
             }
 
@@ -2044,6 +2197,43 @@
         </header>
 
 
+        <!-- Category filter -->
+
+        <div
+            class="theme-categories"
+            id="themeCategories"
+            role="group"
+            aria-label="Theme categories"
+        >
+
+            <button type="button" class="theme-category active" data-category="all" aria-pressed="true">
+                All
+            </button>
+
+            <button type="button" class="theme-category" data-category="popular" aria-pressed="false">
+                🔥 Popular
+            </button>
+
+            <button type="button" class="theme-category" data-category="new" aria-pressed="false">
+                ✨ New
+            </button>
+
+            @foreach ($categories as $category)
+
+                <button
+                    type="button"
+                    class="theme-category"
+                    data-category="{{ \Illuminate\Support\Str::slug($category->name) }}"
+                    aria-pressed="false"
+                >
+                    {{ $category->name }}
+                </button>
+
+            @endforeach
+
+        </div>
+
+
         <!-- =================================================
              THEME CAROUSEL
         ================================================== -->
@@ -2059,7 +2249,7 @@
                 id="previousTheme"
                 aria-label="Previous theme"
             >
-                ‹
+                
             </button>
 
 
@@ -2079,8 +2269,14 @@
                             ($theme->prompt_prefix ?? '') . ' ' .
                             ($theme->prompt_suffix ?? '')
                         );
-                    @endphp
 
+                        $isPopularTheme = ($popularThemeIds ?? collect())
+                            ->contains($theme->id);
+
+                        $themeCategorySlugs = $theme->categories
+                            ->map(fn ($category) => \Illuminate\Support\Str::slug($category->name))
+                            ->implode(' ');
+                    @endphp
 
                     <div
                         class="theme-card"
@@ -2089,6 +2285,9 @@
                         data-theme-description="{{ $theme->description ?? 'Create a unique AI-powered photo experience.' }}"
                         data-theme-prompt="{{ $themePrompt }}"
                         data-theme-image="{{ $themeImage }}"
+                        data-theme-popular="{{ $isPopularTheme ? 'true' : 'false' }}"
+                        data-theme-new="{{ $theme->isNew() ? 'true' : 'false' }}"
+                        data-theme-categories="{{ $themeCategorySlugs }}"
                     >
 
 
@@ -2126,6 +2325,17 @@
                         <div class="selected-check">
                             ✓
                         </div>
+
+
+                        @if ($isPopularTheme)
+
+                            <!-- Most used -->
+
+                            <div class="theme-popular-badge">
+                                🔥 POPULAR
+                            </div>
+
+                        @endif
 
 
                         @if ($theme->isNew())
@@ -2179,6 +2389,14 @@
                     </div>
 
                 @endforelse
+
+                <div
+                    class="theme-filter-empty"
+                    id="themeFilterEmpty"
+                    hidden
+                >
+                    No themes in this category yet.
+                </div>
 
             </div>
 
@@ -2243,10 +2461,21 @@
     const themeTrack =
         document.getElementById('themeTrack');
 
-    const themeCards =
+    const allThemeCards =
         Array.from(
             document.querySelectorAll('.theme-card')
         );
+
+    /* The cards in the current category; the carousel moves through these */
+    let themeCards = allThemeCards.slice();
+
+    const categoryButtons =
+        Array.from(
+            document.querySelectorAll('.theme-category')
+        );
+
+    const themeFilterEmpty =
+        document.getElementById('themeFilterEmpty');
 
     const previousTheme =
         document.getElementById('previousTheme');
@@ -2494,20 +2723,106 @@
        CLICK THEME
     ===================================================== */
 
-    themeCards.forEach(
-        function (card, index) {
+    allThemeCards.forEach(
+        function (card) {
 
             card.addEventListener(
                 'click',
                 function () {
 
-                    selectTheme(index);
+                    selectTheme(themeCards.indexOf(card));
 
                 }
             );
 
         }
     );
+
+
+    /* =====================================================
+       CATEGORY FILTER
+    ===================================================== */
+
+    function cardMatchesCategory(card, category) {
+
+        if (category === 'all') {
+            return true;
+        }
+
+        if (category === 'popular') {
+            return card.dataset.themePopular === 'true';
+        }
+
+        if (category === 'new') {
+            return card.dataset.themeNew === 'true';
+        }
+
+        return (card.dataset.themeCategories || '')
+            .split(' ')
+            .includes(category);
+
+    }
+
+
+    function filterThemes(category) {
+
+        const selectedCard =
+            themeCards[selectedIndex] || null;
+
+        categoryButtons.forEach(function (button) {
+            const isActive = button.dataset.category === category;
+
+            button.classList.toggle('active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+
+        themeCards = allThemeCards.filter(function (card) {
+            const matches = cardMatchesCategory(card, category);
+
+            card.classList.toggle('is-filtered-out', !matches);
+
+            return matches;
+        });
+
+        themeFilterEmpty.hidden =
+            themeCards.length > 0 || !allThemeCards.length;
+
+        /*
+         * Keep the picked theme if it is still shown;
+         * otherwise nothing is selected in this category.
+         */
+        selectedIndex = themeCards.indexOf(selectedCard);
+
+        if (selectedIndex === -1) {
+
+            allThemeCards.forEach(function (card) {
+                card.classList.remove('selected');
+            });
+
+            nextButton.disabled = true;
+
+            themeTrack.scrollLeft = 0;
+
+        } else {
+
+            selectedCard.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+
+        }
+
+        createDots();
+
+    }
+
+
+    categoryButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            filterThemes(button.dataset.category);
+        });
+    });
 
 
     /* =====================================================

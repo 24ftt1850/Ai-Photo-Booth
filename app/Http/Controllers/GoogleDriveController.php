@@ -15,6 +15,17 @@ class GoogleDriveController extends Controller
     private const STATE_CACHE_PREFIX = 'google-drive-oauth-state:';
 
     /**
+     * Pages a connection may return to, keyed by the `from` query
+     * value connect() accepts.
+     *
+     * @var array<string, string>
+     */
+    private const RETURN_ROUTES = [
+        'index' => 'google-drive.index',
+        'setup' => 'setup',
+    ];
+
+    /**
      * Messages the callback may show, keyed by the code it passes
      * back in the query string (never free text from the URL).
      *
@@ -46,10 +57,11 @@ class GoogleDriveController extends Controller
 
         return view('google-drive.index', [
             'isConnected' => $isConnected,
+            'reconnectDeadline' => $googleDrive->reconnectDeadline(),
             'usesSharedToken' => $googleDrive->usesSharedToken(),
             'folder' => $folder,
             'folderError' => $folderError,
-            'result' => self::RESULTS[(string) $request->query('result')] ?? null,
+            'result' => self::resultMessage($request->query('result')),
         ]);
     }
 
@@ -60,15 +72,17 @@ class GoogleDriveController extends Controller
      * session: Google calls back on 127.0.0.1, which does not
      * share the session with the Herd site.
      */
-    public function connect(GoogleDriveService $googleDrive): RedirectResponse
+    public function connect(Request $request, GoogleDriveService $googleDrive): RedirectResponse
     {
+        $returnRoute = self::RETURN_ROUTES[(string) $request->query('from')] ?? self::RETURN_ROUTES['index'];
+
         if ($googleDrive->usesSharedToken()) {
-            return redirect()->route('google-drive.index');
+            return redirect()->route($returnRoute);
         }
 
         $state = Str::random(40);
 
-        Cache::put(self::STATE_CACHE_PREFIX.$state, true, now()->addMinutes(15));
+        Cache::put(self::STATE_CACHE_PREFIX.$state, $returnRoute, now()->addMinutes(15));
 
         return redirect()->away($googleDrive->getAuthUrl($state));
     }
@@ -82,13 +96,18 @@ class GoogleDriveController extends Controller
     public function callback(Request $request, GoogleDriveService $googleDrive): RedirectResponse
     {
         $state = (string) $request->query('state');
+        $returnRoute = $state === '' ? null : Cache::pull(self::STATE_CACHE_PREFIX.$state);
 
-        if ($state === '' || ! Cache::pull(self::STATE_CACHE_PREFIX.$state)) {
-            return $this->redirectToIndex('expired');
+        if (! $returnRoute) {
+            return $this->redirectBack(self::RETURN_ROUTES['index'], 'expired');
         }
 
+        $returnRoute = in_array($returnRoute, self::RETURN_ROUTES, true)
+            ? $returnRoute
+            : self::RETURN_ROUTES['index'];
+
         if (! $request->filled('code')) {
-            return $this->redirectToIndex($request->query('error') === 'access_denied' ? 'denied' : 'failed');
+            return $this->redirectBack($returnRoute, $request->query('error') === 'access_denied' ? 'denied' : 'failed');
         }
 
         try {
@@ -96,20 +115,30 @@ class GoogleDriveController extends Controller
         } catch (\Throwable $e) {
             Log::error('RUPAVUE Google Drive connection failed.', ['error' => $e->getMessage()]);
 
-            return $this->redirectToIndex('failed');
+            return $this->redirectBack($returnRoute, 'failed');
         }
 
-        return $this->redirectToIndex('connected');
+        return $this->redirectBack($returnRoute, 'connected');
     }
 
     /**
-     * Back to the Google Drive page on the main site (APP_URL),
-     * since the callback arrives on 127.0.0.1.
+     * Messages the setup page shows after a connection attempt.
+     *
+     * @return array{type: string, message: string}|null
      */
-    private function redirectToIndex(string $result): RedirectResponse
+    public static function resultMessage(?string $result): ?array
+    {
+        return self::RESULTS[(string) $result] ?? null;
+    }
+
+    /**
+     * Back to the page the connection started from on the main
+     * site (APP_URL), since the callback arrives on 127.0.0.1.
+     */
+    private function redirectBack(string $routeName, string $result): RedirectResponse
     {
         return redirect()->away(
-            rtrim((string) config('app.url'), '/').route('google-drive.index', ['result' => $result], absolute: false)
+            rtrim((string) config('app.url'), '/').route($routeName, ['result' => $result], absolute: false)
         );
     }
 }

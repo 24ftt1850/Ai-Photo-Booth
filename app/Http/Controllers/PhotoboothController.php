@@ -8,6 +8,7 @@ use App\Models\Theme;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\ThemeCategory;
 
 class PhotoboothController extends Controller
 {
@@ -44,6 +45,28 @@ class PhotoboothController extends Controller
         return view('photobooth.create', compact('theme', 'photoFrames', 'backUrl'));
     }
 
+    public function scene(): View
+    {
+        $themes = Theme::with('categories')
+            ->where('is_active', true)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get();
+
+        $photoFrames = PhotoFrame::where('is_active', true)->get();
+
+        $popularThemeIds = Theme::popularThemeIds();
+
+        $categories = ThemeCategory::orderBy('name')->get();
+
+        return view('photobooth.scene', compact(
+            'themes',
+            'photoFrames',
+            'popularThemeIds',
+            'categories'
+        ));
+    }
+
     /**
      * Choose a photo frame after picking a theme. Only active
      * frames stored in Google Drive are offered.
@@ -74,15 +97,5 @@ class PhotoboothController extends Controller
         return view('photobooth.frame', compact('theme', 'frames'));
     }
 
-    public function scene(): View
-    {
-        $themes = Theme::where('is_active', true)
-            ->orderBy('created_at')
-            ->orderBy('id')
-            ->get();
 
-        $photoFrames = PhotoFrame::where('is_active', true)->get();
-
-        return view('photobooth.scene', compact('themes', 'photoFrames'));
-    }
 }
