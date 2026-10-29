@@ -752,6 +752,111 @@
             }
         }
 
+
+        /* =====================================================
+           LOADING / ERROR STATUS OVER RUPA-GENERATING.PNG
+           The overlay is positioned inside the AI portal core,
+           directly over the small rupa-generating.png image.
+        ===================================================== */
+
+        .ai-portal-core .rupa-face-status {
+            position: absolute;
+            z-index: 5;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 1;
+            background: radial-gradient(circle, rgba(0, 120, 255, .22), transparent 72%);
+        }
+
+        /* Larger segmented neon ring; the longer duration makes it spin slower. */
+        .rupa-face-spinner {
+            position: relative;
+            z-index: 1;
+            width: 30%;
+            height: 30%;
+            
+            border-radius: 50%;
+            background: repeating-conic-gradient(
+                from 0deg,
+                #f5ffff 0deg 13deg,
+                transparent 13deg 30deg
+            );
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+            filter: drop-shadow(0 0 5px #078bff) drop-shadow(0 0 12px #006aff);
+            animation: rupaFaceSpin 2.8s linear infinite;
+        }
+
+        /* Soft cyan glow pulses behind the spinner. */
+        .ai-portal-core .rupa-face-status::before {
+            content: "";
+            position: absolute;
+            inset: 18%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 145, 255, .28), transparent 70%);
+            box-shadow: 0 0 20px rgba(0, 116, 255, .4);
+            animation: rupaFacePulse 2.4s ease-in-out infinite;
+        }
+
+        .rupa-face-error-icon {
+            display: none;
+            position: relative;
+            z-index: 2;
+            width: 58%;
+            height: 58%;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #ff3d5a;
+            border-radius: 50%;
+            color: #fff;
+            background: rgba(45, 0, 12, .9);
+            box-shadow: 0 0 12px #ff2448, 0 0 30px rgba(255, 25, 65, .85), inset 0 0 12px rgba(255, 25, 65, .35);
+            font: 900 clamp(18px, 2vw, 34px)/1 Arial, sans-serif;
+            text-shadow: 0 0 10px #ff2448;
+        }
+
+        .ai-magic-placeholder.is-error .rupa-face-spinner,
+        .ai-magic-placeholder.is-error .ai-portal-core .rupa-face-status::before {
+            display: none;
+            animation: none;
+        }
+
+        .ai-magic-placeholder.is-error .rupa-face-error-icon {
+            display: flex;
+            animation: rupaErrorPop .35s ease-out both;
+        }
+
+        .ai-magic-placeholder.is-error .ai-portal-core .rupa-face-status {
+            background: radial-gradient(circle, rgba(255, 0, 45, .3), transparent 72%);
+        }
+
+        @keyframes rupaFaceSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rupaFacePulse {
+            0%, 100% { opacity: .45; transform: scale(.88); }
+            50% { opacity: 1; transform: scale(1.08); }
+        }
+
+        @keyframes rupaErrorPop {
+            from { opacity: 0; transform: scale(.55); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .rupa-face-spinner,
+            .ai-portal-core .rupa-face-status::before {
+                animation-duration: 5s;
+            }
+        }
+
         /*
          * Speech bubble above Rupa's head holding the
          * progress message and bar. It is wider than
@@ -1113,7 +1218,8 @@
 
         .ai-portal-core {
             position: absolute;
-            inset: 38%;
+            inset: 41%;
+            transform: translateY(8px);
 
             display: flex;
             align-items: center;
@@ -1985,11 +2091,14 @@
 
             </div>
 
+            <!-- Rupa's character image; the status animation is layered over its face. -->
             <img
+                class="rupa-character-image"
                 src="{{ asset('images/rupa-waiting.png') }}"
                 alt=""
                 aria-hidden="true"
             >
+
         </div>
 
 
@@ -2048,6 +2157,11 @@
                                     alt=""
                                     onerror="this.replaceWith('✨')"
                                 >
+                                <!-- Loading / error animation sits directly over rupa-generating.png. -->
+                                <div class="rupa-face-status" id="rupaFaceStatus" aria-hidden="true">
+                                    <span class="rupa-face-spinner" id="rupaFaceSpinner"></span>
+                                    <span class="rupa-face-error-icon" id="rupaFaceErrorIcon">!</span>
+                                </div>
                             </span>
                         </div>
                     </div>
@@ -2285,9 +2399,27 @@
     |--------------------------------------------------------------------------
     */
 
+    // Switch the small status animation displayed on Rupa's face.
+    // Use "loading" during generation and "error" when generation fails.
+    function setRupaFaceState(state) {
+        // Apply the loading/error state to the AI result placeholder containing rupa-generating.png.
+        const loadingContainer = document.querySelector('.ai-magic-placeholder');
+        const faceStatus = document.getElementById('rupaFaceStatus');
+
+        if (!loadingContainer || !faceStatus) return;
+
+        loadingContainer.classList.toggle('is-error', state === 'error');
+        faceStatus.setAttribute(
+            'aria-label',
+            state === 'error' ? 'Image generation failed' : 'Generating image'
+        );
+    }
+
     function showError(message) {
 
+        // Stop progress movement so the page clearly enters an error state.
         stopProgressCreep();
+        setRupaFaceState('error');
 
         statusText.textContent = message;
 
@@ -2352,6 +2484,9 @@
     */
 
     async function generateAIImage() {
+
+        // Start with the animated neon spinner on Rupa's face.
+        setRupaFaceState('loading');
 
         if (!capturedPhoto) {
 

@@ -55,6 +55,7 @@ class PhotoboothPrintController extends Controller
                 'ai_model_id' => $generatedImage->model_id ?? $printConfig->ai_model_id,
                 'quantity' => 1,
                 'print_status' => 'queued',
+                'orientation' => 'landscape',
             ]);
 
             /*
