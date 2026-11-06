@@ -214,6 +214,10 @@ class GeminiController extends Controller
                 $referenceImages
             );
 
+        if ($generated instanceof JsonResponse) {
+            return $generated;
+        }
+
         $generatedImage = $generated;
 
         /*

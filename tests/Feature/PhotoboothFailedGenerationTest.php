@@ -103,6 +103,25 @@ test('a photo blocked by the safety filter is saved as nsfw', function () {
         ->failure_reason->toBe('Gemini did not return an image (IMAGE_SAFETY): I cannot edit this photo..');
 });
 
+test('a gemini reply without an image tells the booth so and is saved once', function () {
+    Http::fake([
+        'generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [[
+                'finishReason' => 'STOP',
+                'content' => ['parts' => [['text' => 'The photo is just a plain black image.']]],
+            ]],
+        ]),
+    ]);
+
+    generatePhoto($this)
+        ->assertStatus(500)
+        ->assertJson(['success' => false, 'message' => 'Gemini did not return an image.']);
+
+    expect(GeneratedImage::sole())
+        ->generation_status->toBe('failed_other')
+        ->failure_reason->toBe('Gemini did not return an image (STOP): The photo is just a plain black image..');
+});
+
 test('a gemini timeout is saved as timed out', function () {
     Http::fake(fn () => throw new ConnectionException('cURL error 28: Operation timed out'));
 
