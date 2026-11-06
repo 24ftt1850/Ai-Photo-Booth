@@ -81,3 +81,20 @@ test('frame page requires a theme', function () {
     $this->get(route('photobooth.frame'))
         ->assertRedirect(route('photobooth.scene'));
 })->skip(fn () => ! Schema::hasTable('photoshoot_themes'), 'photoshoot_themes has no migration');
+
+test('frame page keeps the choose your frame heading pinned while scrolling', function () {
+    $html = (string) $this->view('photobooth.frame', [
+        'theme' => makeFrameTheme(),
+        'frames' => collect([makeFrame(1, 'Gold Border', 'drive-gold')]),
+    ]);
+
+    expect($html)->toMatch('/\.frame-header\s*\{[^}]*position:\s*sticky;[^}]*top:\s*0;/');
+});
+
+test('generate page shows a compact glowing loading ring over rupa', function () {
+    $html = (string) $this->view('photobooth.generate', ['theme' => null, 'photoFrames' => collect()]);
+
+    expect($html)->toContain('id="rupaFaceSpinner"')
+        ->toContain('--spinner-size: 36%;')
+        ->toContain('animation: rupaFaceSpin 1s linear infinite');
+});

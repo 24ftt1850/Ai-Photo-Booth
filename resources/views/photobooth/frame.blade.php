@@ -102,9 +102,24 @@
             align-items: center;
         }
 
+        /* Title stays pinned to the top while the frame grid scrolls underneath. */
         .frame-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+
+            width: calc(100% + 10vw);
+            margin: -28px -5vw 36px;
+            padding: 52px 5vw 24px;
+
             text-align: center;
-            margin: 24px 0 36px;
+
+            background: linear-gradient(
+                to bottom,
+                rgba(1, 6, 17, 0.96) 0%,
+                rgba(1, 6, 17, 0.85) 70%,
+                rgba(1, 6, 17, 0) 100%
+            );
         }
 
         .frame-header h1 {

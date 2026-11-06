@@ -109,15 +109,15 @@ class GeneratedImage extends Model
     }
 
     /**
-     * Link the guest's QR code opens: the shared Google Drive file
-     * when it is public, otherwise this app's own photo page.
+     * Link the guest's QR code opens: the shared Google Drive file,
+     * or null while the photo is not public on Google Drive.
      */
-    public function publicPhotoUrl(): string
+    public function publicPhotoUrl(): ?string
     {
         if ($this->google_drive_status === 'public' && $this->google_drive_url) {
             return $this->google_drive_url;
         }
 
-        return route('public.photo.show', $this->public_token);
+        return null;
     }
 }

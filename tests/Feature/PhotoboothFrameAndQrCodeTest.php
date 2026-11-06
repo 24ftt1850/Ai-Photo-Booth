@@ -6,6 +6,7 @@ use App\Models\PhotoFrame;
 use App\Services\GoogleDriveService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,15 +45,15 @@ test('generator applies the frame the guest picked', function () {
     expect($html)->toMatch("/frame_id:\s*sessionStorage\.getItem\('rupavueFrameId'\)/");
 });
 
-test('generator always returns a photo link and a qr code url', function () {
+test('generator returns the google drive photo link and a qr code url only when the photo is on google drive', function () {
     $source = file_get_contents(app_path('Http/Controllers/GeminiController.php'));
 
     expect($source)
         ->toContain("'public_photo_url' => \$generatedRecord->publicPhotoUrl()")
-        ->toContain("'qr_code_url' => route('public.photo.qr', \$generatedRecord->public_token)");
+        ->toMatch("/'qr_code_url' => \\\$generatedRecord->publicPhotoUrl\(\)\s*\? route\('public\.photo\.qr', \\\$generatedRecord->public_token\)\s*: null/");
 });
 
-test('photo link is the public google drive file when shared, otherwise the photo page', function () {
+test('photo link is the public google drive file when shared, otherwise there is none', function () {
     $shared = new GeneratedImage([
         'public_token' => 'token-123',
         'google_drive_status' => 'public',
@@ -67,11 +68,22 @@ test('photo link is the public google drive file when shared, otherwise the phot
         'google_drive_url' => 'https://drive.google.com/file/d/abc/view',
     ]);
 
-    expect($notShared->publicPhotoUrl())->toBe(route('public.photo.show', 'token-123'));
+    expect($notShared->publicPhotoUrl())->toBeNull();
+});
+
+test('guest photo page and its download link are removed', function () {
+    expect(Route::has('public.photo.show'))->toBeFalse()
+        ->and(Route::has('public.photo.download'))->toBeFalse();
+
+    $this->get('/photo/token-123')->assertNotFound();
+    $this->get('/photo/token-123/download')->assertNotFound();
 });
 
 test('each generated image has its own qr code png', function () {
-    makePublicPhoto();
+    makePublicPhoto([
+        'google_drive_status' => 'public',
+        'google_drive_url' => 'https://drive.google.com/file/d/abc/view',
+    ]);
 
     $response = $this->get(route('public.photo.qr', 'token-123'))
         ->assertOk()
@@ -80,11 +92,13 @@ test('each generated image has its own qr code png', function () {
     expect($response->getContent())->toStartWith("\x89PNG");
 });
 
-test('qr code is not found for an unknown or failed photo', function () {
-    makePublicPhoto(['public_token' => 'failed-token', 'generation_status' => 'failed_other']);
+test('qr code is not found for an unknown, failed or not yet shared photo', function () {
+    makePublicPhoto(['public_token' => 'failed-token', 'image_uid' => 'RV-FAILED', 'generation_status' => 'failed_other']);
+    makePublicPhoto(['public_token' => 'private-token', 'image_uid' => 'RV-PRIVATE', 'google_drive_status' => 'uploaded']);
 
     $this->get(route('public.photo.qr', 'missing-token'))->assertNotFound();
     $this->get(route('public.photo.qr', 'failed-token'))->assertNotFound();
+    $this->get(route('public.photo.qr', 'private-token'))->assertNotFound();
 });
 
 test('result page shows the qr code image for the generated photo', function () {
@@ -97,40 +111,6 @@ test('result page shows the qr code image for the generated photo', function () 
     expect($resultHtml)->toContain("'rupavueQrCodeUrl'")
         ->toMatch('/if \(qrCodeUrl\) \{.*?qrImage\.src = qrCodeUrl;/s')
         ->toMatch('/qrImage\.onerror = \(\) => \{.*?drawQRCodeInBrowser\(\);/s');
-});
-
-test('public photo download serves the local copy when the photo is not on google drive', function () {
-    Storage::fake('public');
-    Storage::disk('public')->put('photobooth/final.png', 'png-bytes');
-
-    makePublicPhoto();
-
-    $this->get(route('public.photo.download', 'token-123'))
-        ->assertOk()
-        ->assertDownload('RUPAVUE-RV-20260930-ABC123.png');
-});
-
-test('public photo download falls back to the local copy when google drive fails', function () {
-    Storage::fake('public');
-    Storage::disk('public')->put('photobooth/final.png', 'png-bytes');
-
-    makePublicPhoto(['google_drive_file_id' => 'drive-file']);
-
-    $this->mock(GoogleDriveService::class, function ($mock) {
-        $mock->shouldReceive('downloadFile')->andThrow(new Exception('Token has been expired or revoked.'));
-    });
-
-    $this->get(route('public.photo.download', 'token-123'))
-        ->assertOk()
-        ->assertDownload('RUPAVUE-RV-20260930-ABC123.png');
-});
-
-test('public photo download is not found when no copy exists', function () {
-    Storage::fake('public');
-
-    makePublicPhoto();
-
-    $this->get(route('public.photo.download', 'token-123'))->assertNotFound();
 });
 
 test('frame is fetched from its public google drive link and kept locally when drive is disconnected', function () {

@@ -774,34 +774,71 @@
             background: radial-gradient(circle, rgba(0, 120, 255, .22), transparent 72%);
         }
 
-        /* Larger segmented neon ring; the longer duration makes it spin slower. */
+        /*
+         * Compact neon loader over Rupa's face.
+         * The glow (filter) sits on the unmasked spinner element so it is not
+         * clipped away; the masked comet arc lives in ::before and the bright
+         * leading dot in ::after.
+         */
         .rupa-face-spinner {
+            --spinner-size: 36%;
+            /* Flex-centred, so a 16% top margin shifts it down by 8% of the face. */
+            margin-top: 16%;
+            --spinner-thickness: 5px;
+
             position: relative;
             z-index: 1;
-            width: 30%;
-            height: 30%;
-            
-            border-radius: 50%;
-            background: repeating-conic-gradient(
-                from 0deg,
-                #f5ffff 0deg 13deg,
-                transparent 13deg 30deg
-            );
-            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-            mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-            filter: drop-shadow(0 0 5px #078bff) drop-shadow(0 0 12px #006aff);
-            animation: rupaFaceSpin 2.8s linear infinite;
+            width: var(--spinner-size);
+            aspect-ratio: 1;
+
+            filter: drop-shadow(0 0 3px #9fdcff) drop-shadow(0 0 9px #0a84ff);
+            animation: rupaFaceSpin 1s linear infinite;
         }
 
-        /* Soft cyan glow pulses behind the spinner. */
+        .rupa-face-spinner::before,
+        .rupa-face-spinner::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .rupa-face-spinner::before {
+            inset: 0;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg 40deg,
+                rgba(30, 140, 255, .55) 140deg,
+                #45b4ff 260deg,
+                #d6f3ff 340deg,
+                #ffffff 360deg
+            );
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--spinner-thickness)), #000 calc(100% - var(--spinner-thickness) + 1px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - var(--spinner-thickness)), #000 calc(100% - var(--spinner-thickness) + 1px));
+        }
+
+        /* Bright head of the comet at the 12 o'clock end of the arc. */
+        .rupa-face-spinner::after {
+            top: -2px;
+            left: 50%;
+            width: calc(var(--spinner-thickness) + 4px);
+            height: calc(var(--spinner-thickness) + 4px);
+            translate: -50% 0;
+            background: #ffffff;
+            box-shadow: 0 0 6px 2px #ffffff, 0 0 14px 4px #39a6ff;
+        }
+
+        /*
+         * Dark disc + faint track behind the arc so the loader stays
+         * readable on top of the bright Rupa picture. Same size as the spinner.
+         */
         .ai-portal-core .rupa-face-status::before {
             content: "";
             position: absolute;
-            inset: 18%;
+            inset: 40% 32% 24%;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 145, 255, .28), transparent 70%);
-            box-shadow: 0 0 20px rgba(0, 116, 255, .4);
-            animation: rupaFacePulse 2.4s ease-in-out infinite;
+            border: 5px solid rgba(120, 190, 255, .22);
+            background: radial-gradient(circle, rgba(0, 10, 35, .35), rgba(0, 6, 24, .72));
+            animation: rupaFacePulse 2s ease-in-out infinite;
         }
 
         .rupa-face-error-icon {
@@ -841,8 +878,8 @@
         }
 
         @keyframes rupaFacePulse {
-            0%, 100% { opacity: .45; transform: scale(.88); }
-            50% { opacity: 1; transform: scale(1.08); }
+            0%, 100% { box-shadow: 0 0 6px rgba(0, 132, 255, .35), inset 0 0 6px rgba(0, 132, 255, .25); }
+            50% { box-shadow: 0 0 16px rgba(0, 150, 255, .75), inset 0 0 10px rgba(0, 150, 255, .45); }
         }
 
         @keyframes rupaErrorPop {
@@ -2277,13 +2314,6 @@
     const themeId =
         @json($theme->id ?? null);
 
-
-    /*
-     * =========================
-     * LOAD CAPTURED PHOTO
-     * =========================
-     */
-
     const capturedPhoto =
         sessionStorage.getItem(
             'rupavueCapturedPhoto'
@@ -2680,11 +2710,6 @@
                 100,
                 'Your photo is ready!'
             );
-
-
-            /*
-            * Portal flares up to bright white
-            */
 
             document
                 .querySelector('.ai-magic-placeholder')

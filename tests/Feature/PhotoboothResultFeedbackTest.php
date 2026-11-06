@@ -21,6 +21,16 @@ test('result page lets the guest change their rating after submitting it', funct
         ->not->toMatch('/if \(\s*!selectedRating \|\|\s*feedbackSubmitted/');
 });
 
+test('result page unlocks print and new session as soon as an emoji is picked', function () {
+    $html = (string) $this->view('photobooth.result', ['photoFrames' => collect()]);
+
+    expect($html)->toMatch('/highlightRating\(\s*selectedRating\s*\);\s*setActionsLocked\(\s*false\s*\);\s*submitRating\(\);/')
+        ->toMatch('/if \(\s*selectedRating > 0 \|\|\s*feedbackSubmitted \|\|\s*!generatedImageId\s*\)/')
+        ->toContain('keepalive: true')
+        ->not->toContain('Saving your feedback, please wait a moment.')
+        ->not->toContain('Unable to submit feedback. Please tap an emoji to try again.');
+});
+
 test('result page shows the qr code beside the photo instead of in a popup', function () {
     $view = $this->view('photobooth.result', ['photoFrames' => collect()]);
 

@@ -7,6 +7,7 @@ use App\Models\GeneratedImage;
 use App\Models\PhotoFrame;
 use App\Models\PhotoSession;
 use App\Models\Theme;
+use App\Models\ThemeReferenceImage;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
@@ -19,17 +20,16 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
-use App\Models\ThemeReferenceImage;
 use stdClass;
 
 class GeminiController extends Controller
 {
     /**
-     * Final photo size: a landscape 4R (6x4 inch) print at 300 dpi.
+     * Final photo size: a landscape 3R (5x3.5 inch) print at 300 dpi.
      */
-    private const PRINT_WIDTH = 1800;
+    private const PRINT_WIDTH = 1500;
 
-    private const PRINT_HEIGHT = 1200;
+    private const PRINT_HEIGHT = 1050;
 
     private const PRINT_DPI = 300;
 
@@ -109,12 +109,6 @@ class GeminiController extends Controller
             )[1];
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Decode Image
-        |--------------------------------------------------------------------------
-        */
-
         $imageBinary = base64_decode(
             $imageData,
             true
@@ -158,7 +152,7 @@ class GeminiController extends Controller
         | Theme Prompt
         |--------------------------------------------------------------------------
         */
-        
+
         $prefix = trim((string) ($theme->prompt_prefix ?? ''));
         $suffix = trim((string) ($theme->prompt_suffix ?? ''));
         $negativePrompt = trim((string) ($theme->negative_prompt ?? ''));
@@ -167,7 +161,7 @@ class GeminiController extends Controller
             $prefix,
             $suffix,
             $negativePrompt !== ''
-                ? "NEGATIVE PROMPT — STRICTLY AVOID:\n" . $negativePrompt
+                ? "NEGATIVE PROMPT — STRICTLY AVOID:\n".$negativePrompt
                 : null,
         ]));
 
@@ -188,11 +182,10 @@ class GeminiController extends Controller
         }
 
         $prompt .= "\n\nUse the attached reference images as visual guidance "
-            . "for this theme's styling, clothing, props, colours, and scene. "
-            . "Preserve the identity and facial features of the person in "
-            . "the original uploaded photo. Do not copy the identity of "
-            . "people shown in reference images.";
-
+            ."for this theme's styling, clothing, props, colours, and scene. "
+            .'Preserve the identity and facial features of the person in '
+            .'the original uploaded photo. Do not copy the identity of '
+            .'people shown in reference images.';
 
         /*
         |--------------------------------------------------------------------------
@@ -200,8 +193,7 @@ class GeminiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        
-        $referenceImages = config('services.ai.provider') === 'flux'
+        $referenceImages = config('services.ai.provider') === 'gemini'
             ? []
             : $this->loadThemeReferenceImages($theme, $googleDrive);
 
@@ -221,7 +213,6 @@ class GeminiController extends Controller
                 $imageData,
                 $referenceImages
             );
-
 
         $generatedImage = $generated;
 
@@ -391,7 +382,7 @@ class GeminiController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | Final Dimensions (6x4 Print)
+                | Final Dimensions (3R Print)
                 |--------------------------------------------------------------------------
                 */
 
@@ -789,27 +780,11 @@ class GeminiController extends Controller
 
                 'applied_frame_path' => $appliedFramePath,
 
-                /*
-                 * The guest's own pick, read by the admin site's
-                 * branding trigger; null lets it choose automatically.
-                 */
                 'chosen_frame_id' => $chosenFrame?->id,
 
                 'generation_status' => 'success',
 
-                /*
-                |--------------------------------------------------------------------------
-                | RUPAVUE Image ID
-                |--------------------------------------------------------------------------
-                */
-
                 'image_uid' => $imageUid,
-
-                /*
-                |--------------------------------------------------------------------------
-                | Google Drive Information
-                |--------------------------------------------------------------------------
-                */
 
                 'google_drive_file_id' => $googleDriveFileId,
 
@@ -906,7 +881,7 @@ class GeminiController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Public Photo Page (Google Drive-backed download)
+            | Guest Photo Link (Google Drive only)
             |--------------------------------------------------------------------------
             */
 
@@ -915,7 +890,9 @@ class GeminiController extends Controller
 
             'public_photo_url' => $generatedRecord->publicPhotoUrl(),
 
-            'qr_code_url' => route('public.photo.qr', $generatedRecord->public_token),
+            'qr_code_url' => $generatedRecord->publicPhotoUrl()
+                ? route('public.photo.qr', $generatedRecord->public_token)
+                : null,
         ]);
     }
 
@@ -932,8 +909,7 @@ class GeminiController extends Controller
         string $prompt,
         string $imageData,
         array $referenceImages
-    ): string|JsonResponse
-    {
+    ): string|JsonResponse {
         /*
         |--------------------------------------------------------------------------
         | Gemini API Key
@@ -1234,63 +1210,61 @@ class GeminiController extends Controller
     /**
      * Ask Gemini to restyle the guest's photo with the theme prompt.
      */
-    
-        private function requestGeminiImage(
-            string $model,
-            string $apiKey,
-            string $prompt,
-            string $imageData,
-            array $referenceImages
-        ): Response {
-            $parts = [
-                ['text' => $prompt],
-                [
-                    'inline_data' => [
-                        'mime_type' => 'image/jpeg',
-                        'data' => $imageData,
-                    ],
+    private function requestGeminiImage(
+        string $model,
+        string $apiKey,
+        string $prompt,
+        string $imageData,
+        array $referenceImages
+    ): Response {
+        $parts = [
+            ['text' => $prompt],
+            [
+                'inline_data' => [
+                    'mime_type' => 'image/jpeg',
+                    'data' => $imageData,
                 ],
+            ],
+        ];
+
+        foreach ($referenceImages as $index => $reference) {
+            $parts[] = [
+                'text' => 'Theme reference '.($index + 1)
+                    .'. Use this image as visual guidance for the theme. '
+                    .'Do not copy the identity of people shown in it.',
             ];
 
-            foreach ($referenceImages as $index => $reference) {
-                $parts[] = [
-                    'text' => 'Theme reference ' . ($index + 1)
-                        . '. Use this image as visual guidance for the theme. '
-                        . 'Do not copy the identity of people shown in it.',
-                ];
-
-                $parts[] = [
-                    'inline_data' => [
-                        'mime_type' => $reference['mime_type'],
-                        'data' => $reference['data'],
-                    ],
-                ];
-            }
-
-            return Http::timeout(120)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])
-                ->post(
-                    'https://generativelanguage.googleapis.com/v1beta/models/'
-                        . $model . ':generateContent?key=' . $apiKey,
-                    [
-                        'contents' => [
-                            [
-                                'parts' => $parts,
-                            ],
-                        ],
-                        'generationConfig' => [
-                            'responseModalities' => ['TEXT', 'IMAGE'],
-                            'imageConfig' => [
-                                'imageSize' => '2k',
-                                'aspectRatio' => '3:2',
-                            ],
-                        ],
-                    ]
-                );
+            $parts[] = [
+                'inline_data' => [
+                    'mime_type' => $reference['mime_type'],
+                    'data' => $reference['data'],
+                ],
+            ];
         }
 
+        return Http::timeout(120)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->post(
+                'https://generativelanguage.googleapis.com/v1beta/models/'
+                    .$model.':generateContent?key='.$apiKey,
+                [
+                    'contents' => [
+                        [
+                            'parts' => $parts,
+                        ],
+                    ],
+                    'generationConfig' => [
+                        'responseModalities' => ['TEXT', 'IMAGE'],
+                        'imageConfig' => [
+                            'imageSize' => '2k',
+                            'aspectRatio' => '3:2',
+                        ],
+                    ],
+                ]
+            );
+    }
 
     /**
      * Failure status and reason for a Gemini reply without an image,
@@ -1360,7 +1334,7 @@ class GeminiController extends Controller
     }
 
     /**
-     * Scale and centre-crop an image to the 6x4 print size, so it
+     * Scale and centre-crop an image to the 3R print size, so it
      * fills the whole print without being stretched. Data GD
      * cannot read is returned unchanged.
      */
@@ -1459,7 +1433,7 @@ class GeminiController extends Controller
 
         return $filePath;
     }
-    
+
     private function loadThemeReferenceImages(
         Theme $theme,
         GoogleDriveService $googleDrive
@@ -1494,7 +1468,7 @@ class GeminiController extends Controller
                 ) {
                     $temporaryPath = storage_path(
                         'app/temp/theme-references/reference_'
-                        . $reference->id . '_' . Str::random(10) . '.img'
+                        .$reference->id.'_'.Str::random(10).'.img'
                     );
 
                     $this->ensureDirectory($temporaryPath);
@@ -1561,5 +1535,4 @@ class GeminiController extends Controller
 
         return $loadedReferences;
     }
-
 }

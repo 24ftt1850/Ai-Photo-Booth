@@ -148,22 +148,22 @@ test('the framed photo is a landscape 4r print at 300 dpi', function () {
 
     $finalPath = Storage::disk('public')->path(GeneratedImage::sole()->generated_photo_path);
 
-    expect(array_slice(getimagesize($finalPath), 0, 2))->toBe([1800, 1200])
+    expect(array_slice(getimagesize($finalPath), 0, 2))->toBe([1500, 1050])
         ->and(imageresolution(imagecreatefrompng($finalPath)))->toBe([300, 300]);
 });
 
-test('the generated image without a frame is also a 6x4 print', function () {
+test('the generated image without a frame is also a 3R print', function () {
     DB::table('photo_frames')->delete();
 
     generateWithFrame($this, null)->assertOk()->assertJson(['frame_applied' => false]);
 
     $generatedPath = Storage::disk('public')->path(GeneratedImage::sole()->generated_photo_path);
 
-    expect(array_slice(getimagesize($generatedPath), 0, 2))->toBe([1800, 1200])
+    expect(array_slice(getimagesize($generatedPath), 0, 2))->toBe([1500, 1050])
         ->and(imageresolution(imagecreatefrompng($generatedPath)))->toBe([300, 300]);
 });
 
-test('the generated image is cropped to 6x4 instead of being stretched', function () {
+test('the generated image is cropped to 3R instead of being stretched', function () {
     $wideImage = imagecreatetruecolor(400, 100);
     imagefilledrectangle($wideImage, 0, 0, 99, 99, (int) imagecolorallocate($wideImage, 255, 0, 0));
     imagefilledrectangle($wideImage, 100, 0, 299, 99, (int) imagecolorallocate($wideImage, 0, 0, 255));
@@ -176,13 +176,13 @@ test('the generated image is cropped to 6x4 instead of being stretched', functio
 
     $image = imagecreatefromstring($printPng);
 
-    expect([imagesx($image), imagesy($image)])->toBe([1800, 1200]);
+    expect([imagesx($image), imagesy($image)])->toBe([1500, 1050]);
 
     /*
-     * The centre 150x100 (blue) is kept; the red sides are cropped off.
+     * The centre ~143x100 (blue) is kept; the red sides are cropped off.
      */
-    expect(imagecolorsforindex($image, imagecolorat($image, 5, 600)))->toMatchArray(['red' => 0, 'blue' => 255])
-        ->and(imagecolorsforindex($image, imagecolorat($image, 1794, 600)))->toMatchArray(['red' => 0, 'blue' => 255]);
+    expect(imagecolorsforindex($image, imagecolorat($image, 5, 525)))->toMatchArray(['red' => 0, 'blue' => 255])
+        ->and(imagecolorsforindex($image, imagecolorat($image, 1494, 525)))->toMatchArray(['red' => 0, 'blue' => 255]);
 });
 
 test('gemini is asked for a 3:2 landscape image', function () {

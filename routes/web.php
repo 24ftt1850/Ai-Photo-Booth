@@ -10,8 +10,8 @@ use App\Models\PhotoFrame;
 use App\Models\Theme;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 
 /*
@@ -155,7 +155,6 @@ Route::middleware('auth')->group(function () {
 Route::get('/google-drive/callback', [GoogleDriveController::class, 'callback'])
     ->name('google-drive.callback');
 
-
 /*
 |--------------------------------------------------------------------------
 | One-time Setup (IP address + event)
@@ -260,7 +259,7 @@ Route::post('/setup/test-remote', function (Request $request) {
             'message' => 'Remote database connection successful.',
             'occasions' => $occasions,
         ]);
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         report($e);
 
         $request->session()->forget([
@@ -350,7 +349,7 @@ Route::post('/setup', function (Request $request) {
                 'occasion_id' => 'That remote occasion is no longer active.',
             ])->withInput();
         }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         report($e);
 
         return back()->withErrors([
@@ -381,16 +380,6 @@ Route::post('/setup/local', function (Request $request) {
 
     return redirect()->route('home');
 })->name('setup.local');
-
-Route::get(
-    '/photo/{token}',
-    [PublicPhotoController::class, 'show']
-)->name('public.photo.show');
-
-Route::get(
-    '/photo/{token}/download',
-    [PublicPhotoController::class, 'download']
-)->name('public.photo.download');
 
 Route::get(
     '/photo/{token}/qr',

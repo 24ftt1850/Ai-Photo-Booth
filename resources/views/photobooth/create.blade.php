@@ -778,10 +778,32 @@
         }
 
         /*
-         * Upload option, stacked to the
-         * right of the camera frame.
+         * Retake and continue controls, stacked
+         * to the right of the camera frame.
          */
+        .side-controls-right {
+            position: absolute;
 
+            top: 50%;
+            left: 100%;
+            margin-left: 50px;
+
+            transform: translateY(-50%);
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 12px;
+
+            width: 260px;
+
+            flex-shrink: 0;
+        }
+
+        /*
+         * Retake and continue controls, stacked
+         * to the right of the camera frame.
+         */
         .side-controls-right {
             position: absolute;
 
@@ -1209,20 +1231,6 @@
             .rupa-speech-caret {
                 animation: none;
             }
-        }
-
-        .upload-button {
-            border: 2px solid rgba(255, 255, 255, 0.3);
-
-            background: rgba(255, 255, 255, 0.08);
-
-            color: white;
-        }
-
-        .upload-button:hover {
-            background: white;
-
-            color: #111;
         }
 
         /* =========================
@@ -1723,20 +1731,20 @@
 
             <div class="side-controls-right">
 
-                <button
+                <!-- <button
                     type="button"
                     class="side-button upload-button"
                     id="uploadButton"
                 >
                     📁 Upload Image
-                </button>
+                </button> -->
 
-                <input
+                <!-- <input
                     type="file"
                     id="imageUpload"
                     accept="image/jpeg,image/png,image/webp"
                     hidden
-                >
+                > -->
 
                 <button
                     type="button"
@@ -1821,12 +1829,6 @@
 
     const captureButton =
         document.getElementById('captureButton');
-
-    const uploadButton =
-        document.getElementById('uploadButton');
-
-    const imageUpload =
-        document.getElementById('imageUpload');
 
     const retakeButton =
         document.getElementById('retakeButton');
@@ -2109,10 +2111,6 @@
             );
 
 
-            /*
-             * Restart animation
-             */
-
             countdownNumber.style.animation =
                 'none';
 
@@ -2135,292 +2133,10 @@
 
         }
 
-
-        /*
-         * Capture after countdown
-         */
-
         capturePhoto();
 
 
         countdownRunning = false;
-
-    }
-
-
-    /*
-     * =========================
-     * UPLOAD IMAGE
-     * =========================
-     */
-
-    uploadButton.addEventListener(
-        'click',
-        function () {
-
-            imageUpload.click();
-
-        }
-    );
-
-
-    imageUpload.addEventListener(
-        'change',
-        function (event) {
-
-            const file =
-                event.target.files[0];
-
-            if (!file) {
-                return;
-            }
-
-
-            /*
-            * Check file type
-            */
-
-            const allowedTypes = [
-                'image/jpeg',
-                'image/png',
-                'image/webp'
-            ];
-
-            if (!allowedTypes.includes(file.type)) {
-
-                cameraStatus.textContent =
-                    'Please upload a JPG, PNG, or WebP image.';
-
-                return;
-            }
-
-
-            /*
-            * Check file size
-            *
-            * Maximum: 10 MB
-            */
-
-            if (file.size > 10 * 1024 * 1024) {
-
-                cameraStatus.textContent =
-                    'Image must be smaller than 10 MB.';
-
-                return;
-            }
-
-
-            /*
-            * Read image
-            */
-
-            const reader =
-                new FileReader();
-
-
-            reader.onload = function (e) {
-
-                processUploadedImage(
-                    e.target.result
-                );
-
-            };
-
-
-            reader.readAsDataURL(file);
-
-        }
-    );
-
-    /*
-     * =========================
-     * PROCESS UPLOADED IMAGE
-     * =========================
-     */
-
-    function processUploadedImage(imageData) {
-
-        const image =
-            new Image();
-
-
-        image.onload = function () {
-
-            /*
-            * Target ratio
-            *
-            * 3:2 landscape
-            */
-
-            const targetRatio =
-                3 / 2;
-
-
-            const sourceWidth =
-                image.naturalWidth;
-
-            const sourceHeight =
-                image.naturalHeight;
-
-
-            const sourceRatio =
-                sourceWidth / sourceHeight;
-
-
-            let cropWidth =
-                sourceWidth;
-
-            let cropHeight =
-                sourceHeight;
-
-            let cropX = 0;
-
-            let cropY = 0;
-
-
-            /*
-            * Crop image to 3:2
-            */
-
-            if (sourceRatio > targetRatio) {
-
-                /*
-                * Image is too wide
-                */
-
-                cropWidth =
-                    sourceHeight * targetRatio;
-
-                cropX =
-                    (sourceWidth - cropWidth) / 2;
-
-            } else {
-
-                /*
-                * Image is too tall
-                */
-
-                cropHeight =
-                    sourceWidth / targetRatio;
-
-                cropY =
-                    (sourceHeight - cropHeight) / 2;
-
-            }
-
-
-            /*
-            * Output size
-            */
-
-            const outputWidth =
-                1200;
-
-            const outputHeight =
-                800;
-
-
-            canvas.width =
-                outputWidth;
-
-            canvas.height =
-                outputHeight;
-
-
-            const context =
-                canvas.getContext('2d');
-
-
-            /*
-            * Draw cropped image
-            */
-
-            context.drawImage(
-
-                image,
-
-                cropX,
-                cropY,
-
-                cropWidth,
-                cropHeight,
-
-                0,
-                0,
-
-                outputWidth,
-                outputHeight
-
-            );
-
-
-            /*
-            * Convert to JPEG
-            */
-
-            capturedImageData =
-                canvas.toDataURL(
-                    'image/jpeg',
-                    0.92
-                );
-
-
-            /*
-            * Display uploaded image
-            */
-
-            capturedPhoto.src =
-                capturedImageData;
-
-            capturedPhoto.classList.add(
-                'visible'
-            );
-
-
-            /*
-            * Hide camera
-            */
-
-            video.style.display =
-                'none';
-
-
-            placeholder.classList.add(
-                'hidden'
-            );
-
-
-            /*
-            * Stop camera
-            */
-
-            stopCamera();
-
-
-            /*
-            * Update UI
-            */
-
-            cameraStatus.textContent =
-                'Image uploaded successfully!';
-
-            captureButton.style.display =
-                'none';
-
-            uploadButton.style.display =
-                'none';
-
-            retakeButton.style.display =
-                'inline-flex';
-
-            continueButton.style.display =
-                'inline-flex';
-
-        };
-
-
-        image.src =
-            imageData;
 
     }
 
@@ -2474,11 +2190,6 @@
         let cropY = 0;
 
 
-        /*
-         * Crop the camera image
-         * to exactly 3:2.
-         */
-
         if (sourceRatio > targetRatio) {
 
             cropWidth =
@@ -2497,10 +2208,6 @@
         }
 
 
-        /*
-         * Canvas output
-         */
-
         const outputWidth =
             1200;
 
@@ -2518,11 +2225,6 @@
         const context =
             canvas.getContext('2d');
 
-
-        /*
-         * Mirror the captured photo
-         * so it matches the preview.
-         */
 
         context.save();
 
@@ -2555,20 +2257,12 @@
         context.restore();
 
 
-        /*
-         * Convert to image
-         */
-
         capturedImageData =
             canvas.toDataURL(
                 'image/jpeg',
                 0.92
             );
 
-
-        /*
-         * Display captured photo
-         */
 
         capturedPhoto.src =
             capturedImageData;
@@ -2577,10 +2271,6 @@
             'visible'
         );
 
-
-        /*
-         * Stop camera preview
-         */
 
         stopCamera();
 
@@ -2595,8 +2285,6 @@
         captureButton.style.display =
             'none';
 
-        uploadButton.style.display =
-            'none';
 
         retakeButton.style.display =
             'inline-flex';
@@ -2627,36 +2315,13 @@
             );
 
 
-            /*
-            * Show camera
-            */
-
             video.style.display =
                 'block';
 
 
-            /*
-            * Show capture button and back link
-            */
-
             captureButton.style.display =
                 'inline-flex';
 
-            uploadButton.style.display =
-                'inline-flex';
-
-
-            /*
-            * Clear uploaded file
-            */
-
-            imageUpload.value =
-                '';
-
-
-            /*
-            * Hide result buttons
-            */
 
             retakeButton.style.display =
                 'none';
@@ -2671,11 +2336,6 @@
 
             cameraStatus.textContent =
                 'Starting camera...';
-
-
-            /*
-            * Start camera again
-            */
 
             startCamera();
 

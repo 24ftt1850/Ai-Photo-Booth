@@ -38,10 +38,10 @@ class ConfigurePhotoboothDatabase
             ]);
 
             config(["database.connections.{$connectionName}" => $connectionConfig]);
-        }
 
-        // Important: discard any PDO connection created before this request's settings were applied.
-        DB::purge($connectionName);
+            // Important: discard any PDO connection created before this request's settings were applied.
+            DB::purge($connectionName);
+        }
 
         return $next($request);
     }

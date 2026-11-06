@@ -201,14 +201,14 @@
            GENERATED PHOTO
 
            IMPORTANT:
-           PHOTO REMAINS 2 : 3
+           PHOTO REMAINS 10 : 7 (3R)
         ====================================================== */
 
         .result-frame {
 
             width: 310px;
 
-            aspect-ratio: 3 / 2;
+            aspect-ratio: 10 / 7;
 
             flex-shrink: 0;
 
@@ -1265,7 +1265,7 @@
             height: auto;
             max-height: 78vh;
             min-height: 0;
-            aspect-ratio: 3 / 2;
+            aspect-ratio: 10 / 7;
 
             overflow: hidden;
             border: 2px solid rgba(255,255,255,.92);
@@ -1616,11 +1616,11 @@
             }
 
             .result-frame {
-                width: min(94vw, 600px, (100vh - 100px) * 1.5);
+                width: min(94vw, 600px, (100vh - 100px) * 10 / 7);
                 height: auto;
                 min-height: 0;
                 max-height: none;
-                aspect-ratio: 3 / 2;
+                aspect-ratio: 10 / 7;
             }
 
             .result-frame img {
@@ -1644,7 +1644,7 @@
             .logo { font-size: 20px; }
 
             .result-frame {
-                width: min(90vw, 400px, (100vh - 100px) * 1.5);
+                width: min(90vw, 400px, (100vh - 100px) * 10 / 7);
                 border-radius: 20px;
             }
 
@@ -1783,18 +1783,18 @@
 
 
     /* =====================================================
-       GENERATED PHOTO — 3 : 2 landscape
+       GENERATED PHOTO — 10 : 7 (3R) landscape
     ===================================================== */
 
-    /* Width is the smaller of "85% of the row height at 3:2" and
+    /* Width is the smaller of "85% of the row height at 10:7" and
        "whatever the QR column leaves free", and the height follows
-       from the aspect ratio — so the frame never loses its 3:2
+       from the aspect ratio — so the frame never loses its 10:7
        shape when the page is zoomed and space runs out */
     .result-frame {
         flex: 0 0 auto;
 
         width: min(
-            85cqh * 1.5,
+            85cqh * 10 / 7,
             100cqw - max(min(100cqh - 494px, 400px) + 34px, 480px) - 24px
         ) !important;
 
@@ -1807,7 +1807,7 @@
 
         min-height: 0 !important;
 
-        aspect-ratio: 3 / 2 !important;
+        aspect-ratio: 10 / 7 !important;
 
         border-radius: 24px !important;
 
@@ -2509,6 +2509,93 @@ html.result-intro .result-frame.is-intro-ready {
     }
 }
 
+
+/* =========================================================
+   FEEDBACK — make "Share your thoughts" stand out
+   A solid card with a pulsing blue glow that stops once
+   the guest has picked a rating.
+========================================================= */
+
+.qr-feedback-column .feedback-card {
+    position: relative;
+
+    padding: 20px 22px 18px !important;
+
+    background: rgba(255, 255, 255, .95) !important;
+
+    border: 2px solid #1a8fff !important;
+    border-radius: 24px !important;
+
+    box-shadow:
+        0 14px 34px rgba(0, 60, 160, .30),
+        0 0 0 4px rgba(26, 143, 255, .18) !important;
+
+    text-align: center;
+}
+
+.qr-feedback-column .feedback-card::after {
+    content: '';
+
+    position: absolute;
+    inset: -2px;
+
+    border-radius: inherit;
+
+    pointer-events: none;
+
+    animation: feedbackGlow 1.8s ease-in-out infinite;
+}
+
+.qr-feedback-column .feedback-card:has(.star.selected)::after {
+    animation: none;
+}
+
+.qr-feedback-column .feedback-title {
+    color: #0052c7 !important;
+
+    font-weight: 900 !important;
+
+    letter-spacing: .3px;
+}
+
+.qr-feedback-column .feedback-subtitle {
+    color: #3d5673 !important;
+
+    font-weight: 600;
+}
+
+.qr-feedback-column .star {
+    opacity: .8 !important;
+
+    filter: grayscale(.2) !important;
+}
+
+.qr-feedback-column .star:hover,
+.qr-feedback-column .star.selected {
+    opacity: 1 !important;
+
+    filter: none !important;
+}
+
+@keyframes feedbackGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(26, 143, 255, .55);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(26, 143, 255, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .qr-feedback-column .feedback-card::after {
+        animation: none;
+    }
+}
+
     </style>
 
     <script>
@@ -3082,12 +3169,6 @@ html.result-intro .result-frame.is-intro-ready {
 
         qrCode.innerHTML = '';
 
-
-        /*
-         * Prefer this photo's own QR code image from the server,
-         * which works even when the QR library cannot load.
-         */
-
         if (qrCodeUrl) {
 
             const qrImage =
@@ -3129,9 +3210,8 @@ html.result-intro .result-frame.is-intro-ready {
         try {
 
             /*
-             * Point the QR code at the public, Google Drive-backed
-             * photo page — scanning it opens and downloads only
-             * this guest's own photo.
+             * Point the QR code at the guest's public Google Drive
+             * file — scanning it opens only this guest's own photo.
              */
 
             const imageUrl =
@@ -3398,11 +3478,6 @@ html.result-intro .result-frame.is-intro-ready {
     */
 
     let selectedRating = 0;
-
-    /*
-     * The last rating the server confirmed, so a failed
-     * change can fall back to it instead of clearing it.
-     */
     let savedRating = 0;
 
 
@@ -3427,11 +3502,6 @@ html.result-intro .result-frame.is-intro-ready {
 
     }
 
-
-    /*
-     * The rating can be changed any time: tapping another
-     * emoji highlights it and saves it again.
-     */
     stars.forEach(
         function (star) {
 
@@ -3447,6 +3517,11 @@ html.result-intro .result-frame.is-intro-ready {
 
                     highlightRating(
                         selectedRating
+                    );
+
+
+                    setActionsLocked(
+                        false
                     );
 
 
@@ -3514,8 +3589,10 @@ html.result-intro .result-frame.is-intro-ready {
     | REQUIRE RATING BEFORE PRINT / NEW SESSION
     |--------------------------------------------------------------------------
     | Print Photo and Start New Session stay blocked until the
-    | rating has been submitted. If there is no image id, feedback
-    | can't be saved at all, so don't lock the user out.
+    | guest has tapped an emoji. The rating is saved in the
+    | background, so a slow save never keeps the buttons locked.
+    | If there is no image id, feedback can't be saved at all, so
+    | don't lock the user out.
     */
 
     let feedbackSubmitted = false;
@@ -3526,6 +3603,7 @@ html.result-intro .result-frame.is-intro-ready {
     function requireRating() {
 
         if (
+            selectedRating > 0 ||
             feedbackSubmitted ||
             !generatedImageId
         ) {
@@ -3553,9 +3631,7 @@ html.result-intro .result-frame.is-intro-ready {
 
 
         showRatingPopup(
-            feedbackSubmitting
-                ? 'Saving your feedback, please wait a moment.'
-                : 'Please tap an emoji to rate your photo before printing or starting a new session.'
+            'Please tap an emoji to rate your photo before printing or starting a new session.'
         );
 
         return false;
@@ -3779,6 +3855,12 @@ html.result-intro .result-frame.is-intro-ready {
 
                         method: 'POST',
 
+                        /*
+                         * Keep the save going even if the guest
+                         * taps Start New Session straight away.
+                         */
+                        keepalive: true,
+
                         headers: {
 
                             'Content-Type':
@@ -3846,24 +3928,10 @@ html.result-intro .result-frame.is-intro-ready {
 
 
             /*
-             * Go back to the last saved rating (or none),
-             * unless the guest already picked another one.
+             * Keep the guest's pick and the buttons unlocked so a
+             * failed save never blocks printing or a new session.
+             * Tapping the emoji again retries the save.
              */
-            if (!ratingChangedWhileSaving) {
-
-                selectedRating =
-                    savedRating;
-
-                highlightRating(
-                    savedRating
-                );
-
-            }
-
-
-            alert(
-                'Unable to submit feedback. Please tap an emoji to try again.'
-            );
 
         } finally {
 
