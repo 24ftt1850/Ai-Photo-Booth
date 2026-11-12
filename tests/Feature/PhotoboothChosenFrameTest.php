@@ -44,6 +44,16 @@ beforeEach(function () {
         $table->timestamps();
     });
 
+    Schema::create('theme_reference_images', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('theme_id');
+        $table->string('local_path')->nullable();
+        $table->string('google_drive_file_id')->nullable();
+        $table->integer('sort_order')->default(0);
+        $table->boolean('is_active')->default(true);
+        $table->timestamps();
+    });
+
     Schema::create('booth_settings', function (Blueprint $table) {
         $table->id();
         $table->boolean('guests_can_pick_frame')->default(false);
@@ -189,6 +199,23 @@ test('gemini is asked for a 3:2 landscape image', function () {
     generateWithFrame($this, null)->assertOk();
 
     Http::assertSent(fn ($request) => $request['generationConfig']['imageConfig']['aspectRatio'] === '3:2');
+});
+
+test('gemini only gets the prompt prefix, prompt suffix, guest photo and theme reference images', function () {
+    DB::table('photoshoot_themes')->where('id', 5)->update(['prompt_suffix' => 'Shot on film']);
+    Storage::disk('public')->put('references/galaxy.png', framePng());
+    DB::table('theme_reference_images')->insert([
+        ['theme_id' => 5, 'local_path' => 'references/galaxy.png', 'is_active' => true],
+        ['theme_id' => 5, 'local_path' => 'references/inactive.png', 'is_active' => false],
+    ]);
+
+    generateWithFrame($this, null)->assertOk();
+
+    Http::assertSent(fn ($request) => $request['contents'][0]['parts'] === [
+        ['text' => "A galaxy portrait\n\nShot on film"],
+        ['inline_data' => ['mime_type' => 'image/jpeg', 'data' => base64_encode('guest-photo')]],
+        ['inline_data' => ['mime_type' => 'image/png', 'data' => base64_encode(framePng())]],
+    ]);
 });
 
 test('the frame page is skipped when the admin site fixes the frame automatically', function () {

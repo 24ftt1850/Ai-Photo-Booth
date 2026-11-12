@@ -32,6 +32,16 @@ beforeEach(function () {
         $table->string('status');
     });
 
+    Schema::create('theme_reference_images', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('theme_id');
+        $table->string('local_path')->nullable();
+        $table->string('google_drive_file_id')->nullable();
+        $table->integer('sort_order')->default(0);
+        $table->boolean('is_active')->default(true);
+        $table->timestamps();
+    });
+
     Schema::table('photo_sessions', function (Blueprint $table) {
         $table->foreignId('event_id')->nullable()->change();
         $table->string('session_code')->nullable();

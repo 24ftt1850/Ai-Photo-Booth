@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use stdClass;
 
@@ -155,15 +154,8 @@ class GeminiController extends Controller
 
         $prefix = trim((string) ($theme->prompt_prefix ?? ''));
         $suffix = trim((string) ($theme->prompt_suffix ?? ''));
-        $negativePrompt = trim((string) ($theme->negative_prompt ?? ''));
 
-        $prompt = implode("\n\n", array_filter([
-            $prefix,
-            $suffix,
-            $negativePrompt !== ''
-                ? "NEGATIVE PROMPT — STRICTLY AVOID:\n".$negativePrompt
-                : null,
-        ]));
+        $prompt = implode("\n\n", array_filter([$prefix, $suffix]));
 
         if ($prompt === '') {
             $this->recordFailedGeneration(
@@ -181,38 +173,20 @@ class GeminiController extends Controller
             ], 422);
         }
 
-        $prompt .= "\n\nUse the attached reference images as visual guidance "
-            ."for this theme's styling, clothing, props, colours, and scene. "
-            .'Preserve the identity and facial features of the person in '
-            .'the original uploaded photo. Do not copy the identity of '
-            .'people shown in reference images.';
-
         /*
         |--------------------------------------------------------------------------
-        | Generate AI Image (Gemini or FLUX.2, see AI_PROVIDER)
+        | Generate AI Image With Gemini
         |--------------------------------------------------------------------------
         */
 
-        $referenceImages = config('services.ai.provider') === 'gemini'
-            ? []
-            : $this->loadThemeReferenceImages($theme, $googleDrive);
-
-        $generated = config('services.ai.provider') === 'flux'
-            ? $this->generateWithFlux(
-                $theme,
-                $occasion,
-                $rawPhotoPath,
-                $prompt,
-                $imageData
-            )
-            : $this->generateWithGemini(
-                $theme,
-                $occasion,
-                $rawPhotoPath,
-                $prompt,
-                $imageData,
-                $referenceImages
-            );
+        $generated = $this->generateWithGemini(
+            $theme,
+            $occasion,
+            $rawPhotoPath,
+            $prompt,
+            $imageData,
+            $this->loadThemeReferenceImages($theme, $googleDrive)
+        );
 
         if ($generated instanceof JsonResponse) {
             return $generated;
@@ -1070,148 +1044,6 @@ class GeminiController extends Controller
     }
 
     /**
-     * Restyle the guest's photo with Black Forest Labs' FLUX.2.
-     *
-     * FLUX.2 runs as a job: submit it, poll its polling_url until it
-     * is ready, then download the image from the signed result URL
-     * (valid for 10 minutes). The photo is sent as base64 because
-     * BFL cannot reach the booth to fetch it by URL.
-     *
-     * Returns the generated image as base64, or the error response
-     * to send back to the booth.
-     */
-    private function generateWithFlux(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $imageData): string|JsonResponse
-    {
-        $apiKey = config('services.bfl.api_key');
-
-        if (! $apiKey) {
-
-            $this->recordFailedGeneration($theme, $occasion, $rawPhotoPath, $prompt, 'failed_other', 'The Black Forest Labs API key is not configured on the photobooth.');
-
-            return response()->json([
-                'success' => false,
-                'message' => 'FLUX API key is not configured.',
-            ], 500);
-        }
-
-        $model = config('services.bfl.model', 'flux-2-pro');
-
-        $bfl = fn (int $timeout) => Http::timeout($timeout)
-            ->withHeaders(['x-key' => $apiKey])
-            ->acceptJson();
-
-        try {
-
-            $submission = $bfl(30)->post('https://api.bfl.ai/v1/'.$model, [
-                'prompt' => $prompt,
-                'input_image' => $imageData,
-                'width' => 1728,
-                'height' => 1152,
-                'output_format' => 'png',
-            ]);
-
-            if (! $submission->successful()) {
-                return $this->fluxHttpFailure($theme, $occasion, $rawPhotoPath, $prompt, $model, $submission);
-            }
-
-            /*
-             * Poll about once a second for up to two minutes.
-             */
-            $result = null;
-
-            for ($attempt = 0; $attempt < 120; $attempt++) {
-
-                Sleep::for(1)->second();
-
-                $poll = $bfl(15)->get($submission->json('polling_url'));
-
-                if (! $poll->successful()) {
-                    return $this->fluxHttpFailure($theme, $occasion, $rawPhotoPath, $prompt, $model, $poll);
-                }
-
-                $status = (string) $poll->json('status');
-
-                if ($status === 'Ready') {
-                    $result = $poll;
-
-                    break;
-                }
-
-                if (in_array($status, ['Request Moderated', 'Content Moderated'], true)) {
-                    return $this->fluxFailure($theme, $occasion, $rawPhotoPath, $prompt, 'failed_nsfw', 'FLUX did not return an image ('.$status.').', 'This photo could not be processed. Please try another photo.', 500);
-                }
-
-                if (in_array($status, ['Error', 'Failed', 'Task not found'], true)) {
-                    return $this->fluxFailure($theme, $occasion, $rawPhotoPath, $prompt, 'failed_other', 'FLUX did not return an image ('.$status.').', 'FLUX image generation failed. Please try again.', 500);
-                }
-            }
-
-            if (! $result) {
-                return $this->fluxFailure($theme, $occasion, $rawPhotoPath, $prompt, 'failed_timeout', 'FLUX did not finish the image within two minutes.', 'The AI service took too long to respond. Please try again.', 504);
-            }
-
-            $download = Http::timeout(30)->get($result->json('result.sample'));
-
-            if (! $download->successful() || $download->body() === '') {
-                return $this->fluxFailure($theme, $occasion, $rawPhotoPath, $prompt, 'failed_other', 'The FLUX image could not be downloaded (HTTP '.$download->status().').', 'FLUX image generation failed. Please try again.', 500);
-            }
-
-        } catch (ConnectionException $e) {
-
-            Log::error('RUPAVUE FLUX image generation timed out.', ['model' => $model, 'error' => $e->getMessage()]);
-
-            return $this->fluxFailure($theme, $occasion, $rawPhotoPath, $prompt, 'failed_timeout', 'FLUX did not respond in time: '.$e->getMessage(), 'The AI service took too long to respond. Please try again.', 504);
-        }
-
-        return base64_encode($download->body());
-    }
-
-    /**
-     * Record and report an HTTP error from the BFL API.
-     */
-    private function fluxHttpFailure(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $model, Response $response): JsonResponse
-    {
-        $detail = $response->json('detail') ?? 'no error message';
-
-        Log::error('RUPAVUE FLUX image generation failed.', [
-            'status' => $response->status(),
-            'model' => $model,
-            'error' => $response->json(),
-        ]);
-
-        $userMessage = match ($response->status()) {
-            402 => 'The AI service is out of credits. Please ask a staff member for help.',
-            429 => 'The AI service is too busy right now. Please try again shortly or ask a staff member for help.',
-            400, 401, 403, 422 => 'The AI service rejected the request. Please ask a staff member for help.',
-            default => 'FLUX image generation failed. Please try again.',
-        };
-
-        return $this->fluxFailure(
-            $theme,
-            $occasion,
-            $rawPhotoPath,
-            $prompt,
-            in_array($response->status(), [408, 504], true) ? 'failed_timeout' : 'failed_other',
-            'FLUX returned HTTP '.$response->status().': '.(is_string($detail) ? $detail : json_encode($detail)),
-            $userMessage,
-            500
-        );
-    }
-
-    /**
-     * Save a failed FLUX attempt and build the response for the booth.
-     */
-    private function fluxFailure(Theme $theme, stdClass $occasion, string $rawPhotoPath, string $prompt, string $status, string $reason, string $userMessage, int $httpStatus): JsonResponse
-    {
-        $this->recordFailedGeneration($theme, $occasion, $rawPhotoPath, $prompt, $status, $reason);
-
-        return response()->json([
-            'success' => false,
-            'message' => $userMessage,
-        ], $httpStatus);
-    }
-
-    /**
      * Ask Gemini to restyle the guest's photo with the theme prompt.
      */
     private function requestGeminiImage(
@@ -1231,13 +1063,7 @@ class GeminiController extends Controller
             ],
         ];
 
-        foreach ($referenceImages as $index => $reference) {
-            $parts[] = [
-                'text' => 'Theme reference '.($index + 1)
-                    .'. Use this image as visual guidance for the theme. '
-                    .'Do not copy the identity of people shown in it.',
-            ];
-
+        foreach ($referenceImages as $reference) {
             $parts[] = [
                 'inline_data' => [
                     'mime_type' => $reference['mime_type'],

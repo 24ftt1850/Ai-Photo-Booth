@@ -14,18 +14,6 @@ return [
     |
     */
 
-    /*
-     * Which AI restyles the guest's photo: "gemini" or "flux".
-     */
-    'ai' => [
-        'provider' => env('AI_PROVIDER', 'gemini'),
-    ],
-
-    'bfl' => [
-        'api_key' => env('BFL_API_KEY'),
-        'model' => env('BFL_MODEL', 'flux-2-pro'),
-    ],
-
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-3.1-flash-image'),
