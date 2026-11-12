@@ -68,6 +68,21 @@ test('scene page lets guests swipe the theme track left and right', function () 
         ], false);
 });
 
+test('scene page shows previous and next arrows on the theme carousel', function () {
+    $view = $this->view('photobooth.scene', [
+        'themes' => collect(),
+        'photoFrames' => collect(),
+        'categories' => collect(),
+    ]);
+
+    $view->assertSeeInOrder([
+        'id="previousTheme"',
+        '‹',
+        'id="nextTheme"',
+        '›',
+    ], false);
+});
+
 test('scene page does not show the white selected theme box', function () {
     $html = (string) $this->view('photobooth.scene', ['themes' => collect(), 'photoFrames' => collect()]);
 
@@ -162,6 +177,21 @@ test('camera page requests a landscape stream matching the 3:2 frame so it is no
     expect($html)->toMatch('/getUserMedia\(\{\s*video: \{[^}]*facingMode: \'user\'/')
         ->toMatch('/aspectRatio: \{\s*ideal: 3 \/ 2\s*\}/')
         ->not->toContain('ideal: 2 / 3');
+});
+
+test('camera page lets guests upload an image instead of taking a photo', function () {
+    $html = (string) $this->view('photobooth.create', [
+        'theme' => makeTheme(1, 'Camera Theme', '2026-09-01 12:00:00'),
+        'photoFrames' => collect(),
+    ]);
+
+    expect($html)->not->toContain('<!-- <button')
+        ->toMatch('/<button\s+type="button"\s+class="side-button upload-button"\s+id="uploadButton"\s*>\s*📁 Upload Image/u')
+        ->toMatch('/<input\s+type="file"\s+id="imageUpload"\s+accept="image\/jpeg,image\/png,image\/webp"\s+hidden\s*>/')
+        ->toContain("uploadButton.addEventListener(\n        'click',\n        openImagePicker")
+        ->toContain("imageUpload.addEventListener(\n        'change',\n        handleImageUpload")
+        ->toContain("'Photo uploaded successfully!'")
+        ->toContain('showPhotoReviewControls();');
 });
 
 test('camera page shows rupa character instead of the change theme button', function () {

@@ -2249,7 +2249,7 @@
                 id="previousTheme"
                 aria-label="Previous theme"
             >
-                
+                ‹
             </button>
 
 

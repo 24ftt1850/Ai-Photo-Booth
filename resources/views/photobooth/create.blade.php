@@ -1057,6 +1057,31 @@
             transform: translateY(-3px);
         }
 
+        .upload-button {
+            padding: 34px 18px;
+
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+
+            background: rgba(255, 255, 255, 0.08);
+
+            color: white;
+
+            font-size: 21px;
+        }
+
+        .upload-button:hover {
+            background: white;
+
+            color: #111;
+        }
+
+        .upload-button:disabled {
+            opacity: 0.4;
+
+            cursor: not-allowed;
+        }
+
         /*
          * Rupa floats beside the camera frame,
          * same motion as on the welcome page.
@@ -1731,20 +1756,20 @@
 
             <div class="side-controls-right">
 
-                <!-- <button
+                <button
                     type="button"
                     class="side-button upload-button"
                     id="uploadButton"
                 >
                     📁 Upload Image
-                </button> -->
+                </button>
 
-                <!-- <input
+                <input
                     type="file"
                     id="imageUpload"
                     accept="image/jpeg,image/png,image/webp"
                     hidden
-                > -->
+                >
 
                 <button
                     type="button"
@@ -1835,6 +1860,12 @@
 
     const continueButton =
         document.getElementById('continueButton');
+
+    const uploadButton =
+        document.getElementById('uploadButton');
+
+    const imageUpload =
+        document.getElementById('imageUpload');
 
     const cameraStatus =
         document.getElementById('cameraStatus');
@@ -2025,6 +2056,10 @@
                             ideal: 1280
                         },
 
+                        frameRate: {
+                            ideal: 30
+                        },
+
                         aspectRatio: {
                             ideal: 3 / 2
                         }
@@ -2091,6 +2126,8 @@
 
         captureButton.disabled = true;
 
+        uploadButton.disabled = true;
+
         unlockShutterSound();
 
 
@@ -2137,6 +2174,8 @@
 
 
         countdownRunning = false;
+
+        uploadButton.disabled = false;
 
     }
 
@@ -2282,7 +2321,155 @@
         cameraStatus.textContent =
             'Photo captured successfully!';
 
+        showPhotoReviewControls();
+
+    }
+
+
+    /*
+     * =========================
+     * UPLOAD IMAGE
+     *
+     * Center-crops the chosen file to the
+     * same 3:2, 1200x800 JPEG the camera
+     * produces, so generation treats both
+     * the same. Not mirrored, unlike the
+     * selfie camera.
+     * =========================
+     */
+
+    function openImagePicker() {
+
+        if (countdownRunning) {
+            return;
+        }
+
+        imageUpload.value = '';
+
+        imageUpload.click();
+
+    }
+
+    function handleImageUpload() {
+
+        const file =
+            imageUpload.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+
+            cameraStatus.textContent =
+                'Please choose a JPG, PNG or WEBP image.';
+
+            return;
+        }
+
+        const objectUrl =
+            URL.createObjectURL(file);
+
+        const image =
+            new Image();
+
+        image.onload = function () {
+
+            const targetRatio =
+                3 / 2;
+
+            const sourceRatio =
+                image.naturalWidth / image.naturalHeight;
+
+            let cropWidth =
+                image.naturalWidth;
+
+            let cropHeight =
+                image.naturalHeight;
+
+            let cropX = 0;
+
+            let cropY = 0;
+
+            if (sourceRatio > targetRatio) {
+
+                cropWidth =
+                    image.naturalHeight * targetRatio;
+
+                cropX =
+                    (image.naturalWidth - cropWidth) / 2;
+
+            } else {
+
+                cropHeight =
+                    image.naturalWidth / targetRatio;
+
+                cropY =
+                    (image.naturalHeight - cropHeight) / 2;
+            }
+
+            canvas.width = 1200;
+
+            canvas.height = 800;
+
+            canvas.getContext('2d').drawImage(
+                image,
+
+                cropX,
+                cropY,
+                cropWidth,
+                cropHeight,
+
+                0,
+                0,
+                1200,
+                800
+            );
+
+            URL.revokeObjectURL(objectUrl);
+
+            capturedImageData =
+                canvas.toDataURL(
+                    'image/jpeg',
+                    0.92
+                );
+
+            capturedPhoto.src =
+                capturedImageData;
+
+            capturedPhoto.classList.add(
+                'visible'
+            );
+
+            stopCamera();
+
+            cameraStatus.textContent =
+                'Photo uploaded successfully!';
+
+            showPhotoReviewControls();
+
+        };
+
+        image.onerror = function () {
+
+            URL.revokeObjectURL(objectUrl);
+
+            cameraStatus.textContent =
+                'That image could not be read. Please try another one.';
+
+        };
+
+        image.src = objectUrl;
+
+    }
+
+
+    function showPhotoReviewControls() {
+
         captureButton.style.display =
+            'none';
+
+        uploadButton.style.display =
             'none';
 
 
@@ -2321,6 +2508,9 @@
 
             captureButton.style.display =
                 'inline-flex';
+
+            uploadButton.style.display =
+                '';
 
 
             retakeButton.style.display =
@@ -2452,6 +2642,18 @@
     continueButton.addEventListener(
         'click',
         continueToGeneration
+    );
+
+
+    uploadButton.addEventListener(
+        'click',
+        openImagePicker
+    );
+
+
+    imageUpload.addEventListener(
+        'change',
+        handleImageUpload
     );
 
 
